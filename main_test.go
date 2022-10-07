@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/cucumber/godog"
@@ -15,6 +16,7 @@ type Driver interface{
 	GetAccount(name string)(domain.Account,error)
 	Authenticate(name string)error
 	IsAuthenticated(name string)bool
+	Activate(name string)error
 	CreateProject(name string)error
 	GetProjects(name string)([]domain.Project,error)
 }
@@ -73,7 +75,7 @@ var Activate = struct {
 		if _, err := abilities.app.GetAccount(abilities.name); err != nil{
 			return nil
 		} 
-		return abilities.app.Authenticate(abilities.name)
+		return abilities.app.Activate(abilities.name)
 	},
 }
 
@@ -88,11 +90,13 @@ func signUp(abilities Abilities)error{
 type accountFeature struct {
 	actors map[string]*Actor
 	app Driver
+	lastError error
 }
 
 func(a *accountFeature) reset(){
 	a.actors = make(map[string]*Actor)
 	a.app.ClearAll()
+	a.lastError=nil
 }
 
 func(a *accountFeature) Actor(name string)*Actor{
@@ -131,11 +135,15 @@ func (a *accountFeature) personShouldNotSeeAnyProjects(name string) error {
 	return nil}
 
 func (a *accountFeature) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) error {
-	return godog.ErrPending
+	if !strings.Contains(a.lastError.Error(), "you need to activate your account"){
+		return fmt.Errorf("did not receive expected error message")
+	}
+	return nil
 }
 
 func (a *accountFeature) personTriesToSignIn(name string) error {
-	return godog.ErrPending
+	a.lastError = a.app.Authenticate(name)
+	return nil;	// The step succeeds even if the result is bad
 }
 
 func (a *accountFeature) personCreatesAProject(name string) error {

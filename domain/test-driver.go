@@ -31,12 +31,32 @@ func(d *TestDriver) GetAccount(name string)(Account,error){
 	return *ret, nil
 }
 
-func (d *TestDriver) Authenticate(name string)error{
+func (d *TestDriver) Activate(name string)error{
 	account := d.accounts[name]
 	if account == nil {
 		return fmt.Errorf("Account not found: %s", name)
 	}
 	account.activated=true
+	return nil
+}
+
+func( d *TestDriver) IsActivated(name string)bool{
+	account, err := d.GetAccount(name)
+	if err != nil {
+		return false
+	}
+	return account.activated
+}
+
+func (d *TestDriver) Authenticate(name string)error{
+	account := d.accounts[name]
+	if account == nil {
+		return fmt.Errorf("Account not found: %s", name)
+	}
+	if !account.activated {
+		return fmt.Errorf("%s, you need to activate your account", name)
+	}
+	account.authenticated=true
 	return nil
 }
 
