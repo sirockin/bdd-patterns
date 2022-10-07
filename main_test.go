@@ -121,8 +121,14 @@ func (a *accountFeature) personShouldNotBeAuthenticated(name string) error {
 }
 
 func (a *accountFeature) personShouldNotSeeAnyProjects(name string) error {
-	return godog.ErrPending
-}
+	projects, err := a.app.GetProjects(name)
+	if err != nil {
+		return nil;
+	}
+	if len(projects) != 0 {
+		return fmt.Errorf("Expected exactly 0 projects but got %d", len(projects))
+	}
+	return nil}
 
 func (a *accountFeature) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) error {
 	return godog.ErrPending

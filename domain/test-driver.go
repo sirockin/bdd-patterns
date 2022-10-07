@@ -19,7 +19,7 @@ func (d *TestDriver) ClearAll(){
 }
 
 func( d *TestDriver) CreateAccount(name string)error{
-	d.accounts[name]=Account{}
+	d.accounts[name]=Account{name:name}
 	return nil
 }
 
