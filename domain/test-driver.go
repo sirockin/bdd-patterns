@@ -3,17 +3,19 @@ package domain
 import "fmt"
 
 func NewDriver()*TestDriver{
-	return &TestDriver{
-		accounts: make(map[string]Account),
-	}
+	ret :=  TestDriver{}
+	ret.ClearAll()
+	return &ret
 }
 
 type TestDriver struct{
 	accounts map[string]Account
+	projects map[Account][]Project
 }
 
-func (d *TestDriver) ClearAccounts(){
+func (d *TestDriver) ClearAll(){
 	d.accounts=make(map[string]Account)
+	d.projects=make(map[Account][]Project)
 }
 
 func( d *TestDriver) CreateAccount(name string)error{
@@ -42,5 +44,10 @@ func( d *TestDriver) GetProjects(name string)([]Project,error){
 }
 
 func( d *TestDriver) CreateProject(name string)error{
+	account, err := d.GetAccount(name)
+	if err != nil {
+		return err;
+	}
+	d.projects[account]=append(d.projects[account], Project{})
 	return nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"testing"
 
 	"github.com/cucumber/godog"
 	"github.com/sirockin/cucumber-screenplay-go/domain"
@@ -10,7 +11,7 @@ import (
 
 type Driver interface{
 	CreateAccount(name string)error
-	ClearAccounts()
+	ClearAll()
 	GetAccount(name string)(domain.Account,error)
 	Authenticate(name string)error
 	IsAuthenticated(name string)bool
@@ -91,7 +92,7 @@ type accountFeature struct {
 
 func(a *accountFeature) reset(){
 	a.actors = make(map[string]*Actor)
-	a.app.ClearAccounts()
+	a.app.ClearAll()
 }
 
 func(a *accountFeature) Actor(name string)*Actor{
@@ -156,6 +157,21 @@ func (a *accountFeature) personShouldBeAuthenticated(name string) error {
 	}
 	return nil
 }
+
+func TestFeatures(t *testing.T) {
+	suite := godog.TestSuite{
+	  ScenarioInitializer: InitializeScenario,
+	  Options: &godog.Options{
+		Format:   "pretty",
+		Paths:    []string{"features"},
+		TestingT: t, // Testing instance that will run subtests.
+	  },
+	}
+  
+	if suite.Run() != 0 {
+	  t.Fatal("non-zero status returned, failed to run feature tests")
+	}
+  }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	af := &accountFeature{
