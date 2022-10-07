@@ -40,7 +40,11 @@ func( d *TestDriver) IsAuthenticated(name string)bool{
 }
 
 func( d *TestDriver) GetProjects(name string)([]Project,error){
-	return []Project{}, nil
+	account, err := d.GetAccount(name)
+	if err != nil {
+		return nil, err;
+	}
+	return d.projects[account], nil;
 }
 
 func( d *TestDriver) CreateProject(name string)error{
