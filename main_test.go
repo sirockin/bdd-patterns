@@ -154,7 +154,7 @@ func (a *accountFeature) personShouldSeeTheirProject(name string) error {
 }
 
 func (a *accountFeature) personActivatesTheirAccount(name string) error {
-	return godog.ErrPending
+	return a.Actor(name).attemptsTo(Activate.theirAccount)
 }
 
 func (a *accountFeature) personShouldBeAuthenticated(name string) error {

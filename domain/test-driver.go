@@ -9,17 +9,17 @@ func NewDriver()*TestDriver{
 }
 
 type TestDriver struct{
-	accounts map[string]Account
+	accounts map[string]*Account
 	projects map[Account][]Project
 }
 
 func (d *TestDriver) ClearAll(){
-	d.accounts=make(map[string]Account)
+	d.accounts=make(map[string]*Account)
 	d.projects=make(map[Account][]Project)
 }
 
 func( d *TestDriver) CreateAccount(name string)error{
-	d.accounts[name]=Account{name:name}
+	d.accounts[name]=&Account{name:name}
 	return nil
 }
 
@@ -28,15 +28,24 @@ func(d *TestDriver) GetAccount(name string)(Account,error){
 	if !present {
 		return Account{}, fmt.Errorf("Account not found: %s", name)
 	}
-	return ret, nil
+	return *ret, nil
 }
 
 func (d *TestDriver) Authenticate(name string)error{
+	account := d.accounts[name]
+	if account == nil {
+		return fmt.Errorf("Account not found: %s", name)
+	}
+	account.activated=true
 	return nil
 }
 
 func( d *TestDriver) IsAuthenticated(name string)bool{
-	return false
+	account, err := d.GetAccount(name)
+	if err != nil {
+		return false
+	}
+	return account.activated
 }
 
 func( d *TestDriver) GetProjects(name string)([]Project,error){
