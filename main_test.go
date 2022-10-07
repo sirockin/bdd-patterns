@@ -4,42 +4,54 @@ import (
 	"context"
 
 	"github.com/cucumber/godog"
+	"github.com/sirockin/cucumber-screenplay-go/domain"
 )
 
 type Driver interface{
 	CreateAccount(name string)error
 	ClearAccounts()
+	GetAccount(name string)(domain.Account,error)
+	Authenticate(name string)error
 }
 
+
+// Screenplay objects
 type Abilities struct {
 	name string
 	app Driver
+	attemptsTo func(actions ...Action)error
 }
 
 type Actor struct {
 	abilities Abilities
+	attemptsTo func(actions ...Action)error
 }
 
 type Action func(Abilities)error
 
-func(a *Actor) AttemptsTo(actions ...Action)error{
-	for i:=0; i<len(actions); i++{
-		err := actions[i](a.abilities)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 func NewActor(name string, app Driver)*Actor{
-	return &Actor{
+	ret := &Actor{
 		abilities:Abilities{
 			name: name, 
 			app: app,	
 		},
 	}
+	ret.abilities.attemptsTo=func(actions ...Action)error{
+		for i:=0; i<len(actions); i++{
+			err := actions[i](ret.abilities)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	ret.attemptsTo=ret.abilities.attemptsTo
+	return ret
 }
+
+///////////////////////
+// Actions
 
 var CreateAccount = struct {
 	forThemselves Action
@@ -48,6 +60,24 @@ var CreateAccount = struct {
 		return abilities.app.CreateAccount(abilities.name)
 	},
 }
+
+var Activate = struct {
+	theirAccount Action
+}{
+	theirAccount: func(abilities Abilities)error{
+		if _, err := abilities.app.GetAccount(abilities.name); err != nil{
+			return nil
+		} 
+		return abilities.app.Authenticate(abilities.name)
+	},
+}
+
+func signUp(abilities Abilities)error{
+	return abilities.attemptsTo(
+		CreateAccount.forThemselves,
+		Activate.theirAccount,
+	)
+} 
 
 
 type accountFeature struct {
@@ -67,12 +97,15 @@ func(a *accountFeature) Actor(name string)*Actor{
 	return a.actors[name]	
 }
 
+////////
+// Steps
+
 func (a *accountFeature) personHasCreatedAnAccount(name string) error {
-	return a.Actor(name).AttemptsTo(CreateAccount.forThemselves)
+	return a.Actor(name).attemptsTo(CreateAccount.forThemselves)
 }
 
 func (a *accountFeature) personHasSignedUp(name string) error {
-	return godog.ErrPending
+	return a.Actor(name).attemptsTo(signUp)
 }
 
 func (a *accountFeature) personShouldNotBeAuthenticated(name string) error {
@@ -109,7 +142,7 @@ func (a *accountFeature) personShouldBeAuthenticated(name string) error {
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	af := &accountFeature{
-		app: NewDomainDriver(),
+		app: domain.NewDriver(),
 	}
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {		
