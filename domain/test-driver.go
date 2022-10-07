@@ -2,28 +2,28 @@ package domain
 
 import "fmt"
 
-func NewDriver()*TestDriver{
-	ret :=  TestDriver{}
+func New()*Domain{
+	ret :=  Domain{}
 	ret.ClearAll()
 	return &ret
 }
 
-type TestDriver struct{
+type Domain struct{
 	accounts map[string]*Account
 	projects map[Account][]Project
 }
 
-func (d *TestDriver) ClearAll(){
+func (d *Domain) ClearAll(){
 	d.accounts=make(map[string]*Account)
 	d.projects=make(map[Account][]Project)
 }
 
-func( d *TestDriver) CreateAccount(name string)error{
+func( d *Domain) CreateAccount(name string)error{
 	d.accounts[name]=&Account{name:name}
 	return nil
 }
 
-func(d *TestDriver) GetAccount(name string)(Account,error){
+func(d *Domain) GetAccount(name string)(Account,error){
 	ret, present :=  d.accounts[name]
 	if !present {
 		return Account{}, fmt.Errorf("Account not found: %s", name)
@@ -31,7 +31,7 @@ func(d *TestDriver) GetAccount(name string)(Account,error){
 	return *ret, nil
 }
 
-func (d *TestDriver) Activate(name string)error{
+func (d *Domain) Activate(name string)error{
 	account := d.accounts[name]
 	if account == nil {
 		return fmt.Errorf("Account not found: %s", name)
@@ -40,7 +40,7 @@ func (d *TestDriver) Activate(name string)error{
 	return nil
 }
 
-func( d *TestDriver) IsActivated(name string)bool{
+func( d *Domain) IsActivated(name string)bool{
 	account, err := d.GetAccount(name)
 	if err != nil {
 		return false
@@ -48,7 +48,7 @@ func( d *TestDriver) IsActivated(name string)bool{
 	return account.activated
 }
 
-func (d *TestDriver) Authenticate(name string)error{
+func (d *Domain) Authenticate(name string)error{
 	account := d.accounts[name]
 	if account == nil {
 		return fmt.Errorf("Account not found: %s", name)
@@ -60,7 +60,7 @@ func (d *TestDriver) Authenticate(name string)error{
 	return nil
 }
 
-func( d *TestDriver) IsAuthenticated(name string)bool{
+func( d *Domain) IsAuthenticated(name string)bool{
 	account, err := d.GetAccount(name)
 	if err != nil {
 		return false
@@ -68,7 +68,7 @@ func( d *TestDriver) IsAuthenticated(name string)bool{
 	return account.activated
 }
 
-func( d *TestDriver) GetProjects(name string)([]Project,error){
+func( d *Domain) GetProjects(name string)([]Project,error){
 	account, err := d.GetAccount(name)
 	if err != nil {
 		return nil, err;
@@ -76,7 +76,7 @@ func( d *TestDriver) GetProjects(name string)([]Project,error){
 	return d.projects[account], nil;
 }
 
-func( d *TestDriver) CreateProject(name string)error{
+func( d *Domain) CreateProject(name string)error{
 	account, err := d.GetAccount(name)
 	if err != nil {
 		return err;

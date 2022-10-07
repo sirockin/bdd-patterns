@@ -10,7 +10,7 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/domain"
 )
 
-type Driver interface{
+type Application interface{
 	CreateAccount(name string)error
 	ClearAll()
 	GetAccount(name string)(domain.Account,error)
@@ -25,7 +25,7 @@ type Driver interface{
 // Screenplay objects
 type Abilities struct {
 	name string
-	app Driver
+	app Application
 	attemptsTo func(actions ...Action)error
 }
 
@@ -37,7 +37,7 @@ type Actor struct {
 type Action func(Abilities)error
 
 
-func NewActor(name string, app Driver)*Actor{
+func NewActor(name string, app Application)*Actor{
 	ret := &Actor{
 		abilities:Abilities{
 			name: name, 
@@ -86,10 +86,9 @@ func signUp(abilities Abilities)error{
 	)
 } 
 
-
 type accountFeature struct {
 	actors map[string]*Actor
-	app Driver
+	app Application
 	lastError error
 }
 
@@ -189,7 +188,7 @@ func TestFeatures(t *testing.T) {
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	af := &accountFeature{
-		app: domain.NewDriver(),
+		app: domain.New(),
 	}
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {		
