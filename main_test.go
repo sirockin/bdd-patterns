@@ -4,65 +4,55 @@ import (
 	"github.com/cucumber/godog"
 )
 
-func bobHasCreatedAnAccount() error {
+func personHasCreatedAnAccount(name string) error {
 	return godog.ErrPending
 }
 
-func bobHasSignedUp() error {
+func personHasSignedUp(name string) error {
 	return godog.ErrPending
 }
 
-func bobShouldNotBeAuthenticated() error {
+func personShouldNotBeAuthenticated(name string) error {
 	return godog.ErrPending
 }
 
-func bobShouldNotSeeAnyProjects() error {
+func personShouldNotSeeAnyProjects(name string) error {
 	return godog.ErrPending
 }
 
-func bobShouldSeeAnErrorTellingHimToActivateTheAccount() error {
+func personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) error {
 	return godog.ErrPending
 }
 
-func bobTriesToSignIn() error {
+func personTriesToSignIn(name string) error {
 	return godog.ErrPending
 }
 
-func sueCreatesAProject() error {
+func personCreatesAProject(name string) error {
 	return godog.ErrPending
 }
 
-func sueHasSignedUp() error {
+func personShouldSeeTheirProject(name string) error {
 	return godog.ErrPending
 }
 
-func sueShouldSeeTheProject() error {
+func personActivatesTheirAccount(name string) error {
 	return godog.ErrPending
 }
 
-func tanyaActivatesHerAccount() error {
-	return godog.ErrPending
-}
-
-func tanyaHasCreatedAnAccount() error {
-	return godog.ErrPending
-}
-
-func tanyaShouldBeAuthenticated() error {
+func personShouldBeAuthenticated(name string) error {
 	return godog.ErrPending
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	ctx.Step(`^Bob has created an account$`, bobHasCreatedAnAccount)
-	ctx.Step(`^Bob has signed up$`, bobHasSignedUp)
-	ctx.Step(`^Bob should not be authenticated$`, bobShouldNotBeAuthenticated)
-	ctx.Step(`^Bob should not see any projects$`, bobShouldNotSeeAnyProjects)
-	ctx.Step(`^Bob should see an error telling him to activate the account$`, bobShouldSeeAnErrorTellingHimToActivateTheAccount)
-	ctx.Step(`^Bob tries to sign in$`, bobTriesToSignIn)
-	ctx.Step(`^Sue creates a project$`, sueCreatesAProject)
-	ctx.Step(`^Sue has signed up$`, sueHasSignedUp)
-	ctx.Step(`^Sue should see the project$`, sueShouldSeeTheProject)
-	ctx.Step(`^Tanya activates her account$`, tanyaActivatesHerAccount)
-	ctx.Step(`^Tanya has created an account$`, tanyaHasCreatedAnAccount)
-	ctx.Step(`^Tanya should be authenticated$`, tanyaShouldBeAuthenticated)
+	ctx.Step(`^(Bob|Tanya|Sue) has created an account$`, personHasCreatedAnAccount)
+	ctx.Step(`^(Bob|Tanya|Sue) has signed up$`, personHasSignedUp)
+	ctx.Step(`^(Bob|Tanya|Sue) should not be authenticated$`, personShouldNotBeAuthenticated)
+	ctx.Step(`^(Bob|Tanya|Sue) should not see any projects$`, personShouldNotSeeAnyProjects)
+	ctx.Step(`^(Bob|Tanya|Sue) should see an error telling (him|her|them) to activate the account$`, personShouldSeeAnErrorTellingThemToActivateTheAccount)
+	ctx.Step(`^(Bob|Tanya|Sue) tries to sign in$`, personTriesToSignIn)
+	ctx.Step(`^(Bob|Tanya|Sue) creates a project$`, personCreatesAProject)
+	ctx.Step(`^(Bob|Tanya|Sue) should see (his|her|the) project$`, personShouldSeeTheirProject)
+	ctx.Step(`^(Bob|Tanya|Sue) activates (his|her) account$`, personActivatesTheirAccount)
+	ctx.Step(`^(Bob|Tanya|Sue) should be authenticated$`, personShouldBeAuthenticated)
 }
