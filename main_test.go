@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/cucumber/godog"
 	"github.com/sirockin/cucumber-screenplay-go/domain"
@@ -12,6 +13,9 @@ type Driver interface{
 	ClearAccounts()
 	GetAccount(name string)(domain.Account,error)
 	Authenticate(name string)error
+	IsAuthenticated(name string)bool
+	CreateProject(name string)error
+	GetProjects(name string)([]domain.Project,error)
 }
 
 
@@ -109,7 +113,10 @@ func (a *accountFeature) personHasSignedUp(name string) error {
 }
 
 func (a *accountFeature) personShouldNotBeAuthenticated(name string) error {
-	return godog.ErrPending
+	if a.app.IsAuthenticated(name){
+		return fmt.Errorf("Expected %s not to be authenticated", name)
+	}
+	return nil
 }
 
 func (a *accountFeature) personShouldNotSeeAnyProjects(name string) error {
@@ -125,11 +132,18 @@ func (a *accountFeature) personTriesToSignIn(name string) error {
 }
 
 func (a *accountFeature) personCreatesAProject(name string) error {
-	return godog.ErrPending
+	return a.app.CreateProject(name)
 }
 
 func (a *accountFeature) personShouldSeeTheirProject(name string) error {
-	return godog.ErrPending
+	projects, err := a.app.GetProjects(name)
+	if err != nil {
+		return err;
+	}
+	if len(projects) != 1 {
+		return fmt.Errorf("Expected exactly 1 project but got %d", len(projects))
+	}
+	return nil
 }
 
 func (a *accountFeature) personActivatesTheirAccount(name string) error {
@@ -137,7 +151,10 @@ func (a *accountFeature) personActivatesTheirAccount(name string) error {
 }
 
 func (a *accountFeature) personShouldBeAuthenticated(name string) error {
-	return godog.ErrPending
+	if !a.app.IsAuthenticated(name){
+		return fmt.Errorf("Expected %s to be authenticated", name)
+	}
+	return nil
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {

@@ -32,3 +32,15 @@ func(d *TestDriver) GetAccount(name string)(Account,error){
 func (d *TestDriver) Authenticate(name string)error{
 	return nil
 }
+
+func( d *TestDriver) IsAuthenticated(name string)bool{
+	return false
+}
+
+func( d *TestDriver) GetProjects(name string)([]Project,error){
+	return []Project{}, nil
+}
+
+func( d *TestDriver) CreateProject(name string)error{
+	return nil
+}
