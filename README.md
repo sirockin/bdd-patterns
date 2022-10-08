@@ -12,6 +12,7 @@ There are some differences in structure:
 - `godog` does not support cucumber parameter syntax so regular expressions are used for these
 - `go` does not support arrow functions so the implementation of actions tasks etc uses standard functions
 - the implementation code is placed in a `domain` folder and package, and accessed via an `Application` interface as a first step to providing a driver-based solution
+- We now inject the application into the test suite via the go TestFeatures() function so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godocg run` but instead should be run from `go test`
 
 To do:
 - Try providing an http/gprc implementation then separating application/domain to allow the same scenarios and specs to be used for the domain and implementation as per [go-specs-greet](https://github.com/quii/go-specs-greet)

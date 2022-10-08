@@ -132,9 +132,33 @@ func (a *accountFeature) personActivatesTheirAccount(name string) error {
 	return a.Actor(name).attemptsTo(Activate.theirAccount)
 }
 
-func TestFeatures(t *testing.T) {
+func TestFeatures(t *testing.T){
+	testFeatures(t, domain.New())
+}
+
+func testFeatures(t *testing.T, app Application) {
 	suite := godog.TestSuite{
-	  ScenarioInitializer: InitializeScenario,
+	  ScenarioInitializer: func (ctx *godog.ScenarioContext) {
+		af := &accountFeature{
+			app: app,
+		}
+	
+		ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {		
+			af.reset()
+			return ctx, nil
+		})
+	
+		ctx.Step(`^(Bob|Tanya|Sue) has created an account$`, af.personHasCreatedAnAccount)
+		ctx.Step(`^(Bob|Tanya|Sue) has signed up$`, af.personHasSignedUp)
+		ctx.Step(`^(Bob|Tanya|Sue) should not be authenticated$`, af.personShouldNotBeAuthenticated)
+		ctx.Step(`^(Bob|Tanya|Sue) should not see any projects$`, af.personShouldNotSeeAnyProjects)
+		ctx.Step(`^(Bob|Tanya|Sue) should see an error telling (him|her|them) to activate the account$`, af.personShouldSeeAnErrorTellingThemToActivateTheAccount)
+		ctx.Step(`^(Bob|Tanya|Sue) tries to sign in$`, af.personTriesToSignIn)
+		ctx.Step(`^(Bob|Tanya|Sue) creates a project$`, af.personCreatesAProject)
+		ctx.Step(`^(Bob|Tanya|Sue) should see (his|her|the) project$`, af.personShouldSeeTheirProject)
+		ctx.Step(`^(Bob|Tanya|Sue) activates (his|her) account$`, af.personActivatesTheirAccount)
+		ctx.Step(`^(Bob|Tanya|Sue) should be authenticated$`, af.personShouldBeAuthenticated)
+	},
 	  Options: &godog.Options{
 		Format:   "pretty",
 		Paths:    []string{"features"},
@@ -147,24 +171,4 @@ func TestFeatures(t *testing.T) {
 	}
   }
 
-func InitializeScenario(ctx *godog.ScenarioContext) {
-	af := &accountFeature{
-		app: domain.New(),
-	}
 
-	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {		
-		af.reset()
-		return ctx, nil
-	})
-
-	ctx.Step(`^(Bob|Tanya|Sue) has created an account$`, af.personHasCreatedAnAccount)
-	ctx.Step(`^(Bob|Tanya|Sue) has signed up$`, af.personHasSignedUp)
-	ctx.Step(`^(Bob|Tanya|Sue) should not be authenticated$`, af.personShouldNotBeAuthenticated)
-	ctx.Step(`^(Bob|Tanya|Sue) should not see any projects$`, af.personShouldNotSeeAnyProjects)
-	ctx.Step(`^(Bob|Tanya|Sue) should see an error telling (him|her|them) to activate the account$`, af.personShouldSeeAnErrorTellingThemToActivateTheAccount)
-	ctx.Step(`^(Bob|Tanya|Sue) tries to sign in$`, af.personTriesToSignIn)
-	ctx.Step(`^(Bob|Tanya|Sue) creates a project$`, af.personCreatesAProject)
-	ctx.Step(`^(Bob|Tanya|Sue) should see (his|her|the) project$`, af.personShouldSeeTheirProject)
-	ctx.Step(`^(Bob|Tanya|Sue) activates (his|her) account$`, af.personActivatesTheirAccount)
-	ctx.Step(`^(Bob|Tanya|Sue) should be authenticated$`, af.personShouldBeAuthenticated)
-}
