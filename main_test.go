@@ -10,6 +10,7 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/domain"
 )
 
+// Application is our interface to the system under test
 type Application interface{
 	CreateAccount(name string)error
 	ClearAll()
@@ -26,13 +27,26 @@ type Application interface{
 type Abilities struct {
 	name string
 	app Application
-	attemptsTo func(actions ...Action)error
 	lastError error
+}
+
+func (a* Abilities)attemptsTo(actions ...Action)error{
+	for i:=0; i<len(actions); i++{
+		err := actions[i](*a)
+		if err != nil {
+			a.lastError=err
+			return err
+		}
+	}
+	return nil
 }
 
 type Actor struct {
 	abilities Abilities
-	attemptsTo func(actions ...Action)error
+}
+
+func(a* Actor)attemptsTo(actions...Action)error{
+	return a.abilities.attemptsTo(actions...)
 }
 
 func (a* Actor) expectsAnswer(question Question, expected interface{})error{
@@ -57,7 +71,6 @@ func( a* Actor) expectsLastErrorToContain(expectedText string)error{
 
 }
 
-
 type Action func(Abilities)error
 type Question func(Abilities)(interface{}, error)
 
@@ -69,17 +82,6 @@ func NewActor(name string, app Application)*Actor{
 			app: app,	
 		},
 	}
-	ret.abilities.attemptsTo=func(actions ...Action)error{
-		for i:=0; i<len(actions); i++{
-			err := actions[i](ret.abilities)
-			if err != nil {
-				ret.abilities.lastError=err
-				return err
-			}
-		}
-		return nil
-	}
-	ret.attemptsTo=ret.abilities.attemptsTo
 	return ret
 }
 
