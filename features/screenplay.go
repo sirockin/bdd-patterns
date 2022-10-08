@@ -1,14 +1,13 @@
-package main_test
+package features
 
 import (
 	"fmt"
 	"strings"
 )
 
-// Screenplay objects
 type Abilities struct {
 	name string
-	app Application
+	app ApplicationDriver
 	lastError error
 }
 
@@ -37,17 +36,17 @@ func (a* Actor) expectsAnswer(question Question, expected interface{})error{
 		return nil
 	}
 	if result != expected {
-		return fmt.Errorf("Expected %v to equal %v", result, expected)
+		return fmt.Errorf("expected %v to equal %v", result, expected)
 	}
 	return nil
 }
 
 func( a* Actor) expectsLastErrorToContain(expectedText string)error{
 	if a.abilities.lastError == nil {
-		return fmt.Errorf("Expected error containing text '%s' but there is no error", expectedText)
+		return fmt.Errorf("expected error containing text '%s' but there is no error", expectedText)
 	}
 	if !strings.Contains(a.abilities.lastError.Error(), expectedText){
-		return fmt.Errorf("Expected error text containing '%s' but got %s", expectedText, a.abilities.lastError.Error())
+		return fmt.Errorf("expected error text containing '%s' but got %s", expectedText, a.abilities.lastError.Error())
 	}
 	return nil
 
@@ -57,7 +56,7 @@ type Action func(Abilities)error
 type Question func(Abilities)(interface{}, error)
 
 
-func NewActor(name string, app Application)*Actor{
+func NewActor(name string, app ApplicationDriver)*Actor{
 	ret := &Actor{
 		abilities:Abilities{
 			name: name, 
