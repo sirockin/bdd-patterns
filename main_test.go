@@ -34,7 +34,20 @@ type Actor struct {
 	attemptsTo func(actions ...Action)error
 }
 
+func (a* Actor) expectsAnswer(question Question, expected interface{})error{
+	result, err := question(a.abilities)
+	if err != nil {
+		return nil
+	}
+	if result != expected {
+		return fmt.Errorf("Expected %v to equal %v", result, expected)
+	}
+	return nil
+}
+
+
 type Action func(Abilities)error
+type Question func(Abilities)(interface{}, error)
 
 
 func NewActor(name string, app Application)*Actor{
@@ -86,6 +99,12 @@ func signUp(abilities Abilities)error{
 	)
 } 
 
+// Questions
+
+func amIAuthenticated(abilities Abilities)(interface{},error){
+	return abilities.app.IsAuthenticated(abilities.name), nil
+}
+
 type accountFeature struct {
 	actors map[string]*Actor
 	app Application
@@ -117,10 +136,7 @@ func (a *accountFeature) personHasSignedUp(name string) error {
 }
 
 func (a *accountFeature) personShouldNotBeAuthenticated(name string) error {
-	if a.app.IsAuthenticated(name){
-		return fmt.Errorf("Expected %s not to be authenticated", name)
-	}
-	return nil
+	return a.Actor(name).expectsAnswer(amIAuthenticated,false)
 }
 
 func (a *accountFeature) personShouldNotSeeAnyProjects(name string) error {
