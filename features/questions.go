@@ -1,6 +1,5 @@
 package features
 
-// Questions
 func amIAuthenticated(abilities Abilities)(interface{},error){
 	return abilities.app.IsAuthenticated(abilities.name), nil
 }

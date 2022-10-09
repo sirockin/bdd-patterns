@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+type Action func(Abilities)error
+type Question func(Abilities)(interface{}, error)
+
 type Abilities struct {
 	name string
 	app ApplicationDriver
@@ -24,6 +27,16 @@ func (a* Abilities)attemptsTo(actions ...Action)error{
 
 type Actor struct {
 	abilities Abilities
+}
+
+func NewActor(name string, app ApplicationDriver)*Actor{
+	ret := &Actor{
+		abilities:Abilities{
+			name: name, 
+			app: app,	
+		},
+	}
+	return ret
 }
 
 func(a* Actor)attemptsTo(actions...Action)error{
@@ -50,19 +63,5 @@ func( a* Actor) expectsLastErrorToContain(expectedText string)error{
 	}
 	return nil
 
-}
-
-type Action func(Abilities)error
-type Question func(Abilities)(interface{}, error)
-
-
-func NewActor(name string, app ApplicationDriver)*Actor{
-	ret := &Actor{
-		abilities:Abilities{
-			name: name, 
-			app: app,	
-		},
-	}
-	return ret
 }
 
