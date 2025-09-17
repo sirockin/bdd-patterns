@@ -1,6 +1,10 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/sirockin/cucumber-screenplay-go/domain"
+)
 
 func New()*Domain{
 	ret :=  Domain{}
@@ -9,24 +13,24 @@ func New()*Domain{
 }
 
 type Domain struct{
-	accounts map[string]*Account
-	projects map[Account][]Project
+	accounts map[string]*domain.Account
+	projects map[domain.Account][]domain.Project
 }
 
 func (d *Domain) ClearAll(){
-	d.accounts=make(map[string]*Account)
-	d.projects=make(map[Account][]Project)
+	d.accounts=make(map[string]*domain.Account)
+	d.projects=make(map[domain.Account][]domain.Project)
 }
 
 func( d *Domain) CreateAccount(name string)error{
-	d.accounts[name]=&Account{name:name}
+	d.accounts[name]=domain.NewAccount(name)
 	return nil
 }
 
-func(d *Domain) GetAccount(name string)(Account,error){
+func(d *Domain) GetAccount(name string)(domain.Account,error){
 	ret, present :=  d.accounts[name]
 	if !present {
-		return Account{}, fmt.Errorf("Account not found: %s", name)
+		return domain.Account{}, fmt.Errorf("Account not found: %s", name)
 	}
 	return *ret, nil
 }
@@ -36,7 +40,8 @@ func (d *Domain) Activate(name string)error{
 	if account == nil {
 		return fmt.Errorf("Account not found: %s", name)
 	}
-	account.activated=true
+	account.SetActivated(true)
+	account.SetAuthenticated(true)  // Activation also authenticates the user
 	return nil
 }
 
@@ -45,7 +50,7 @@ func( d *Domain) IsActivated(name string)bool{
 	if err != nil {
 		return false
 	}
-	return account.activated
+	return account.IsActivated()
 }
 
 func (d *Domain) Authenticate(name string)error{
@@ -53,10 +58,10 @@ func (d *Domain) Authenticate(name string)error{
 	if account == nil {
 		return fmt.Errorf("Account not found: %s", name)
 	}
-	if !account.activated {
+	if !account.IsActivated() {
 		return fmt.Errorf("%s, you need to activate your account", name)
 	}
-	account.authenticated=true
+	account.SetAuthenticated(true)
 	return nil
 }
 
@@ -65,10 +70,10 @@ func( d *Domain) IsAuthenticated(name string)bool{
 	if err != nil {
 		return false
 	}
-	return account.activated
+	return account.IsAuthenticated()
 }
 
-func( d *Domain) GetProjects(name string)([]Project,error){
+func( d *Domain) GetProjects(name string)([]domain.Project,error){
 	account, err := d.GetAccount(name)
 	if err != nil {
 		return nil, err;
@@ -81,6 +86,6 @@ func( d *Domain) CreateProject(name string)error{
 	if err != nil {
 		return err;
 	}
-	d.projects[account]=append(d.projects[account], Project{})
+	d.projects[account]=append(d.projects[account], domain.Project{})
 	return nil
 }

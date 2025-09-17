@@ -1,4 +1,4 @@
-package features
+package driver
 
 import (
 	"github.com/sirockin/cucumber-screenplay-go/domain"

@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
+	"github.com/sirockin/cucumber-screenplay-go/features/driver"
 )
 
 type suite struct {
 	actors map[string]*Actor
-	driver ApplicationDriver
+	driver driver.ApplicationDriver
 }
 
 func(s *suite) reset(){
@@ -24,7 +25,7 @@ func(s *suite) Actor(name string)*Actor{
 	return s.actors[name]	
 }
 
-func Test(t *testing.T, driver ApplicationDriver, featurePaths []string) {
+func Test(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
 	// TODO: Try to get rid of need to pass in path to features
 	suite := godog.TestSuite{
 	  ScenarioInitializer: func (ctx *godog.ScenarioContext) {
