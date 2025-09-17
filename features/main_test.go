@@ -1,9 +1,14 @@
 package features_test
 
 import (
+	"fmt"
+	"net"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/sirockin/cucumber-screenplay-go/features"
+	"github.com/sirockin/cucumber-screenplay-go/features/driver"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver/domain"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/http"
 )
@@ -13,13 +18,51 @@ func TestDomainFeatures(t *testing.T){
 }
 
 func TestHTTPFeatures(t *testing.T){
-	// Note: This test requires an HTTP server implementing the API to be running on localhost:8080
-	// In a real scenario, you would either:
-	// 1. Start a test server programmatically
-	// 2. Use docker-compose or similar for integration tests
-	// 3. Skip this test if server is not available
-	t.Skip("HTTP API server not running - implement server first or run manually")
+	// Start test server and get its URL
+	serverURL, cleanup := startTestServer(t, domain.New())
+	defer cleanup()
 
-	httpClient := httpdriver.New("http://localhost:8080")
+	// Create HTTP client pointing to our test server
+	httpClient := httpdriver.New(serverURL)
+
+	// Run the same BDD tests against the HTTP API
 	features.Test(t, httpClient, []string{"."})
+}
+
+// startTestServer starts an HTTP server wrapping the given ApplicationDriver
+// and returns the server URL and a cleanup function
+func startTestServer(t *testing.T, app driver.ApplicationDriver) (string, func()) {
+	// Create HTTP server wrapping the application
+	server := httpdriver.NewServer(app)
+
+	// Find an available port
+	listener, err := net.Listen("tcp", ":0")
+	if err != nil {
+		t.Fatalf("Failed to find available port: %v", err)
+	}
+	port := listener.Addr().(*net.TCPAddr).Port
+	listener.Close()
+
+	// Start the HTTP server in a goroutine
+	httpServer := &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: server,
+	}
+
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			t.Errorf("HTTP server failed: %v", err)
+		}
+	}()
+
+	// Wait a moment for server to start
+	time.Sleep(100 * time.Millisecond)
+
+	// Return server URL and cleanup function
+	serverURL := fmt.Sprintf("http://localhost:%d", port)
+	cleanup := func() {
+		httpServer.Close()
+	}
+
+	return serverURL, cleanup
 }
