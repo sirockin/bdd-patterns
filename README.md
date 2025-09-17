@@ -30,4 +30,4 @@ There are some differences in structure:
    - feature test code has been placed in the `features` folder and split into several files
 
 ## To Do
-- Provide an http/grpc implementation with ApplicationDriver and testing using the same scenarios and specs to be used for the domain and implementation as per [go-specs-greet](https://github.com/quii/go-specs-greet)
+- Provide agrpc implementation and test with a new ApplicationDriver
