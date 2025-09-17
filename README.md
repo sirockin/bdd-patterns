@@ -1,6 +1,17 @@
 ## cucumber-screenplay-go
 
+## Overview
+
 A port of the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) to `go`, using the official [godog](https://github.com/cucumber/godog/) library.
+
+## Run Tests
+
+```sh
+go test -v ./domain
+```
+
+
+## Test Details
 
 The code replicates that of the original javascript project and completes the use of Actor objects to implement each step. Like the original code it:
 - Uses Actors with Abilities, and Actions which can be grouped to represent Tasks
@@ -18,5 +29,5 @@ There are some differences in structure:
    - We now inject the application into the test suite via the go TestFeatures() function so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godog run` but instead should be run from `go test`
    - feature test code has been placed in the `features` folder and split into several files
 
-To do:
-- Try providing an http/grpc implementation with ApplicationDriver and testing using the same scenarios and specs to be used for the domain and implementation as per [go-specs-greet](https://github.com/quii/go-specs-greet)
+## To Do
+- Provide an http/grpc implementation with ApplicationDriver and testing using the same scenarios and specs to be used for the domain and implementation as per [go-specs-greet](https://github.com/quii/go-specs-greet)
