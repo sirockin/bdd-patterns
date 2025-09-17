@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Cucumber Screenplay Application API
+  description: REST API wrapper for the domain implementation accessible via ApplicationDriver interface
+  version: 1.0.0
+  contact:
+    name: API Support
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /accounts:
+    post:
+      summary: Create a new account
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Account name
+                  example: "john_doe"
+      responses:
+        '201':
+          description: Account created successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /accounts/{name}:
+    get:
+      summary: Get account details
+      operationId: getAccount
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /accounts/{name}/activate:
+    post:
+      summary: Activate an account
+      operationId: activateAccount
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '200':
+          description: Account activated successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /accounts/{name}/authenticate:
+    post:
+      summary: Authenticate an account
+      operationId: authenticateAccount
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '200':
+          description: Account authenticated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                    example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /accounts/{name}/authentication-status:
+    get:
+      summary: Check if account is authenticated
+      operationId: isAuthenticated
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '200':
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                    example: true
+
+  /accounts/{name}/projects:
+    get:
+      summary: Get projects for an account
+      operationId: getProjects
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a project for an account
+      operationId: createProject
+      parameters:
+        - $ref: '#/components/parameters/AccountName'
+      responses:
+        '201':
+          description: Project created successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /clear:
+    delete:
+      summary: Clear all data (test utility)
+      operationId: clearAll
+      responses:
+        '204':
+          description: All data cleared successfully
+
+components:
+  parameters:
+    AccountName:
+      name: name
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Account name
+      example: "john_doe"
+
+  schemas:
+    Account:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Account name
+          example: "john_doe"
+        activated:
+          type: boolean
+          description: Whether the account is activated
+          example: true
+        authenticated:
+          type: boolean
+          description: Whether the account is authenticated
+          example: false
+      required:
+        - name
+        - activated
+        - authenticated
+
+    Project:
+      type: object
+      description: Project object (currently minimal)
+      properties:
+        id:
+          type: string
+          description: Project identifier
+          example: "project-123"
+      additionalProperties: true
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Account not found: john_doe"
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
