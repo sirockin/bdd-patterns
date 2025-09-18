@@ -118,7 +118,7 @@ func (h *HTTPClient) Authenticate(name string) error {
 			Error string `json:"error"`
 		}
 		json.Unmarshal(body, &errorResp)
-		return fmt.Errorf(errorResp.Error)
+		return fmt.Errorf("%s", errorResp.Error)
 	}
 
 	if resp.StatusCode != http.StatusOK {
