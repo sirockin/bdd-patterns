@@ -1,6 +1,6 @@
 module github.com/sirockin/cucumber-screenplay-go
 
-go 1.23.0
+go 1.24.0
 
 require github.com/cucumber/godog v0.12.5
 
@@ -63,5 +63,9 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/tools v0.20.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+exclude google.golang.org/genproto v0.0.0-20191108220845-16a3f7862a1a
