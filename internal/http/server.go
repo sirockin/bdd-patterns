@@ -131,7 +131,7 @@ func (s *Server) createAccount(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *Server) getAccount(w http.ResponseWriter, r *http.Request, name string) {
+func (s *Server) getAccount(w http.ResponseWriter, _ *http.Request, name string) {
 	account, err := s.domain.GetAccount(name)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
@@ -153,7 +153,7 @@ func (s *Server) getAccount(w http.ResponseWriter, r *http.Request, name string)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (s *Server) activateAccount(w http.ResponseWriter, r *http.Request, name string) {
@@ -188,7 +188,7 @@ func (s *Server) authenticateAccount(w http.ResponseWriter, r *http.Request, nam
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request, name string) {
@@ -201,7 +201,7 @@ func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string) {
@@ -216,7 +216,7 @@ func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(projects)
+	_ = json.NewEncoder(w).Encode(projects)
 }
 
 func (s *Server) createProject(w http.ResponseWriter, r *http.Request, name string) {
@@ -247,5 +247,5 @@ func (s *Server) writeError(w http.ResponseWriter, message string, statusCode in
 		Error: message,
 	}
 
-	json.NewEncoder(w).Encode(errorResponse)
+	_ = json.NewEncoder(w).Encode(errorResponse)
 }

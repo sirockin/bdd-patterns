@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
@@ -33,7 +34,14 @@ func main() {
 	log.Printf("  POST   /accounts/{name}/projects")
 	log.Printf("  DELETE /clear")
 
-	if err := http.ListenAndServe(addr, httpServer); err != nil {
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      httpServer,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

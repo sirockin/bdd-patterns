@@ -29,7 +29,7 @@ func (s *suite) personShouldSeeAnErrorTellingThemToActivateTheAccount(name strin
 }
 
 func (s *suite) personTriesToSignIn(name string) error {
-	s.Actor(name).attemptsTo(signIn)
+	_ = s.Actor(name).attemptsTo(signIn)
 	return nil // The step succeeds even if the result is bad to allow the next step to check the error
 }
 
