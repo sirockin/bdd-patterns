@@ -227,4 +227,3 @@ func (h *HTTPClient) GetProjects(name string) ([]domain.Project, error) {
 
 	return projects, nil
 }
-

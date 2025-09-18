@@ -3,7 +3,7 @@ package features
 var CreateAccount = struct {
 	forThemselves Action
 }{
-	forThemselves: func(abilities Abilities)error{
+	forThemselves: func(abilities Abilities) error {
 		return abilities.app.CreateAccount(abilities.name)
 	},
 }
@@ -11,25 +11,25 @@ var CreateAccount = struct {
 var Activate = struct {
 	theirAccount Action
 }{
-	theirAccount: func(abilities Abilities)error{
-		if _, err := abilities.app.GetAccount(abilities.name); err != nil{
+	theirAccount: func(abilities Abilities) error {
+		if _, err := abilities.app.GetAccount(abilities.name); err != nil {
 			return nil
-		} 
+		}
 		return abilities.app.Activate(abilities.name)
 	},
 }
 
-func signUp(abilities Abilities)error{
+func signUp(abilities Abilities) error {
 	return abilities.attemptsTo(
 		CreateAccount.forThemselves,
 		Activate.theirAccount,
 	)
-} 
+}
 
-func signIn(abilities Abilities)error{
+func signIn(abilities Abilities) error {
 	return abilities.app.Authenticate(abilities.name)
 }
 
-func createProject(abilities Abilities)error{
+func createProject(abilities Abilities) error {
 	return abilities.app.CreateProject(abilities.name)
 }

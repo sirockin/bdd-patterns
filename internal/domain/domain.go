@@ -2,9 +2,7 @@ package domain
 
 import "fmt"
 
-
-type Project struct{
-
+type Project struct {
 }
 
 // Domain provides business operations for the domain

@@ -1,15 +1,15 @@
 package domain
 
-type Account struct{
-	name string
-	activated bool
+type Account struct {
+	name          string
+	activated     bool
 	authenticated bool
 }
 
 func NewAccount(name string) *Account {
 	return &Account{
-		name: name,
-		activated: false,
+		name:          name,
+		activated:     false,
 		authenticated: false,
 	}
 }
