@@ -3,7 +3,7 @@ package domain
 import (
 	"fmt"
 
-	"github.com/sirockin/cucumber-screenplay-go/domain"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 )
 
 func New()*Domain{

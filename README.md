@@ -30,4 +30,4 @@ There are some differences in structure:
    - feature test code has been placed in the `features` folder and split into several files
 
 ## To Do
-- Provide agrpc implementation and test with a new ApplicationDriver
+- Provide a GRPC implementation and test with a new ApplicationDriver

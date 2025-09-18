@@ -28,6 +28,7 @@ func TestDomain(t *testing.T) {
 	features.Test(t, domain.New(), []string{"."})
 }
 
+// TestHTTPInProcess tests against an in-process HTTP server
 func TestHTTPInProcess(t *testing.T) {
 	// Start test server and get its URL
 	serverURL := startInProcessServer(t, domain.New())
@@ -55,6 +56,7 @@ func TestHttpExecutable(t *testing.T) {
 	features.Test(t, httpClient, []string{"."})
 }
 
+// TestHttpDocker tests against the server running in a Docker container using testcontainers
 func TestHttpDocker(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping Docker integration test in short mode")

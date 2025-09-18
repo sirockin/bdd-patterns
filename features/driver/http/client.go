@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sirockin/cucumber-screenplay-go/domain"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 )
 
 type HTTPClient struct {
