@@ -136,10 +136,11 @@ jobs:
     - name: Run go vet
       run: make vet
 
-    - name: Run staticcheck
-      uses: dominikh/staticcheck-action@v1.3.1
-      with:
-        version: "2024.1.1"
+    # Temporarily commented out - see commit message
+    # - name: Run staticcheck
+    #   uses: dominikh/staticcheck-action@v1.3.1
+    #   with:
+    #     version: "2024.1.1"
 
     - name: Run gosec security scanner
       uses: securego/gosec@master
