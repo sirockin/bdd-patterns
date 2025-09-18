@@ -2,7 +2,15 @@
 
 ## Overview
 
-A port of the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) to `go`, using the official [godog](https://github.com/cucumber/godog/) library.
+Demonstration of the Screenplay Pattern using BDD with Cucumber/Gherkin in Go.
+
+Also demonstrates how the same BDD scenarios can be run against different deployment models:
+- Direct domain access
+- HTTP API with in-process server
+- HTTP API with separate server executable
+- HTTP API with Docker container
+
+Based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) to `go`, using the official [godog](https://github.com/cucumber/godog/) library.
 
 ## Run Tests
 
