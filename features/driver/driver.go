@@ -1,7 +1,7 @@
-package features
+package driver
 
 import (
-	"github.com/sirockin/cucumber-screenplay-go/domain"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 )
 
 // ApplicationDriver is our interface to the system under test

@@ -3,6 +3,8 @@ package features
 import (
 	"fmt"
 	"strings"
+
+	"github.com/sirockin/cucumber-screenplay-go/features/driver"
 )
 
 type Action func(Abilities)error
@@ -10,7 +12,7 @@ type Question func(Abilities)(interface{}, error)
 
 type Abilities struct {
 	name string
-	app ApplicationDriver
+	app driver.ApplicationDriver
 	lastError error
 }
 
@@ -29,7 +31,7 @@ type Actor struct {
 	abilities Abilities
 }
 
-func NewActor(name string, app ApplicationDriver)*Actor{
+func NewActor(name string, app driver.ApplicationDriver)*Actor{
 	ret := &Actor{
 		abilities:Abilities{
 			name: name, 
