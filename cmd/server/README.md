@@ -64,10 +64,10 @@ curl http://localhost:8080/accounts/alice/projects
 
 ## Architecture
 
-The server wraps the domain logic through the ApplicationDriver interface:
+The server uses the domain directly for clean architecture:
 
 ```
-HTTP Request → Server → ApplicationDriver → Domain Logic
+HTTP Request → HTTP Server → Domain Logic
 ```
 
-This ensures the same business logic is used for both direct domain access and HTTP API access.
+The HTTP server (`internal/http`) wraps the domain (`internal/domain`) directly, ensuring the same business logic is used across all access patterns (direct domain access, HTTP API, etc.).

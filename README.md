@@ -7,7 +7,7 @@ A port of the official [Cucumber Screenplay Example](https://github.com/cucumber
 ## Run Tests
 
 ```sh
-go test -v ./domain
+go test -v ./features
 ```
 
 
@@ -25,9 +25,35 @@ There are some differences in structure:
 - `go` does not support arrow functions so the implementation of actions, tasks etc uses standard functions
 
 - to promote separation of concerns:
-   - the implementation code is placed in a `domain` folder and package, and accessed via an `ApplicationDriver` interface as a first step to providing a driver-based solution
-   - We now inject the application into the test suite via the go TestFeatures() function so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godog run` but instead should be run from `go test`
+   - the domain implementation code is placed in the `internal/domain` package following Go conventions
+   - the HTTP server implementation is in the `internal/http` package
+   - test drivers in `features/driver` provide different ways to access the domain (direct, HTTP client, etc.)
+   - We inject the application into the test suite via the go TestFeatures() function so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godog run` but instead should be run from `go test`
    - feature test code has been placed in the `features` folder and split into several files
+
+## Architecture
+
+The project follows clean architecture principles:
+
+```
+features/           # BDD tests and test drivers
+├── driver/
+│   ├── domain/     # Direct domain access driver
+│   └── http/       # HTTP client driver
+internal/           # Internal implementation packages
+├── domain/         # Core business logic
+└── http/           # HTTP server implementation
+cmd/server/         # Runnable HTTP server
+```
+
+## Test Levels
+
+- **Domain Tests**: Direct testing of business logic (fastest)
+- **HTTP In-Process**: HTTP API testing with in-process server
+- **Server Executable**: Full integration with separate server process
+- **Docker Container**: Production-like containerized testing
+
+All tests run identical BDD scenarios ensuring contract compliance across all deployment models.
 
 ## To Do
 - Provide a GRPC implementation and test with a new ApplicationDriver

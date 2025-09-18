@@ -5,45 +5,45 @@ This project implements a comprehensive testing strategy with multiple levels of
 ## Test Levels
 
 ### 1. Unit Tests (Domain Logic)
-**Test:** `TestDomainFeatures`
+**Test:** `TestDomain`
 **Purpose:** Direct testing of business logic
 **Speed:** Fastest (~2-3ms)
 
 ```bash
-go test -v -run TestDomainFeatures ./features
+go test -v -run TestDomain ./features
 ```
 
 **Architecture:**
 ```
-BDD Tests → Domain Driver → Domain Logic (in-memory)
+BDD Tests → Domain Test Driver → internal/domain (in-memory)
 ```
 
 ### 2. Integration Tests (In-Process HTTP)
-**Test:** `TestHTTPFeatures`
+**Test:** `TestHTTPInProcess`
 **Purpose:** Contract testing between HTTP API and domain
 **Speed:** Fast (~4-5ms)
 
 ```bash
-go test -v -run TestHTTPFeatures ./features
+go test -v -run TestHTTPInProcess ./features
 ```
 
 **Architecture:**
 ```
-BDD Tests → HTTP Client → HTTP Server (in-process) → Domain Logic
+BDD Tests → HTTP Client Driver → internal/http Server (in-process) → internal/domain
 ```
 
 ### 3. End-to-End Tests (Real Server Process)
-**Test:** `TestIntegrationServerExecutable`
+**Test:** `TestHttpExecutable`
 **Purpose:** Full integration testing with real server executable
 **Speed:** Slow (~1-2s due to process startup)
 
 ```bash
-go test -v -run TestIntegrationServerExecutable ./features
+go test -v -run TestHttpExecutable ./features
 ```
 
 **Architecture:**
 ```
-BDD Tests → HTTP Client → Server Executable (separate process) → Domain Logic
+BDD Tests → HTTP Client Driver → Server Executable (separate process) → internal/domain
 ```
 
 Features:
@@ -54,18 +54,18 @@ Features:
 - Graceful shutdown with timeout handling
 
 ### 4. Container Tests (Docker)
-**Test:** `TestIntegrationServerDocker`
+**Test:** `TestHttpDocker`
 **Purpose:** Production-like testing in containerized environment
 **Speed:** Slowest (~30-60s due to Docker build)
 
 ```bash
 # Runs automatically if Docker is available, skips if not
-go test -v -run TestIntegrationServerDocker ./features
+go test -v -run TestHttpDocker ./features
 ```
 
 **Architecture:**
 ```
-BDD Tests → HTTP Client → Docker Container → Server Binary → Domain Logic
+BDD Tests → HTTP Client Driver → Docker Container → Server Binary → internal/domain
 ```
 
 Features:
@@ -79,7 +79,7 @@ Features:
 ### Development (Fast Feedback)
 ```bash
 # Run unit and integration tests only
-go test -v -run "TestDomainFeatures|TestHTTPFeatures" ./features
+go test -v -run "TestDomain|TestHTTPInProcess" ./features
 ```
 
 ### CI/CD Pipeline
@@ -96,16 +96,16 @@ go test -short -v ./features
 ### Specific Test Types
 ```bash
 # Unit tests only
-go test -v -run TestDomainFeatures ./features
+go test -v -run TestDomain ./features
 
 # In-process integration tests
-go test -v -run TestHTTPFeatures ./features
+go test -v -run TestHTTPInProcess ./features
 
 # Real server integration tests
-go test -v -run TestIntegrationServerExecutable ./features
+go test -v -run TestHttpExecutable ./features
 
 # Docker container tests (skips if Docker not available)
-go test -v -run TestIntegrationServerDocker ./features
+go test -v -run TestHttpDocker ./features
 ```
 
 ## Test Verification Strategy
@@ -125,10 +125,10 @@ This ensures:
 ## Test Output Summary
 
 ```
-TestDomainFeatures:              ✅ 4 scenarios (2-3ms)
-TestHTTPFeatures:                ✅ 4 scenarios (4-5ms)
-TestIntegrationServerExecutable: ✅ 4 scenarios (1-2s)
-TestIntegrationServerDocker:     ✅ 4 scenarios (30-60s) [skipped if Docker unavailable]
+TestDomain:            ✅ 4 scenarios (2-3ms)
+TestHTTPInProcess:     ✅ 4 scenarios (4-5ms)
+TestHttpExecutable:    ✅ 4 scenarios (1-2s)
+TestHttpDocker:        ✅ 4 scenarios (30-60s) [skipped if Docker unavailable]
 ```
 
 **Total:** 16 scenario executions across 4 different deployment models ensuring comprehensive coverage and confidence in the implementation.
