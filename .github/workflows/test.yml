@@ -136,7 +136,7 @@ jobs:
         version: "2024.1.1"
 
     - name: Run gosec security scanner
-      uses: securecodewarrior/github-action-gosec@master
+      uses: securego/gosec@master
       with:
         args: './...'
 
