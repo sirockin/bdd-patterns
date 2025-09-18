@@ -2,6 +2,11 @@ package domain
 
 import "fmt"
 
+
+type Project struct{
+
+}
+
 // Domain provides business operations for the domain
 type Domain struct {
 	accounts map[string]*Account

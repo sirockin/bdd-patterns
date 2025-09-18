@@ -33,7 +33,3 @@ func (a *Account) SetActivated(activated bool) {
 func (a *Account) SetAuthenticated(authenticated bool) {
 	a.authenticated = authenticated
 }
-
-type Project struct{
-
-}
