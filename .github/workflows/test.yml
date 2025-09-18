@@ -1,9 +1,9 @@
 name: Test Suite
 
 on:
-  # Run on every push to any branch
+  # Run on push to main/master branches only
   push:
-    branches: [ "*" ]
+    branches: [ main, master ]
 
   # Run on pull requests to main/master
   pull_request:
