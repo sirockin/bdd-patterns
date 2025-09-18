@@ -1,91 +1,58 @@
 package domain
 
 import (
-	"fmt"
-
 	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 )
 
-func New()*Domain{
-	ret :=  Domain{}
-	ret.ClearAll()
-	return &ret
-}
-
-type Domain struct{
-	accounts map[string]*domain.Account
-	projects map[domain.Account][]domain.Project
-}
-
-func (d *Domain) ClearAll(){
-	d.accounts=make(map[string]*domain.Account)
-	d.projects=make(map[domain.Account][]domain.Project)
-}
-
-func( d *Domain) CreateAccount(name string)error{
-	d.accounts[name]=domain.NewAccount(name)
-	return nil
-}
-
-func(d *Domain) GetAccount(name string)(domain.Account,error){
-	ret, present :=  d.accounts[name]
-	if !present {
-		return domain.Account{}, fmt.Errorf("Account not found: %s", name)
+// New creates a new domain test driver that wraps the actual domain
+func New() *TestDriver {
+	return &TestDriver{
+		domain: domain.New(),
 	}
-	return *ret, nil
 }
 
-func (d *Domain) Activate(name string)error{
-	account := d.accounts[name]
-	if account == nil {
-		return fmt.Errorf("Account not found: %s", name)
-	}
-	account.SetActivated(true)
-	account.SetAuthenticated(true)  // Activation also authenticates the user
-	return nil
+// TestDriver is a test driver that delegates to the actual domain
+type TestDriver struct {
+	domain *domain.Domain
 }
 
-func( d *Domain) IsActivated(name string)bool{
-	account, err := d.GetAccount(name)
-	if err != nil {
-		return false
-	}
-	return account.IsActivated()
+// Domain returns the underlying domain for direct access
+func (t *TestDriver) Domain() *domain.Domain {
+	return t.domain
 }
 
-func (d *Domain) Authenticate(name string)error{
-	account := d.accounts[name]
-	if account == nil {
-		return fmt.Errorf("Account not found: %s", name)
-	}
-	if !account.IsActivated() {
-		return fmt.Errorf("%s, you need to activate your account", name)
-	}
-	account.SetAuthenticated(true)
-	return nil
+func (t *TestDriver) ClearAll() {
+	t.domain.ClearAll()
 }
 
-func( d *Domain) IsAuthenticated(name string)bool{
-	account, err := d.GetAccount(name)
-	if err != nil {
-		return false
-	}
-	return account.IsAuthenticated()
+func (t *TestDriver) CreateAccount(name string) error {
+	return t.domain.CreateAccount(name)
 }
 
-func( d *Domain) GetProjects(name string)([]domain.Project,error){
-	account, err := d.GetAccount(name)
-	if err != nil {
-		return nil, err;
-	}
-	return d.projects[account], nil;
+func (t *TestDriver) GetAccount(name string) (domain.Account, error) {
+	return t.domain.GetAccount(name)
 }
 
-func( d *Domain) CreateProject(name string)error{
-	account, err := d.GetAccount(name)
-	if err != nil {
-		return err;
-	}
-	d.projects[account]=append(d.projects[account], domain.Project{})
-	return nil
+func (t *TestDriver) Activate(name string) error {
+	return t.domain.Activate(name)
+}
+
+func (t *TestDriver) IsActivated(name string) bool {
+	return t.domain.IsActivated(name)
+}
+
+func (t *TestDriver) Authenticate(name string) error {
+	return t.domain.Authenticate(name)
+}
+
+func (t *TestDriver) IsAuthenticated(name string) bool {
+	return t.domain.IsAuthenticated(name)
+}
+
+func (t *TestDriver) GetProjects(name string) ([]domain.Project, error) {
+	return t.domain.GetProjects(name)
+}
+
+func (t *TestDriver) CreateProject(name string) error {
+	return t.domain.CreateProject(name)
 }

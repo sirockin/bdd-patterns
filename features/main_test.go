@@ -20,6 +20,8 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/features/driver"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver/domain"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/http"
+	internaldomain "github.com/sirockin/cucumber-screenplay-go/internal/domain"
+	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -224,8 +226,16 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 // startInProcessServer starts an HTTP server wrapping the given ApplicationDriver
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
 func startInProcessServer(t *testing.T, app driver.ApplicationDriver) string {
-	// Create HTTP server wrapping the application
-	server := httpdriver.NewServer(app)
+	// Extract the domain from the test driver
+	var domainInstance *internaldomain.Domain
+	if testDriver, ok := app.(interface{ Domain() *internaldomain.Domain }); ok {
+		domainInstance = testDriver.Domain()
+	} else {
+		t.Fatalf("ApplicationDriver does not provide access to domain instance")
+	}
+
+	// Create HTTP server using internal implementation directly
+	server := httpserver.NewServer(domainInstance)
 
 	// Find an available port
 	listener, err := net.Listen("tcp", ":0")

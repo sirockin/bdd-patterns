@@ -5,18 +5,18 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 )
 
 type Server struct {
-	app driver.ApplicationDriver
-	mux *http.ServeMux
+	domain *domain.Domain
+	mux    *http.ServeMux
 }
 
-func NewServer(app driver.ApplicationDriver) *Server {
+func NewServer(domainInstance *domain.Domain) *Server {
 	s := &Server{
-		app: app,
-		mux: http.NewServeMux(),
+		domain: domainInstance,
+		mux:    http.NewServeMux(),
 	}
 	s.setupRoutes()
 	return s
@@ -123,7 +123,7 @@ func (s *Server) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.app.CreateAccount(req.Name); err != nil {
+	if err := s.domain.CreateAccount(req.Name); err != nil {
 		s.writeError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -132,7 +132,7 @@ func (s *Server) createAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getAccount(w http.ResponseWriter, r *http.Request, name string) {
-	account, err := s.app.GetAccount(name)
+	account, err := s.domain.GetAccount(name)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			s.writeError(w, err.Error(), http.StatusNotFound)
@@ -157,7 +157,7 @@ func (s *Server) getAccount(w http.ResponseWriter, r *http.Request, name string)
 }
 
 func (s *Server) activateAccount(w http.ResponseWriter, r *http.Request, name string) {
-	if err := s.app.Activate(name); err != nil {
+	if err := s.domain.Activate(name); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			s.writeError(w, err.Error(), http.StatusNotFound)
 		} else {
@@ -170,7 +170,7 @@ func (s *Server) activateAccount(w http.ResponseWriter, r *http.Request, name st
 }
 
 func (s *Server) authenticateAccount(w http.ResponseWriter, r *http.Request, name string) {
-	if err := s.app.Authenticate(name); err != nil {
+	if err := s.domain.Authenticate(name); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			s.writeError(w, err.Error(), http.StatusNotFound)
 		} else if strings.Contains(err.Error(), "activate") {
@@ -192,7 +192,7 @@ func (s *Server) authenticateAccount(w http.ResponseWriter, r *http.Request, nam
 }
 
 func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request, name string) {
-	authenticated := s.app.IsAuthenticated(name)
+	authenticated := s.domain.IsAuthenticated(name)
 
 	response := struct {
 		Authenticated bool `json:"authenticated"`
@@ -205,7 +205,7 @@ func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request,
 }
 
 func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string) {
-	projects, err := s.app.GetProjects(name)
+	projects, err := s.domain.GetProjects(name)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			s.writeError(w, err.Error(), http.StatusNotFound)
@@ -220,7 +220,7 @@ func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string
 }
 
 func (s *Server) createProject(w http.ResponseWriter, r *http.Request, name string) {
-	if err := s.app.CreateProject(name); err != nil {
+	if err := s.domain.CreateProject(name); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			s.writeError(w, err.Error(), http.StatusNotFound)
 		} else {
@@ -233,7 +233,7 @@ func (s *Server) createProject(w http.ResponseWriter, r *http.Request, name stri
 }
 
 func (s *Server) clearAll(w http.ResponseWriter, r *http.Request) {
-	s.app.ClearAll()
+	s.domain.ClearAll()
 	w.WriteHeader(http.StatusNoContent)
 }
 

@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sirockin/cucumber-screenplay-go/features/driver/domain"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
 	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
 )
 
@@ -14,11 +14,11 @@ func main() {
 	var port = flag.Int("port", 8080, "port to run server on")
 	flag.Parse()
 
-	// Create domain application
-	app := domain.New()
+	// Create domain
+	domainInstance := domain.New()
 
 	// Create HTTP server wrapping the domain
-	httpServer := httpserver.NewServer(app)
+	httpServer := httpserver.NewServer(domainInstance)
 
 	// Start server
 	addr := fmt.Sprintf(":%d", *port)
