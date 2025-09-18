@@ -52,7 +52,10 @@ fmt: ## Format Go code
 vet: ## Run go vet
 	go vet ./...
 
-lint: fmt vet ## Run formatting and vetting
+sec: ## Run security checks with gosec
+	gosec ./...
+
+lint: fmt vet sec ## Run formatting and vetting
 
 # Coverage
 coverage: ## Run tests with coverage

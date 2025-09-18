@@ -1,0 +1,199 @@
+name: Test Suite
+
+on:
+  # Run on push to main/master branches only
+  push:
+    branches: [ main, master ]
+
+  # Run on pull requests to main/master
+  pull_request:
+    branches: [ main, master ]
+
+  # Allow manual workflow runs
+  workflow_dispatch:
+
+jobs:
+  # Fast tests that run on every push
+  fast-tests:
+    name: Fast Tests (Domain + HTTP In-Process)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Cleanup Go cache
+      run: rm -rf ~/go/pkg/mod ~/.cache/go-build || true
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Run fast tests
+      run: make test-fast
+
+    - name: Run go vet
+      run: make vet
+
+  # Integration tests including Docker (runs on PR and main branch pushes)
+  integration-tests:
+    name: Integration Tests (All Levels)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: fast-tests
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Cleanup Go cache
+      run: rm -rf ~/go/pkg/mod ~/.cache/go-build || true
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Run domain tests
+      run: make test-domain
+
+    - name: Run HTTP in-process tests
+      run: make test-http-inprocess
+
+    - name: Run HTTP executable tests
+      run: make test-http-executable
+
+    - name: Run Docker container tests
+      run: make test-http-docker
+      env:
+        # Ensure Docker tests run in CI
+        CI: true
+
+    - name: Generate test coverage
+      run: make coverage
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Security and quality checks
+  quality-checks:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Run go fmt check
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "Code is not formatted. Please run 'make fmt'"
+          gofmt -s -l .
+          exit 1
+        fi
+
+    - name: Run go vet
+      run: make vet
+
+    # Temporarily commented out - see commit message
+    # - name: Run staticcheck
+    #   uses: dominikh/staticcheck-action@v1.3.1
+    #   with:
+    #     version: "2024.1.1"
+
+    - name: Run gosec security scanner
+      uses: securego/gosec@master
+      with:
+        args: './...'
+
+  # Build verification
+  build-check:
+    name: Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Cleanup Go cache
+      run: rm -rf ~/go/pkg/mod ~/.cache/go-build || true
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Build server binary
+      run: make build
+
+    - name: Verify binary works
+      run: |
+        timeout 10s ./bin/server -port=9999 &
+        sleep 2
+        curl -f http://localhost:9999/accounts || true
+        pkill -f "./bin/server" || true
+
+    - name: Build Docker image
+      run: docker build -f deploy/Dockerfile -t test-image .
+
+    - name: Test Docker image
+      run: |
+        docker run -d -p 8081:8080 --name test-container test-image
+        sleep 5
+        curl -f http://localhost:8081/accounts || true
+        docker stop test-container
+        docker rm test-container

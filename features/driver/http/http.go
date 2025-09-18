@@ -109,7 +109,7 @@ func (h *HTTPClient) Authenticate(name string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("Account not found: %s", name)
+		return fmt.Errorf("account not found: %s", name)
 	}
 
 	if resp.StatusCode == http.StatusBadRequest {
@@ -117,8 +117,8 @@ func (h *HTTPClient) Authenticate(name string) error {
 		var errorResp struct {
 			Error string `json:"error"`
 		}
-		json.Unmarshal(body, &errorResp)
-		return fmt.Errorf(errorResp.Error)
+		_ = json.Unmarshal(body, &errorResp)
+		return fmt.Errorf("%s", errorResp.Error)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -145,7 +145,7 @@ func (h *HTTPClient) IsAuthenticated(name string) bool {
 	}
 
 	body, _ := io.ReadAll(resp.Body)
-	json.Unmarshal(body, &authStatus)
+	_ = json.Unmarshal(body, &authStatus)
 
 	return authStatus.Authenticated
 }
@@ -227,4 +227,3 @@ func (h *HTTPClient) GetProjects(name string) ([]domain.Project, error) {
 
 	return projects, nil
 }
-

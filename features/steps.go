@@ -9,19 +9,19 @@ func (s *suite) personHasSignedUp(name string) error {
 }
 
 func (s *suite) personShouldBeAuthenticated(name string) error {
-	return s.Actor(name).expectsAnswer(amIAuthenticated,true)
+	return s.Actor(name).expectsAnswer(amIAuthenticated, true)
 }
 
 func (s *suite) personShouldNotBeAuthenticated(name string) error {
-	return s.Actor(name).expectsAnswer(amIAuthenticated,false)
+	return s.Actor(name).expectsAnswer(amIAuthenticated, false)
 }
 
 func (s *suite) personShouldNotSeeAnyProjects(name string) error {
-	return s.Actor(name).expectsAnswer(howManyProjectsDoIHave,0)
+	return s.Actor(name).expectsAnswer(howManyProjectsDoIHave, 0)
 }
 
 func (s *suite) personShouldSeeTheirProject(name string) error {
-	return s.Actor(name).expectsAnswer(howManyProjectsDoIHave,1)
+	return s.Actor(name).expectsAnswer(howManyProjectsDoIHave, 1)
 }
 
 func (s *suite) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) error {
@@ -29,8 +29,8 @@ func (s *suite) personShouldSeeAnErrorTellingThemToActivateTheAccount(name strin
 }
 
 func (s *suite) personTriesToSignIn(name string) error {
-	s.Actor(name).attemptsTo(signIn)
-	return nil;	// The step succeeds even if the result is bad to allow the next step to check the error
+	_ = s.Actor(name).attemptsTo(signIn)
+	return nil // The step succeeds even if the result is bad to allow the next step to check the error
 }
 
 func (s *suite) personCreatesAProject(name string) error {
@@ -40,6 +40,3 @@ func (s *suite) personCreatesAProject(name string) error {
 func (s *suite) personActivatesTheirAccount(name string) error {
 	return s.Actor(name).attemptsTo(Activate.theirAccount)
 }
-
-
-
