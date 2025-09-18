@@ -6,8 +6,38 @@ A port of the official [Cucumber Screenplay Example](https://github.com/cucumber
 
 ## Run Tests
 
+### Using Makefile (Recommended)
+
 ```sh
+# Show all available commands
+make help
+
+# Run fast tests (domain + in-process HTTP)
+make test
+
+# Run individual test types
+make test-domain              # Domain unit tests (fastest)
+make test-http-inprocess      # In-process HTTP integration tests
+make test-http-executable     # Real server executable tests
+make test-http-docker         # Docker container tests
+
+# Run test suites
+make test-fast                # Fast tests only
+make test-integration         # All integration tests
+make test-all                 # Full test suite including Docker
+```
+
+### Direct Go Commands
+
+```sh
+# Run all tests
 go test -v ./features
+
+# Run specific test types
+go test -v -run TestDomain ./features
+go test -v -run TestHTTPInProcess ./features
+go test -v -run TestHttpExecutable ./features
+go test -v -run TestHttpDocker ./features
 ```
 
 
@@ -48,12 +78,38 @@ cmd/server/         # Runnable HTTP server
 
 ## Test Levels
 
-- **Domain Tests**: Direct testing of business logic (fastest)
-- **HTTP In-Process**: HTTP API testing with in-process server
-- **Server Executable**: Full integration with separate server process
-- **Docker Container**: Production-like containerized testing
+- **Domain Tests** (`make test-domain`): Direct testing of business logic (fastest ~2-3ms)
+- **HTTP In-Process** (`make test-http-inprocess`): HTTP API testing with in-process server (~4-5ms)
+- **Server Executable** (`make test-http-executable`): Full integration with separate server process (~1-2s)
+- **Docker Container** (`make test-http-docker`): Production-like containerized testing (~30-60s)
 
 All tests run identical BDD scenarios ensuring contract compliance across all deployment models.
+
+### Development Workflow
+
+```sh
+# Fast feedback during development
+make test-fast
+
+# Before committing changes
+make test-integration
+
+# Full validation (CI/CD)
+make test-all
+```
+
+## Build and Run Server
+
+```sh
+# Build server binary
+make build
+
+# Build and run server
+make server
+
+# Or run directly
+go run ./cmd/server
+```
 
 ## To Do
 - Provide a GRPC implementation and test with a new ApplicationDriver
