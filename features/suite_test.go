@@ -1,4 +1,4 @@
-package features
+package features_test
 
 import (
 	"context"
@@ -6,27 +6,22 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/features/screenplay"
 )
 
 type suite struct {
-	actors map[string]*Actor
+	actors map[string]*screenplay.Actor
 	driver driver.ApplicationDriver
 }
 
-func (s *suite) reset() {
-	s.actors = make(map[string]*Actor)
-	s.driver.ClearAll()
-}
-
-func (s *suite) Actor(name string) *Actor {
+func (s *suite) Actor(name string) *screenplay.Actor {
 	if s.actors[name] == nil {
-		s.actors[name] = NewActor(name, s.driver)
+		s.actors[name] = screenplay.NewActor(name, s.driver)
 	}
 	return s.actors[name]
 }
 
-func Test(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
-	// TODO: Try to get rid of need to pass in path to features
+func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
 	suite := godog.TestSuite{
 		ScenarioInitializer: func(ctx *godog.ScenarioContext) {
 			s := &suite{
@@ -34,7 +29,8 @@ func Test(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) 
 			}
 
 			ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-				s.reset()
+				s.actors = make(map[string]*screenplay.Actor)
+				s.driver.ClearAll()
 				return ctx, nil
 			})
 

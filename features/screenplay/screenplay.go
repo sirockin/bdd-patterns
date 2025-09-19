@@ -1,4 +1,5 @@
-package features
+// screenplay design pattern utitlity types
+package screenplay
 
 import (
 	"fmt"
@@ -11,16 +12,16 @@ type Action func(Abilities) error
 type Question func(Abilities) (interface{}, error)
 
 type Abilities struct {
-	name      string
-	app       driver.ApplicationDriver
-	lastError error
+	Name      string
+	App       driver.ApplicationDriver
+	LastError error
 }
 
-func (a *Abilities) attemptsTo(actions ...Action) error {
+func (a *Abilities) AttemptsTo(actions ...Action) error {
 	for i := 0; i < len(actions); i++ {
 		err := actions[i](*a)
 		if err != nil {
-			a.lastError = err
+			a.LastError = err
 			return err
 		}
 	}
@@ -34,18 +35,18 @@ type Actor struct {
 func NewActor(name string, app driver.ApplicationDriver) *Actor {
 	ret := &Actor{
 		abilities: Abilities{
-			name: name,
-			app:  app,
+			Name: name,
+			App:  app,
 		},
 	}
 	return ret
 }
 
-func (a *Actor) attemptsTo(actions ...Action) error {
-	return a.abilities.attemptsTo(actions...)
+func (a *Actor) AttemptsTo(actions ...Action) error {
+	return a.abilities.AttemptsTo(actions...)
 }
 
-func (a *Actor) expectsAnswer(question Question, expected interface{}) error {
+func (a *Actor) ExpectsAnswer(question Question, expected interface{}) error {
 	result, err := question(a.abilities)
 	if err != nil {
 		return nil
@@ -56,13 +57,12 @@ func (a *Actor) expectsAnswer(question Question, expected interface{}) error {
 	return nil
 }
 
-func (a *Actor) expectsLastErrorToContain(expectedText string) error {
-	if a.abilities.lastError == nil {
+func (a *Actor) ExpectsLastErrorToContain(expectedText string) error {
+	if a.abilities.LastError == nil {
 		return fmt.Errorf("expected error containing text '%s' but there is no error", expectedText)
 	}
-	if !strings.Contains(a.abilities.lastError.Error(), expectedText) {
-		return fmt.Errorf("expected error text containing '%s' but got %s", expectedText, a.abilities.lastError.Error())
+	if !strings.Contains(a.abilities.LastError.Error(), expectedText) {
+		return fmt.Errorf("expected error text containing '%s' but got %s", expectedText, a.abilities.LastError.Error())
 	}
 	return nil
-
 }

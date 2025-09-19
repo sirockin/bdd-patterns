@@ -16,7 +16,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirockin/cucumber-screenplay-go/features"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver/domain"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/http"
@@ -27,7 +26,7 @@ import (
 )
 
 func TestDomain(t *testing.T) {
-	features.Test(t, domain.New(), []string{"."})
+	RunSuite(t, domain.New(), []string{"."})
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
@@ -39,7 +38,7 @@ func TestHTTPInProcess(t *testing.T) {
 	httpClient := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the HTTP API
-	features.Test(t, httpClient, []string{"."})
+	RunSuite(t, httpClient, []string{"."})
 }
 
 // TestHttpExecutable tests against the actual running server executable
@@ -55,7 +54,7 @@ func TestHttpExecutable(t *testing.T) {
 	httpClient := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the actual server executable
-	features.Test(t, httpClient, []string{"."})
+	RunSuite(t, httpClient, []string{"."})
 }
 
 // TestHttpDocker tests against the server running in a Docker container using testcontainers
@@ -76,7 +75,7 @@ func TestHttpDocker(t *testing.T) {
 	httpClient := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the containerized server
-	features.Test(t, httpClient, []string{"."})
+	RunSuite(t, httpClient, []string{"."})
 }
 
 // startServerExecutable builds and starts the actual server executable
