@@ -36,7 +36,7 @@ test-short: ## Run tests in short mode (skips slow integration tests)
 
 # Build targets
 build: ## Build the server binary
-	go build -o bin/server -buildvcs=false ./cmd/server
+	go build -o bin/server ./cmd/server
 
 server: build ## Build and run the server
 	./bin/server
