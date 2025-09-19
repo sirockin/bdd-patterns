@@ -6,16 +6,17 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/features/screenplay"
 )
 
 type suite struct {
-	actors map[string]*Actor
+	actors map[string]*screenplay.Actor
 	driver driver.ApplicationDriver
 }
 
-func (s *suite) Actor(name string) *Actor {
+func (s *suite) Actor(name string) *screenplay.Actor {
 	if s.actors[name] == nil {
-		s.actors[name] = NewActor(name, s.driver)
+		s.actors[name] = screenplay.NewActor(name, s.driver)
 	}
 	return s.actors[name]
 }
@@ -28,7 +29,7 @@ func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []stri
 			}
 
 			ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-				s.actors = make(map[string]*Actor)
+				s.actors = make(map[string]*screenplay.Actor)
 				s.driver.ClearAll()
 				return ctx, nil
 			})

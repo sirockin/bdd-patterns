@@ -1,35 +1,37 @@
 package features_test
 
+import "github.com/sirockin/cucumber-screenplay-go/features/screenplay"
+
 var CreateAccount = struct {
-	forThemselves Action
+	forThemselves screenplay.Action
 }{
-	forThemselves: func(abilities Abilities) error {
-		return abilities.app.CreateAccount(abilities.name)
+	forThemselves: func(abilities screenplay.Abilities) error {
+		return abilities.App.CreateAccount(abilities.Name)
 	},
 }
 
 var Activate = struct {
-	theirAccount Action
+	theirAccount screenplay.Action
 }{
-	theirAccount: func(abilities Abilities) error {
-		if _, err := abilities.app.GetAccount(abilities.name); err != nil {
+	theirAccount: func(abilities screenplay.Abilities) error {
+		if _, err := abilities.App.GetAccount(abilities.Name); err != nil {
 			return nil
 		}
-		return abilities.app.Activate(abilities.name)
+		return abilities.App.Activate(abilities.Name)
 	},
 }
 
-func signUp(abilities Abilities) error {
-	return abilities.attemptsTo(
+func signUp(abilities screenplay.Abilities) error {
+	return abilities.AttemptsTo(
 		CreateAccount.forThemselves,
 		Activate.theirAccount,
 	)
 }
 
-func signIn(abilities Abilities) error {
-	return abilities.app.Authenticate(abilities.name)
+func signIn(abilities screenplay.Abilities) error {
+	return abilities.App.Authenticate(abilities.Name)
 }
 
-func createProject(abilities Abilities) error {
-	return abilities.app.CreateProject(abilities.name)
+func createProject(abilities screenplay.Abilities) error {
+	return abilities.App.CreateProject(abilities.Name)
 }
