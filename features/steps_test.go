@@ -40,7 +40,3 @@ func (s *suite) personCreatesAProject(name string) error {
 func (s *suite) personActivatesTheirAccount(name string) error {
 	return s.Actor(name).attemptsTo(Activate.theirAccount)
 }
-
-func (s *suite) SomethingElseShouldHappen() error {
-	return nil
-}
