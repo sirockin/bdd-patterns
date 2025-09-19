@@ -1,4 +1,4 @@
-package features
+package features_test
 
 var CreateAccount = struct {
 	forThemselves Action

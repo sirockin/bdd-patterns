@@ -13,3 +13,4 @@ Feature: Sign up
     When Bob tries to sign in
     Then Bob should not be authenticated
     And Bob should see an error telling him to activate the account
+    And Something Else Should Happen

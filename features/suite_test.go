@@ -1,4 +1,4 @@
-package features
+package features_test
 
 import (
 	"context"
@@ -25,8 +25,7 @@ func (s *suite) Actor(name string) *Actor {
 	return s.actors[name]
 }
 
-func Test(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
-	// TODO: Try to get rid of need to pass in path to features
+func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
 	suite := godog.TestSuite{
 		ScenarioInitializer: func(ctx *godog.ScenarioContext) {
 			s := &suite{
@@ -48,6 +47,7 @@ func Test(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) 
 			ctx.Step(`^(Bob|Tanya|Sue) should see (his|her|the) project$`, s.personShouldSeeTheirProject)
 			ctx.Step(`^(Bob|Tanya|Sue) activates (his|her) account$`, s.personActivatesTheirAccount)
 			ctx.Step(`^(Bob|Tanya|Sue) should be authenticated$`, s.personShouldBeAuthenticated)
+			ctx.Step(`^Something Else Should Happen$`, s.SomethingElseShouldHappen)
 		},
 		Options: &godog.Options{
 			Format:   "pretty",

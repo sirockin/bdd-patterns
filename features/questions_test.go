@@ -1,4 +1,4 @@
-package features
+package features_test
 
 func amIAuthenticated(abilities Abilities) (interface{}, error) {
 	return abilities.app.IsAuthenticated(abilities.name), nil
