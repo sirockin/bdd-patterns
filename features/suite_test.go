@@ -13,11 +13,6 @@ type suite struct {
 	driver driver.ApplicationDriver
 }
 
-func (s *suite) reset() {
-	s.actors = make(map[string]*Actor)
-	s.driver.ClearAll()
-}
-
 func (s *suite) Actor(name string) *Actor {
 	if s.actors[name] == nil {
 		s.actors[name] = NewActor(name, s.driver)
@@ -33,7 +28,8 @@ func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []stri
 			}
 
 			ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-				s.reset()
+				s.actors = make(map[string]*Actor)
+				s.driver.ClearAll()
 				return ctx, nil
 			})
 
@@ -47,7 +43,6 @@ func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []stri
 			ctx.Step(`^(Bob|Tanya|Sue) should see (his|her|the) project$`, s.personShouldSeeTheirProject)
 			ctx.Step(`^(Bob|Tanya|Sue) activates (his|her) account$`, s.personActivatesTheirAccount)
 			ctx.Step(`^(Bob|Tanya|Sue) should be authenticated$`, s.personShouldBeAuthenticated)
-			ctx.Step(`^Something Else Should Happen$`, s.SomethingElseShouldHappen)
 		},
 		Options: &godog.Options{
 			Format:   "pretty",
