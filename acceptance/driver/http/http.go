@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 	"github.com/sirockin/cucumber-screenplay-go/internal/domain/entities"
 )
 

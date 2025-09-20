@@ -16,10 +16,10 @@ import (
 	"testing"
 	"time"
 
-	appdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/application"
-	httpdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/http"
-	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
+	appdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/application"
+	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	application "github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
+	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"

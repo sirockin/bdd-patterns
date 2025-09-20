@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
-	"github.com/sirockin/cucumber-screenplay-go/features/screenplay"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/screenplay"
 )
 
 type suite struct {
