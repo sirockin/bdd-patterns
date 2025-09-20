@@ -19,8 +19,7 @@ import (
 	appdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/application"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
-	application "github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
-	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
+	httpserver "github.com/sirockin/cucumber-screenplay-go/back-end/pkg/http"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
@@ -193,8 +192,8 @@ func buildServerExecutable(t *testing.T) string {
 	t.Logf("Building server executable...")
 	cmd := exec.Command("go", "build", "-o", serverBinary, "./cmd/server")
 
-	// Set working directory to project root (parent of features)
-	cmd.Dir = ".."
+	// Set working directory to back-end
+	cmd.Dir = "../back-end"
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -259,8 +258,8 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
 func startInProcessServer(t *testing.T) string {
 
-	// Create HTTP server using internal implementation directly
-	server := httpserver.NewServer(application.New())
+	// Create HTTP server using public implementation
+	server := httpserver.NewServerWithInternalService()
 
 	// Find an available port
 	listener, err := net.Listen("tcp", ":0")
@@ -427,7 +426,7 @@ func startUITestEnvironment(t *testing.T) string {
 	frontendContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    filepath.Join(projectRoot, "web"),
+				Context:    filepath.Join(projectRoot, "front-end"),
 				Dockerfile: "Dockerfile",
 			},
 			ExposedPorts: []string{"80/tcp"},
