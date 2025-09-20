@@ -310,11 +310,11 @@ func startTestContainer(t *testing.T) string {
 		t.Fatalf("Failed to get project root path: %v", err)
 	}
 
-	// Create container request using the deploy/Dockerfile
+	// Create container request using the back-end/Dockerfile
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    projectRoot,
-			Dockerfile: "./deploy/Dockerfile",
+			Context:    filepath.Join(projectRoot, "back-end"),
+			Dockerfile: "Dockerfile",
 		},
 		ExposedPorts: []string{"8080/tcp"},
 		WaitingFor:   wait.ForLog("API endpoints"),
@@ -398,8 +398,8 @@ func startUITestEnvironment(t *testing.T) string {
 	apiContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    projectRoot,
-				Dockerfile: "./deploy/Dockerfile",
+				Context:    filepath.Join(projectRoot, "back-end"),
+				Dockerfile: "Dockerfile",
 			},
 			ExposedPorts: []string{"8080/tcp"},
 			WaitingFor:   wait.ForLog("API endpoints"),

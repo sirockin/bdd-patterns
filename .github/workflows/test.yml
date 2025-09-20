@@ -197,7 +197,7 @@ jobs:
         pkill -f "./back-end/bin/server" || true
 
     - name: Build Docker image
-      run: docker build -f deploy/Dockerfile -t test-image back-end
+      run: docker build -f back-end/Dockerfile -t test-image back-end
 
     - name: Test Docker image
       run: |
