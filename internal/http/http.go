@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
 )
 
 type Server struct {
-	domain *domain.Domain
+	domain *application.Service
 	mux    *http.ServeMux
 }
 
-func NewServer(domainInstance *domain.Domain) *Server {
+func NewServer(domainInstance *application.Service) *Server {
 	s := &Server{
 		domain: domainInstance,
 		mux:    http.NewServeMux(),

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
 type Action func(Abilities) error
@@ -13,7 +13,7 @@ type Question func(Abilities) (interface{}, error)
 
 type Abilities struct {
 	Name      string
-	App       driver.ApplicationDriver
+	App       driver.AcceptanceTestDriver
 	LastError error
 }
 
@@ -32,7 +32,7 @@ type Actor struct {
 	abilities Abilities
 }
 
-func NewActor(name string, app driver.ApplicationDriver) *Actor {
+func NewActor(name string, app driver.AcceptanceTestDriver) *Actor {
 	ret := &Actor{
 		abilities: Abilities{
 			Name: name,

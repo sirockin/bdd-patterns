@@ -1,6 +1,6 @@
 package features_test
 
-import "github.com/sirockin/cucumber-screenplay-go/features/screenplay"
+import "github.com/sirockin/cucumber-screenplay-go/acceptance/screenplay"
 
 var CreateAccount = struct {
 	forThemselves screenplay.Action

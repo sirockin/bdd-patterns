@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
-	"github.com/sirockin/cucumber-screenplay-go/features/screenplay"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/screenplay"
 )
 
 type suite struct {
 	actors map[string]*screenplay.Actor
-	driver driver.ApplicationDriver
+	driver driver.AcceptanceTestDriver
 }
 
 func (s *suite) Actor(name string) *screenplay.Actor {
@@ -21,7 +21,7 @@ func (s *suite) Actor(name string) *screenplay.Actor {
 	return s.actors[name]
 }
 
-func RunSuite(t *testing.T, driver driver.ApplicationDriver, featurePaths []string) {
+func RunSuite(t *testing.T, driver driver.AcceptanceTestDriver, featurePaths []string) {
 	suite := godog.TestSuite{
 		ScenarioInitializer: func(ctx *godog.ScenarioContext) {
 			s := &suite{

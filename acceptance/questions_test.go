@@ -1,6 +1,6 @@
 package features_test
 
-import "github.com/sirockin/cucumber-screenplay-go/features/screenplay"
+import "github.com/sirockin/cucumber-screenplay-go/acceptance/screenplay"
 
 func amIAuthenticated(abilities screenplay.Abilities) (interface{}, error) {
 	return abilities.App.IsAuthenticated(abilities.Name), nil

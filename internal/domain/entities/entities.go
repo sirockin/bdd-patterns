@@ -1,4 +1,7 @@
-package domain
+package entities
+
+type Project struct {
+}
 
 type Account struct {
 	name          string
