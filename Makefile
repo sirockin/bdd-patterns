@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-http-inprocess test-http-executable test-http-docker test-fast test-integration test-all clean build server help
+.PHONY: test test-domain test-http-inprocess test-http-executable test-http-docker test-ui test-fast test-integration test-all clean build server help
 
 # Default target
 help: ## Show this help message
@@ -18,14 +18,17 @@ test-http-executable: ## Run real server executable tests
 test-http-docker: ## Run Docker container tests (slowest)
 	go test -v -run TestHttpDocker ./acceptance
 
+test-ui: ## Run UI tests with frontend and API containers (requires Docker)
+	go test -v -run TestUI ./acceptance
+
 # Test suites
 test-fast: ## Run fast tests (application + in-process HTTP)
 	go test -v -run "TestApplication|TestHTTPInProcess" ./acceptance
 
-test-integration: ## Run all integration tests (excluding Docker)
+test-integration: ## Run all integration tests (excluding Docker and UI)
 	go test -v -run "TestHTTPInProcess|TestHttpExecutable" ./acceptance
 
-test-all: ## Run all tests including Docker (full suite)
+test-all: ## Run all tests including Docker and UI (full suite)
 	go test -v ./acceptance
 
 test: test-fast ## Default test target (fast tests only)

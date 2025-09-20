@@ -17,15 +17,18 @@ require (
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/deckarep/golang-set/v2 v2.7.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/docker v28.2.2+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -46,6 +49,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/playwright-community/playwright-go v0.5200.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/shirou/gopsutil/v4 v4.25.5 // indirect

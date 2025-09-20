@@ -18,10 +18,12 @@ import (
 
 	appdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/application"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
+	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
 	application "github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
 	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
 
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/network"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
@@ -76,6 +78,37 @@ func TestHttpDocker(t *testing.T) {
 
 	// Run the same BDD tests against the containerized server
 	RunSuite(t, httpClient, []string{"."})
+}
+
+// TestUI tests against both frontend and API running in containers using UI automation
+func TestUI(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping UI integration test in short mode")
+	}
+
+	// Check if Docker is available
+	if !isDockerAvailable(t) {
+		t.Skip("Docker not available, skipping UI integration test")
+	}
+
+	// Start both frontend and API containers with UI test driver
+	frontendURL := startUITestEnvironment(t)
+
+	// Create UI driver pointing to the frontend
+	uiClient, err := uidriver.New(frontendURL)
+	if err != nil {
+		t.Fatalf("Failed to create UI driver: %v", err)
+	}
+
+	// Ensure cleanup of browser resources
+	t.Cleanup(func() {
+		if err := uiClient.Close(); err != nil {
+			t.Logf("Warning: Failed to close UI driver: %v", err)
+		}
+	})
+
+	// Run the same BDD tests against the UI
+	RunSuite(t, uiClient, []string{"."})
 }
 
 // startServerExecutable builds and starts the actual server executable
@@ -335,4 +368,102 @@ func runCommandWithTimeout(_ *testing.T, timeout time.Duration, name string, arg
 
 	cmd := exec.CommandContext(ctx, name, args...)
 	return cmd.CombinedOutput()
+}
+
+// startUITestEnvironment starts both API and frontend containers using testcontainers
+// and returns the frontend URL. Cleanup is handled automatically via testcontainers.
+func startUITestEnvironment(t *testing.T) string {
+	ctx := context.Background()
+
+	// Get absolute path to project root
+	projectRoot, err := filepath.Abs("..")
+	if err != nil {
+		t.Fatalf("Failed to get project root path: %v", err)
+	}
+
+	// Create a network for the containers to communicate
+	nw, err := network.New(ctx)
+	if err != nil {
+		t.Fatalf("Failed to create network: %v", err)
+	}
+
+	// Clean up network
+	t.Cleanup(func() {
+		if err := nw.Remove(ctx); err != nil {
+			t.Logf("Warning: Failed to remove network: %v", err)
+		}
+	})
+
+	// Start API container
+	t.Logf("Starting API container...")
+	apiContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			FromDockerfile: testcontainers.FromDockerfile{
+				Context:    projectRoot,
+				Dockerfile: "./deploy/Dockerfile",
+			},
+			ExposedPorts: []string{"8080/tcp"},
+			WaitingFor:   wait.ForLog("API endpoints"),
+			Networks:     []string{nw.Name},
+			NetworkAliases: map[string][]string{
+				nw.Name: {"api"},
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		t.Fatalf("Failed to start API container: %v", err)
+	}
+
+	// Clean up API container
+	t.Cleanup(func() {
+		if err := apiContainer.Terminate(ctx); err != nil {
+			t.Logf("Warning: Failed to terminate API container: %v", err)
+		}
+	})
+
+	// Start frontend container
+	t.Logf("Starting frontend container...")
+	frontendContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			FromDockerfile: testcontainers.FromDockerfile{
+				Context:    filepath.Join(projectRoot, "web"),
+				Dockerfile: "Dockerfile",
+			},
+			ExposedPorts: []string{"80/tcp"},
+			WaitingFor:   wait.ForHTTP("/").WithPort("80"),
+			Networks:     []string{nw.Name},
+			NetworkAliases: map[string][]string{
+				nw.Name: {"frontend"},
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		t.Fatalf("Failed to start frontend container: %v", err)
+	}
+
+	// Clean up frontend container
+	t.Cleanup(func() {
+		if err := frontendContainer.Terminate(ctx); err != nil {
+			t.Logf("Warning: Failed to terminate frontend container: %v", err)
+		}
+	})
+
+	// Get frontend mapped port
+	frontendPort, err := frontendContainer.MappedPort(ctx, "80")
+	if err != nil {
+		t.Fatalf("Failed to get frontend mapped port: %v", err)
+	}
+
+	// Get frontend host
+	frontendHost, err := frontendContainer.Host(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get frontend container host: %v", err)
+	}
+
+	frontendURL := fmt.Sprintf("http://%s:%s", frontendHost, frontendPort.Port())
+	t.Logf("UI test environment started successfully, frontend at %s", frontendURL)
+
+	return frontendURL
 }
