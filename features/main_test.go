@@ -16,23 +16,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirockin/cucumber-screenplay-go/features/driver"
-	"github.com/sirockin/cucumber-screenplay-go/features/driver/domain"
+	appdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/application"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/features/driver/http"
-	internaldomain "github.com/sirockin/cucumber-screenplay-go/internal/domain"
 	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
+	application "github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
+
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func TestDomain(t *testing.T) {
-	RunSuite(t, domain.New(), []string{"."})
+func TestApplication(t *testing.T) {
+	RunSuite(t, appdriver.New(), []string{"."})
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
 func TestHTTPInProcess(t *testing.T) {
 	// Start test server and get its URL
-	serverURL := startInProcessServer(t, domain.New())
+	serverURL := startInProcessServer(t)
 
 	// Create HTTP client pointing to our test server
 	httpClient := httpdriver.New(serverURL)
@@ -224,17 +224,10 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 
 // startInProcessServer starts an HTTP server wrapping the given ApplicationDriver
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
-func startInProcessServer(t *testing.T, app driver.ApplicationDriver) string {
-	// Extract the domain from the test driver
-	var domainInstance *internaldomain.Domain
-	if testDriver, ok := app.(interface{ Domain() *internaldomain.Domain }); ok {
-		domainInstance = testDriver.Domain()
-	} else {
-		t.Fatalf("ApplicationDriver does not provide access to domain instance")
-	}
+func startInProcessServer(t *testing.T) string {
 
 	// Create HTTP server using internal implementation directly
-	server := httpserver.NewServer(domainInstance)
+	server := httpserver.NewServer(application.New())
 
 	// Find an available port
 	listener, err := net.Listen("tcp", ":0")

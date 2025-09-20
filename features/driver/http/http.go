@@ -7,22 +7,26 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sirockin/cucumber-screenplay-go/internal/domain"
+	"github.com/sirockin/cucumber-screenplay-go/features/driver"
+	"github.com/sirockin/cucumber-screenplay-go/internal/domain/entities"
 )
 
-type HTTPClient struct {
+type AcceptanceTestDriver struct {
 	baseURL string
 	client  *http.Client
 }
 
-func New(baseURL string) *HTTPClient {
-	return &HTTPClient{
+func New(baseURL string) *AcceptanceTestDriver {
+	return &AcceptanceTestDriver{
 		baseURL: baseURL,
 		client:  &http.Client{},
 	}
 }
 
-func (h *HTTPClient) CreateAccount(name string) error {
+// verify that AcceptanceTestDriver implements AcceptanceTestDriver
+var _ driver.AcceptanceTestDriver = (*AcceptanceTestDriver)(nil)
+
+func (h *AcceptanceTestDriver) CreateAccount(name string) error {
 	reqBody := map[string]string{"name": name}
 	jsonBody, err := json.Marshal(reqBody)
 	if err != nil {
@@ -43,7 +47,7 @@ func (h *HTTPClient) CreateAccount(name string) error {
 	return nil
 }
 
-func (h *HTTPClient) ClearAll() {
+func (h *AcceptanceTestDriver) ClearAll() {
 	req, err := http.NewRequest("DELETE", h.baseURL+"/clear", nil)
 	if err != nil {
 		return
@@ -56,20 +60,20 @@ func (h *HTTPClient) ClearAll() {
 	defer resp.Body.Close()
 }
 
-func (h *HTTPClient) GetAccount(name string) (domain.Account, error) {
+func (h *AcceptanceTestDriver) GetAccount(name string) (entities.Account, error) {
 	resp, err := h.client.Get(h.baseURL + "/accounts/" + name)
 	if err != nil {
-		return domain.Account{}, err
+		return entities.Account{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return domain.Account{}, fmt.Errorf("Account not found: %s", name)
+		return entities.Account{}, fmt.Errorf("account not found: %s", name)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return domain.Account{}, fmt.Errorf("get account failed with status %d: %s", resp.StatusCode, string(body))
+		return entities.Account{}, fmt.Errorf("get account failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
 	var account struct {
@@ -80,23 +84,23 @@ func (h *HTTPClient) GetAccount(name string) (domain.Account, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return domain.Account{}, err
+		return entities.Account{}, err
 	}
 
 	err = json.Unmarshal(body, &account)
 	if err != nil {
-		return domain.Account{}, err
+		return entities.Account{}, err
 	}
 
 	// Create a domain account and set its fields using the accessor methods
-	domainAccount := domain.NewAccount(account.Name)
+	domainAccount := entities.NewAccount(account.Name)
 	domainAccount.SetActivated(account.Activated)
 	domainAccount.SetAuthenticated(account.Authenticated)
 
 	return *domainAccount, nil
 }
 
-func (h *HTTPClient) Authenticate(name string) error {
+func (h *AcceptanceTestDriver) Authenticate(name string) error {
 	req, err := http.NewRequest("POST", h.baseURL+"/accounts/"+name+"/authenticate", nil)
 	if err != nil {
 		return err
@@ -129,7 +133,7 @@ func (h *HTTPClient) Authenticate(name string) error {
 	return nil
 }
 
-func (h *HTTPClient) IsAuthenticated(name string) bool {
+func (h *AcceptanceTestDriver) IsAuthenticated(name string) bool {
 	resp, err := h.client.Get(h.baseURL + "/accounts/" + name + "/authentication-status")
 	if err != nil {
 		return false
@@ -150,7 +154,7 @@ func (h *HTTPClient) IsAuthenticated(name string) bool {
 	return authStatus.Authenticated
 }
 
-func (h *HTTPClient) Activate(name string) error {
+func (h *AcceptanceTestDriver) Activate(name string) error {
 	req, err := http.NewRequest("POST", h.baseURL+"/accounts/"+name+"/activate", nil)
 	if err != nil {
 		return err
@@ -163,7 +167,7 @@ func (h *HTTPClient) Activate(name string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("Account not found: %s", name)
+		return fmt.Errorf("account not found: %s", name)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -174,7 +178,7 @@ func (h *HTTPClient) Activate(name string) error {
 	return nil
 }
 
-func (h *HTTPClient) CreateProject(name string) error {
+func (h *AcceptanceTestDriver) CreateProject(name string) error {
 	req, err := http.NewRequest("POST", h.baseURL+"/accounts/"+name+"/projects", nil)
 	if err != nil {
 		return err
@@ -187,7 +191,7 @@ func (h *HTTPClient) CreateProject(name string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("Account not found: %s", name)
+		return fmt.Errorf("account not found: %s", name)
 	}
 
 	if resp.StatusCode != http.StatusCreated {
@@ -198,7 +202,7 @@ func (h *HTTPClient) CreateProject(name string) error {
 	return nil
 }
 
-func (h *HTTPClient) GetProjects(name string) ([]domain.Project, error) {
+func (h *AcceptanceTestDriver) GetProjects(name string) ([]entities.Project, error) {
 	resp, err := h.client.Get(h.baseURL + "/accounts/" + name + "/projects")
 	if err != nil {
 		return nil, err
@@ -206,7 +210,7 @@ func (h *HTTPClient) GetProjects(name string) ([]domain.Project, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("Account not found: %s", name)
+		return nil, fmt.Errorf("account not found: %s", name)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -214,7 +218,7 @@ func (h *HTTPClient) GetProjects(name string) ([]domain.Project, error) {
 		return nil, fmt.Errorf("get projects failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
-	var projects []domain.Project
+	var projects []entities.Project
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
