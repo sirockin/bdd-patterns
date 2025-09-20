@@ -11,9 +11,9 @@ import (
 )
 
 type AcceptanceTestDriver struct {
-	browser   playwright.Browser
-	context   playwright.BrowserContext
-	page      playwright.Page
+	browser     playwright.Browser
+	context     playwright.BrowserContext
+	page        playwright.Page
 	frontendURL string
 }
 
