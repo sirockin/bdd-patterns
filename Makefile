@@ -59,6 +59,6 @@ lint: fmt vet sec ## Run formatting and vetting
 
 # Coverage
 coverage: ## Run tests with coverage
-	go test -coverprofile=coverage.out ./features
+	go test -coverprofile=coverage.out ./acceptance
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
