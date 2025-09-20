@@ -49,13 +49,13 @@ make test-all                 # Full test suite including Docker
 
 ```sh
 # Run all tests
-go test -v ./features
+go test -v ./acceptance
 
 # Run specific test types
-go test -v -run TestDomain ./features
-go test -v -run TestHTTPInProcess ./features
-go test -v -run TestHttpExecutable ./features
-go test -v -run TestHttpDocker ./features
+go test -v -run TestApplication ./acceptance
+go test -v -run TestHTTPInProcess ./acceptance
+go test -v -run TestHttpExecutable ./acceptance
+go test -v -run TestHttpDocker ./acceptance
 ```
 
 
@@ -75,19 +75,20 @@ There are some differences in structure:
 - to promote separation of concerns:
    - the domain implementation code is placed in the `internal/domain` package following Go conventions
    - the HTTP server implementation is in the `internal/http` package
-   - test drivers in `features/driver` provide different ways to access the domain (direct, HTTP client, etc.)
-   - We inject the application into the test suite via the go TestFeatures() function so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godog run` but instead should be run from `go test`
-   - feature test code has been placed in the `features` folder and split into several files
+   - test drivers in `acceptance/driver` provide different ways to access the domain (direct, HTTP client, etc.)
+   - We inject the application into the test suite via the go test functions so we no longer have an exported InitializeScenarios function. This means the tests can no longer be run from `godog run` but instead should be run from `go test`
+   - acceptance test code has been placed in the `acceptance` folder and split into several files
 
 ## Architecture
 
 The project follows clean architecture principles:
 
 ```
-features/           # BDD tests and test drivers
+acceptance/         # BDD tests and test drivers
 ├── driver/
-│   ├── domain/     # Direct domain access driver
+│   ├── application/# Direct domain access driver
 │   └── http/       # HTTP client driver
+├── screenplay/     # Screenplay pattern implementation
 internal/           # Internal implementation packages
 ├── domain/         # Core business logic
 └── http/           # HTTP server implementation
@@ -96,7 +97,7 @@ cmd/server/         # Runnable HTTP server
 
 ## Test Levels
 
-- **Domain Tests** (`make test-domain`): Direct testing of business logic (fastest ~2-3ms)
+- **Application Tests** (`make test-domain`): Direct testing of business logic (fastest ~2-3ms)
 - **HTTP In-Process** (`make test-http-inprocess`): HTTP API testing with in-process server (~4-5ms)
 - **Server Executable** (`make test-http-executable`): Full integration with separate server process (~1-2s)
 - **Docker Container** (`make test-http-docker`): Production-like containerized testing (~30-60s)
