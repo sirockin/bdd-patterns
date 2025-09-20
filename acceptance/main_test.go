@@ -16,10 +16,11 @@ import (
 	"testing"
 	"time"
 
-	appdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/application"
+	appdriver "github.com/sirockin/cucumber-screenplay-go/back-end/pkg/driver"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
-	httpserver "github.com/sirockin/cucumber-screenplay-go/back-end/pkg/http"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/internal/domain/application"
+	httpserver "github.com/sirockin/cucumber-screenplay-go/back-end/internal/http"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
@@ -258,8 +259,8 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
 func startInProcessServer(t *testing.T) string {
 
-	// Create HTTP server using public implementation
-	server := httpserver.NewServerWithInternalService()
+	// Create HTTP server using internal implementation directly
+	server := httpserver.NewServer(application.New())
 
 	// Find an available port
 	listener, err := net.Listen("tcp", ":0")
