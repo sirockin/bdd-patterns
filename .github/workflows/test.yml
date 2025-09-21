@@ -1,5 +1,8 @@
 name: Test Suite
 
+env:
+  ACCEPTANCE_PATH: acceptance/cucumber-screenplay
+
 on:
   # Run on push to main/master branches only
   push:
@@ -44,10 +47,10 @@ jobs:
       run: cd back-end && go mod download
 
     - name: Download acceptance test dependencies
-      run: cd acceptance/cucumber-screenplay && go mod download
+      run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
     - name: Run fast tests
-      run: cd acceptance/cucumber-screenplay && make test-fast
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-fast
 
     - name: Run go vet
       run: make vet
@@ -88,31 +91,31 @@ jobs:
       run: cd back-end && go mod download
 
     - name: Download acceptance test dependencies
-      run: cd acceptance/cucumber-screenplay && go mod download
+      run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
     - name: Run domain tests
-      run: cd acceptance/cucumber-screenplay && make test-domain
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
     - name: Run HTTP in-process tests
-      run: cd acceptance/cucumber-screenplay && make test-http-inprocess
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-inprocess
 
     - name: Run HTTP executable tests
-      run: cd acceptance/cucumber-screenplay && make test-http-executable
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-executable
 
     - name: Run Docker container tests
-      run: cd acceptance/cucumber-screenplay && make test-http-docker
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-docker
       env:
         # Ensure Docker tests run in CI
         CI: true
 
     - name: Generate test coverage
-      run: cd acceptance/cucumber-screenplay && make coverage
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
       if: always()
       with:
-        file: acceptance/cucumber-screenplay/coverage.out
+        file: ${{ env.ACCEPTANCE_PATH }}/coverage.out
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
@@ -184,7 +187,7 @@ jobs:
       run: cd back-end && go mod download
 
     - name: Download acceptance test dependencies
-      run: cd acceptance/cucumber-screenplay && go mod download
+      run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
     - name: Build server binary
       run: cd back-end && make build
