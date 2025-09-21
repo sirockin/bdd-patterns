@@ -2,14 +2,14 @@
 
 ## Overview
 
-Demonstration of different BDD patterns using Cucumber/Gherkin in Go, showing how the same acceptance tests can be implemented using different organizational patterns.
+Demonstration of different BDD patterns, showing how the same acceptance tests can be implemented using different organizational patterns.
 
 This monorepo contains three main components:
 - **back-end**: Go service with domain logic and HTTP API
 - **front-end**: React frontend (formerly web/)
-- **acceptance**: BDD acceptance tests demonstrating different patterns
+- **acceptance**: BDD acceptance tests with a folder for each pattern
 
-This repository demonstrates two approaches to organizing BDD tests:
+We currently demonstrates two patterns:
 
 ### 1. Cucumber (Standard Pattern)
 Located in `acceptance/cucumber/` - Traditional BDD implementation with step definitions directly calling the application driver.
