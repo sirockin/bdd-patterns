@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
-	"github.com/sirockin/cucumber-screenplay-go/internal/domain/entities"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/entities"
 )
 
 type AcceptanceTestDriver struct {
@@ -24,7 +24,7 @@ func New(baseURL string) *AcceptanceTestDriver {
 }
 
 // verify that AcceptanceTestDriver implements AcceptanceTestDriver
-var _ driver.AcceptanceTestDriver = (*AcceptanceTestDriver)(nil)
+var _ driver.TestDriver = (*AcceptanceTestDriver)(nil)
 
 func (h *AcceptanceTestDriver) CreateAccount(name string) error {
 	reqBody := map[string]string{"name": name}

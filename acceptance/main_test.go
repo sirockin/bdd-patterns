@@ -16,11 +16,9 @@ import (
 	"testing"
 	"time"
 
-	appdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/application"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
-	application "github.com/sirockin/cucumber-screenplay-go/internal/domain/application"
-	httpserver "github.com/sirockin/cucumber-screenplay-go/internal/http"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
@@ -28,19 +26,19 @@ import (
 )
 
 func TestApplication(t *testing.T) {
-	RunSuite(t, appdriver.New(), []string{"."})
+	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
 func TestHTTPInProcess(t *testing.T) {
 	// Start test server and get its URL
-	serverURL := startInProcessServer(t)
+	serverURL := testhelpers.NewInProcessServer(t)
 
-	// Create HTTP client pointing to our test server
-	httpClient := httpdriver.New(serverURL)
+	// Create HTTP test driver pointing to our test server
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the HTTP API
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestHttpExecutable tests against the actual running server executable
@@ -52,11 +50,11 @@ func TestHttpExecutable(t *testing.T) {
 	// Start real server executable and get its URL
 	serverURL := startServerExecutable(t)
 
-	// Create HTTP client pointing to the real server
-	httpClient := httpdriver.New(serverURL)
+	// Create HTTP driver pointing to the real server
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the actual server executable
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestHttpDocker tests against the server running in a Docker container using testcontainers
@@ -74,10 +72,10 @@ func TestHttpDocker(t *testing.T) {
 	serverURL := startTestContainer(t)
 
 	// Create HTTP client pointing to the containerized server
-	httpClient := httpdriver.New(serverURL)
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the containerized server
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestUI tests against both frontend and API running in containers using UI automation
@@ -95,20 +93,20 @@ func TestUI(t *testing.T) {
 	frontendURL := startUITestEnvironment(t)
 
 	// Create UI driver pointing to the frontend
-	uiClient, err := uidriver.New(frontendURL)
+	uiDriver, err := uidriver.New(frontendURL)
 	if err != nil {
 		t.Fatalf("Failed to create UI driver: %v", err)
 	}
 
 	// Ensure cleanup of browser resources
 	t.Cleanup(func() {
-		if err := uiClient.Close(); err != nil {
+		if err := uiDriver.Close(); err != nil {
 			t.Logf("Warning: Failed to close UI driver: %v", err)
 		}
 	})
 
 	// Run the same BDD tests against the UI
-	RunSuite(t, uiClient, []string{"."})
+	RunSuite(t, uiDriver, []string{"."})
 }
 
 // startServerExecutable builds and starts the actual server executable
@@ -193,8 +191,8 @@ func buildServerExecutable(t *testing.T) string {
 	t.Logf("Building server executable...")
 	cmd := exec.Command("go", "build", "-o", serverBinary, "./cmd/server")
 
-	// Set working directory to project root (parent of features)
-	cmd.Dir = ".."
+	// Set working directory to back-end
+	cmd.Dir = "../back-end"
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -255,45 +253,6 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 	}
 }
 
-// startInProcessServer starts an HTTP server wrapping the given ApplicationDriver
-// and returns the server URL. Cleanup is handled automatically via t.Cleanup.
-func startInProcessServer(t *testing.T) string {
-
-	// Create HTTP server using internal implementation directly
-	server := httpserver.NewServer(application.New())
-
-	// Find an available port
-	listener, err := net.Listen("tcp", ":0")
-	if err != nil {
-		t.Fatalf("Failed to find available port: %v", err)
-	}
-	port := listener.Addr().(*net.TCPAddr).Port
-	listener.Close()
-
-	// Start the HTTP server in a goroutine
-	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: server,
-	}
-
-	go func() {
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			t.Errorf("HTTP server failed: %v", err)
-		}
-	}()
-
-	// Wait a moment for server to start
-	time.Sleep(100 * time.Millisecond)
-
-	// Register cleanup function and return server URL
-	serverURL := fmt.Sprintf("http://localhost:%d", port)
-	t.Cleanup(func() {
-		httpServer.Close()
-	})
-
-	return serverURL
-}
-
 // isDockerAvailable checks if Docker is available on the system
 func isDockerAvailable(t *testing.T) bool {
 	_, err := runCommand(t, "docker", "version")
@@ -311,11 +270,11 @@ func startTestContainer(t *testing.T) string {
 		t.Fatalf("Failed to get project root path: %v", err)
 	}
 
-	// Create container request using the deploy/Dockerfile
+	// Create container request using the back-end/Dockerfile
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    projectRoot,
-			Dockerfile: "./deploy/Dockerfile",
+			Context:    filepath.Join(projectRoot, "back-end"),
+			Dockerfile: "Dockerfile",
 		},
 		ExposedPorts: []string{"8080/tcp"},
 		WaitingFor:   wait.ForLog("API endpoints"),
@@ -399,8 +358,8 @@ func startUITestEnvironment(t *testing.T) string {
 	apiContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    projectRoot,
-				Dockerfile: "./deploy/Dockerfile",
+				Context:    filepath.Join(projectRoot, "back-end"),
+				Dockerfile: "Dockerfile",
 			},
 			ExposedPorts: []string{"8080/tcp"},
 			WaitingFor:   wait.ForLog("API endpoints"),
@@ -427,7 +386,7 @@ func startUITestEnvironment(t *testing.T) string {
 	frontendContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    filepath.Join(projectRoot, "web"),
+				Context:    filepath.Join(projectRoot, "front-end"),
 				Dockerfile: "Dockerfile",
 			},
 			ExposedPorts: []string{"80/tcp"},
