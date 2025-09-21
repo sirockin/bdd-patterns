@@ -9,6 +9,7 @@ import (
 )
 
 type suite struct {
+	t          *testing.T
 	driver     driver.TestDriver
 	lastErrors map[string]error
 }
@@ -25,6 +26,23 @@ func (s *suite) setLastError(name string, err error) {
 		s.lastErrors = make(map[string]error)
 	}
 	s.lastErrors[name] = err
+}
+
+// Gherkin keyword methods for chaining
+func (s *suite) given() *suite {
+	return s
+}
+
+func (s *suite) when() *suite {
+	return s
+}
+
+func (s *suite) and() *suite {
+	return s
+}
+
+func (s *suite) then() *suite {
+	return s
 }
 
 func RunSuite(t *testing.T, driver driver.TestDriver, featurePaths []string) {
