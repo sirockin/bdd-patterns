@@ -1,19 +1,38 @@
-.PHONY: clean build server help lint fmt vet sec test test-all test-fast coverage
+.PHONY: clean build server help lint fmt vet sec test test-all test-fast test-screenplay test-all-screenplay test-fast-screenplay test-both test-all-both coverage coverage-screenplay
 
 # Default target
 help: ## Show this help message
 	@echo "Available targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# Testing targets (delegated to acceptance/Makefile)
-test: ## Run tests (delegates to acceptance/Makefile)
-	cd acceptance && $(MAKE) test
+# Testing targets for cucumber (non-screenplay version)
+test: ## Run tests (cucumber version)
+	cd acceptance/cucumber && $(MAKE) test
 
-test-all: ## Run all tests (delegates to acceptance/Makefile)
-	cd acceptance && $(MAKE) test-all
+test-all: ## Run all tests (cucumber version)
+	cd acceptance/cucumber && $(MAKE) test-all
 
-test-fast: ## Run fast tests (delegates to acceptance/Makefile)
-	cd acceptance && $(MAKE) test-fast
+test-fast: ## Run fast tests (cucumber version)
+	cd acceptance/cucumber && $(MAKE) test-fast
+
+# Testing targets for cucumber-screenplay version
+test-screenplay: ## Run tests (cucumber-screenplay version)
+	cd acceptance/cucumber-screenplay && $(MAKE) test
+
+test-all-screenplay: ## Run all tests (cucumber-screenplay version)
+	cd acceptance/cucumber-screenplay && $(MAKE) test-all
+
+test-fast-screenplay: ## Run fast tests (cucumber-screenplay version)
+	cd acceptance/cucumber-screenplay && $(MAKE) test-fast
+
+# Run tests for both versions
+test-both: ## Run tests for both cucumber and cucumber-screenplay versions
+	cd acceptance/cucumber && $(MAKE) test
+	cd acceptance/cucumber-screenplay && $(MAKE) test
+
+test-all-both: ## Run all tests for both cucumber and cucumber-screenplay versions
+	cd acceptance/cucumber && $(MAKE) test-all
+	cd acceptance/cucumber-screenplay && $(MAKE) test-all
 
 # Build targets
 build: ## Build the server binary
@@ -33,14 +52,19 @@ fmt: ## Format Go code
 
 vet: ## Run go vet
 	cd back-end && go vet ./...
-	cd acceptance && go vet ./...
+	cd acceptance/cucumber && go vet ./...
+	cd acceptance/cucumber-screenplay && go vet ./...
 
 sec: ## Run security checks with gosec
 	cd back-end && gosec ./...
-	cd acceptance && gosec ./...
+	cd acceptance/cucumber && gosec ./...
+	cd acceptance/cucumber-screenplay && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting
 
-# Coverage (delegated to acceptance/Makefile)
-coverage: ## Run tests with coverage (delegates to acceptance/Makefile)
-	cd acceptance && $(MAKE) coverage
+# Coverage targets
+coverage: ## Run tests with coverage (cucumber version)
+	cd acceptance/cucumber && $(MAKE) coverage
+
+coverage-screenplay: ## Run tests with coverage (cucumber-screenplay version)
+	cd acceptance/cucumber-screenplay && $(MAKE) coverage

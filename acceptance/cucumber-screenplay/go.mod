@@ -78,4 +78,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/sirockin/cucumber-screenplay-go/back-end => ../back-end
+replace github.com/sirockin/cucumber-screenplay-go/back-end => ../../back-end
