@@ -192,7 +192,7 @@ func buildServerExecutable(t *testing.T) string {
 	cmd := exec.Command("go", "build", "-o", serverBinary, "./cmd/server")
 
 	// Set working directory to back-end
-	cmd.Dir = "../back-end"
+	cmd.Dir = "../../back-end"
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -265,7 +265,7 @@ func startTestContainer(t *testing.T) string {
 	ctx := context.Background()
 
 	// Get absolute path to project root
-	projectRoot, err := filepath.Abs("..")
+	projectRoot, err := filepath.Abs("../..")
 	if err != nil {
 		t.Fatalf("Failed to get project root path: %v", err)
 	}
@@ -335,7 +335,7 @@ func startUITestEnvironment(t *testing.T) string {
 	ctx := context.Background()
 
 	// Get absolute path to project root
-	projectRoot, err := filepath.Abs("..")
+	projectRoot, err := filepath.Abs("../..")
 	if err != nil {
 		t.Fatalf("Failed to get project root path: %v", err)
 	}
