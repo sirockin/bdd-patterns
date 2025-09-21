@@ -9,8 +9,8 @@ import (
 )
 
 type suite struct {
-	driver      driver.TestDriver
-	lastErrors  map[string]error
+	driver     driver.TestDriver
+	lastErrors map[string]error
 }
 
 func (s *suite) getLastError(name string) error {
