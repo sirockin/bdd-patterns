@@ -1,7 +1,6 @@
 package features_test
 
 import (
-	"fmt"
 	"strings"
 )
 

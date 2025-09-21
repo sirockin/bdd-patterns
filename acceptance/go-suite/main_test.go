@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
 	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
@@ -25,8 +26,55 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+func runAllFeatureTests(t *testing.T, driver driver.TestDriver) {
+	t.Run("CreateProject", func(t *testing.T) {
+		t.Run("CreateOneProject", func(t *testing.T) {
+			s := NewSuite(t, driver)
+			s.given().
+				sueHasSignedUp().
+				when().
+				sueCreatesAProject().
+				then().
+				sueShouldSeeTheProject()
+		})
+		t.Run("TryToSeeSomeoneElsesProject", func(t *testing.T) {
+			s := NewSuite(t, driver)
+			s.given().
+				sueHasSignedUp().
+				and().
+				bobHasSignedUp().
+				when().
+				sueCreatesAProject().
+				then().
+				bobShouldNotSeeAnyProjects()
+		})
+	})
+	t.Run("SignUp", func(t *testing.T) {
+		t.Run("SuccessfulSignUp", func(t *testing.T) {
+			s := NewSuite(t, driver)
+			s.given().
+				tanyaHasCreatedAnAccount().
+				when().
+				tanyaActivatesHerAccount().
+				then().
+				tanyaShouldBeAuthenticated()
+		})
+		t.Run("TryToSignInWithoutActivatingAccount", func(t *testing.T) {
+			s := NewSuite(t, driver)
+			s.given().
+				bobHasCreatedAnAccount().
+				when().
+				bobTriesToSignIn().
+				then().
+				bobShouldNotBeAuthenticated().
+				and().
+				bobShouldSeeAnErrorTellingHimToActivateTheAccount()
+		})
+	})
+}
+
 func TestApplication(t *testing.T) {
-	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
+	runAllFeatureTests(t, testhelpers.NewDomainTestDriver())
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
@@ -38,7 +86,7 @@ func TestHTTPInProcess(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the HTTP API
-	RunSuite(t, httpDriver, []string{"."})
+	runAllFeatureTests(t, httpDriver)
 }
 
 // TestHttpExecutable tests against the actual running server executable
@@ -54,7 +102,7 @@ func TestHttpExecutable(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the actual server executable
-	RunSuite(t, httpDriver, []string{"."})
+	runAllFeatureTests(t, httpDriver)
 }
 
 // TestHttpDocker tests against the server running in a Docker container using testcontainers
@@ -75,7 +123,7 @@ func TestHttpDocker(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the containerized server
-	RunSuite(t, httpDriver, []string{"."})
+	runAllFeatureTests(t, httpDriver)
 }
 
 // TestUI tests against both frontend and API running in containers using UI automation
@@ -106,7 +154,7 @@ func TestUI(t *testing.T) {
 	})
 
 	// Run the same BDD tests against the UI
-	RunSuite(t, uiDriver, []string{"."})
+	runAllFeatureTests(t, uiDriver)
 }
 
 // startServerExecutable builds and starts the actual server executable
