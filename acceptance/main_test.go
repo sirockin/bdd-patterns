@@ -16,9 +16,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
