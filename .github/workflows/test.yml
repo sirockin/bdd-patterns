@@ -47,7 +47,7 @@ jobs:
       run: cd acceptance && go mod download
 
     - name: Run fast tests
-      run: make test-fast
+      run: cd acceptance && make test-fast
 
     - name: Run go vet
       run: make vet
@@ -91,28 +91,28 @@ jobs:
       run: cd acceptance && go mod download
 
     - name: Run domain tests
-      run: make test-domain
+      run: cd acceptance && make test-domain
 
     - name: Run HTTP in-process tests
-      run: make test-http-inprocess
+      run: cd acceptance && make test-http-inprocess
 
     - name: Run HTTP executable tests
-      run: make test-http-executable
+      run: cd acceptance && make test-http-executable
 
     - name: Run Docker container tests
-      run: make test-http-docker
+      run: cd acceptance && make test-http-docker
       env:
         # Ensure Docker tests run in CI
         CI: true
 
     - name: Generate test coverage
-      run: make coverage
+      run: cd acceptance && make coverage
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
       if: always()
       with:
-        file: coverage.out
+        file: acceptance/coverage.out
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
