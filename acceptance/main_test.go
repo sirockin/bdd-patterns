@@ -34,11 +34,11 @@ func TestHTTPInProcess(t *testing.T) {
 	// Start test server and get its URL
 	serverURL := testhelpers.NewInProcessServer(t)
 
-	// Create HTTP client pointing to our test server
-	httpClient := httpdriver.New(serverURL)
+	// Create HTTP test driver pointing to our test server
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the HTTP API
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestHttpExecutable tests against the actual running server executable
@@ -50,11 +50,11 @@ func TestHttpExecutable(t *testing.T) {
 	// Start real server executable and get its URL
 	serverURL := startServerExecutable(t)
 
-	// Create HTTP client pointing to the real server
-	httpClient := httpdriver.New(serverURL)
+	// Create HTTP driver pointing to the real server
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the actual server executable
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestHttpDocker tests against the server running in a Docker container using testcontainers
@@ -72,10 +72,10 @@ func TestHttpDocker(t *testing.T) {
 	serverURL := startTestContainer(t)
 
 	// Create HTTP client pointing to the containerized server
-	httpClient := httpdriver.New(serverURL)
+	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the containerized server
-	RunSuite(t, httpClient, []string{"."})
+	RunSuite(t, httpDriver, []string{"."})
 }
 
 // TestUI tests against both frontend and API running in containers using UI automation
@@ -93,20 +93,20 @@ func TestUI(t *testing.T) {
 	frontendURL := startUITestEnvironment(t)
 
 	// Create UI driver pointing to the frontend
-	uiClient, err := uidriver.New(frontendURL)
+	uiDriver, err := uidriver.New(frontendURL)
 	if err != nil {
 		t.Fatalf("Failed to create UI driver: %v", err)
 	}
 
 	// Ensure cleanup of browser resources
 	t.Cleanup(func() {
-		if err := uiClient.Close(); err != nil {
+		if err := uiDriver.Close(); err != nil {
 			t.Logf("Warning: Failed to close UI driver: %v", err)
 		}
 	})
 
 	// Run the same BDD tests against the UI
-	RunSuite(t, uiClient, []string{"."})
+	RunSuite(t, uiDriver, []string{"."})
 }
 
 // startServerExecutable builds and starts the actual server executable
@@ -252,9 +252,6 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 		}
 	}
 }
-
-// startInProcessServer starts an HTTP server wrapping the given ApplicationDriver
-// and returns the server URL. Cleanup is handled automatically via t.Cleanup.
 
 // isDockerAvailable checks if Docker is available on the system
 func isDockerAvailable(t *testing.T) bool {
