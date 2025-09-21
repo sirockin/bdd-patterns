@@ -7,7 +7,7 @@ import (
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
-	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/domain/entities"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/entities"
 )
 
 type AcceptanceTestDriver struct {
@@ -62,7 +62,7 @@ func (u *AcceptanceTestDriver) Close() error {
 }
 
 // verify that AcceptanceTestDriver implements AcceptanceTestDriver
-var _ driver.AcceptanceTestDriver = (*AcceptanceTestDriver)(nil)
+var _ driver.TestDriver = (*AcceptanceTestDriver)(nil)
 
 func (u *AcceptanceTestDriver) CreateAccount(name string) error {
 	log.Printf("UI: Creating account for %s", name)

@@ -1,11 +1,11 @@
 package driver
 
 import (
-	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/domain/entities"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/entities"
 )
 
-// AcceptanceTestDriver is our interface to the system under test
-type AcceptanceTestDriver interface {
+// TestDriver is our interface to the system under test
+type TestDriver interface {
 	CreateAccount(name string) error
 	ClearAll()
 	GetAccount(name string) (entities.Account, error)

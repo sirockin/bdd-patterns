@@ -16,11 +16,9 @@ import (
 	"testing"
 	"time"
 
-	appdriver "github.com/sirockin/cucumber-screenplay-go/back-end/pkg/driver"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
-	"github.com/sirockin/cucumber-screenplay-go/back-end/internal/domain/application"
-	httpserver "github.com/sirockin/cucumber-screenplay-go/back-end/internal/http"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
@@ -28,13 +26,13 @@ import (
 )
 
 func TestApplication(t *testing.T) {
-	RunSuite(t, appdriver.New(), []string{"."})
+	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
 func TestHTTPInProcess(t *testing.T) {
 	// Start test server and get its URL
-	serverURL := startInProcessServer(t)
+	serverURL := testhelpers.NewInProcessServer(t)
 
 	// Create HTTP client pointing to our test server
 	httpClient := httpdriver.New(serverURL)
@@ -257,42 +255,6 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 
 // startInProcessServer starts an HTTP server wrapping the given ApplicationDriver
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
-func startInProcessServer(t *testing.T) string {
-
-	// Create HTTP server using internal implementation directly
-	server := httpserver.NewServer(application.New())
-
-	// Find an available port
-	listener, err := net.Listen("tcp", ":0")
-	if err != nil {
-		t.Fatalf("Failed to find available port: %v", err)
-	}
-	port := listener.Addr().(*net.TCPAddr).Port
-	listener.Close()
-
-	// Start the HTTP server in a goroutine
-	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: server,
-	}
-
-	go func() {
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			t.Errorf("HTTP server failed: %v", err)
-		}
-	}()
-
-	// Wait a moment for server to start
-	time.Sleep(100 * time.Millisecond)
-
-	// Register cleanup function and return server URL
-	serverURL := fmt.Sprintf("http://localhost:%d", port)
-	t.Cleanup(func() {
-		httpServer.Close()
-	})
-
-	return serverURL
-}
 
 // isDockerAvailable checks if Docker is available on the system
 func isDockerAvailable(t *testing.T) bool {

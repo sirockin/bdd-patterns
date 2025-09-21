@@ -3,7 +3,7 @@ package application
 import (
 	"fmt"
 
-	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/domain/entities"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/entities"
 )
 
 // Service provides business operations for the application
