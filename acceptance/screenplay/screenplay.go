@@ -8,8 +8,10 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
-type Action func(Abilities) error
-type Question func(Abilities) (interface{}, error)
+type (
+	Action   func(Abilities) error
+	Question func(Abilities) (interface{}, error)
+)
 
 type Abilities struct {
 	Name      string

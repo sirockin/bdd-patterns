@@ -1,8 +1,7 @@
 // Entities package is exported so that it can be reused in acceptance tests
 package entities
 
-type Project struct {
-}
+type Project struct{}
 
 type Account struct {
 	name          string

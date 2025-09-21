@@ -50,8 +50,8 @@ clean: ## Clean build artifacts
 
 # Development helpers
 fmt: ## Format Go code
-	cd back-end && go fmt ./...
-	cd acceptance && go fmt ./...
+	go install mvdan.cc/gofumpt@latest
+	gofumpt -l -w .
 
 vet: ## Run go vet
 	cd back-end && go vet ./...

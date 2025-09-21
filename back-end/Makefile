@@ -18,7 +18,8 @@ clean: ## Clean build artifacts
 
 # Development helpers
 fmt: ## Format Go code
-	go fmt ./...
+	go install mvdan.cc/gofumpt@latest
+	gofumpt -l -w .
 
 vet: ## Run go vet
 	go vet ./...

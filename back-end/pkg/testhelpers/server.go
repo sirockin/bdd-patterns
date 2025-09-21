@@ -13,7 +13,6 @@ import (
 
 // Create an in-process server for testing
 func NewInProcessServer(t *testing.T) string {
-
 	// Create HTTP server using internal implementation directly
 	server := httpserver.NewServer(application.New())
 

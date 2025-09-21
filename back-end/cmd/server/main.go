@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	var port = flag.Int("port", 8080, "port to run server on")
+	port := flag.Int("port", 8080, "port to run server on")
 	flag.Parse()
 
 	// Create domain application service
