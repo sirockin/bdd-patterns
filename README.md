@@ -16,7 +16,9 @@ The same BDD scenarios can be run against different deployment models:
 - HTTP API with Docker container
 - Full UI testing with frontend and API in containers
 
-Based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) to `go`, using the official [godog](https://github.com/cucumber/godog/) library.
+The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) to `go`.
+
+We use the official [Cucumber go](https://github.com/cucumber/godog/) library to translate Gherkin to tests.
 
 ## About Screenplay
 
