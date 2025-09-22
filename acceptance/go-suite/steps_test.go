@@ -4,54 +4,6 @@ import (
 	"strings"
 )
 
-// Convenience methods for specific personas
-func (s *suite) sueHasSignedUp() *suite {
-	return s.personHasSignedUp("Sue")
-}
-
-func (s *suite) sueCreatesAProject() *suite {
-	return s.personCreatesAProject("Sue")
-}
-
-func (s *suite) sueShouldSeeTheProject() *suite {
-	return s.personShouldSeeTheirProject("Sue")
-}
-
-func (s *suite) bobHasSignedUp() *suite {
-	return s.personHasSignedUp("Bob")
-}
-
-func (s *suite) bobShouldNotSeeAnyProjects() *suite {
-	return s.personShouldNotSeeAnyProjects("Bob")
-}
-
-func (s *suite) tanyaHasCreatedAnAccount() *suite {
-	return s.personHasCreatedAnAccount("Tanya")
-}
-
-func (s *suite) tanyaActivatesHerAccount() *suite {
-	return s.personActivatesTheirAccount("Tanya")
-}
-
-func (s *suite) tanyaShouldBeAuthenticated() *suite {
-	return s.personShouldBeAuthenticated("Tanya")
-}
-
-func (s *suite) bobHasCreatedAnAccount() *suite {
-	return s.personHasCreatedAnAccount("Bob")
-}
-
-func (s *suite) bobTriesToSignIn() *suite {
-	return s.personTriesToSignIn("Bob")
-}
-
-func (s *suite) bobShouldNotBeAuthenticated() *suite {
-	return s.personShouldNotBeAuthenticated("Bob")
-}
-
-func (s *suite) bobShouldSeeAnErrorTellingHimToActivateTheAccount() *suite {
-	return s.personShouldSeeAnErrorTellingThemToActivateTheAccount("Bob")
-}
 
 func (s *suite) personHasCreatedAnAccount(name string) *suite {
 	if err := s.driver.CreateAccount(name); err != nil {

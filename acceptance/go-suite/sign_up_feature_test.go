@@ -11,11 +11,11 @@ func TestSignUpFeature_SuccessfulSignUp(t *testing.T) {
 	s := newSuite(t, driver)
 
 	s.given().
-		tanyaHasCreatedAnAccount().
+		personHasCreatedAnAccount("Tanya").
 		when().
-		tanyaActivatesHerAccount().
+		personActivatesTheirAccount("Tanya").
 		then().
-		tanyaShouldBeAuthenticated()
+		personShouldBeAuthenticated("Tanya")
 }
 
 func TestSignUpFeature_TryToSignInWithoutActivatingAccount(t *testing.T) {
@@ -23,11 +23,11 @@ func TestSignUpFeature_TryToSignInWithoutActivatingAccount(t *testing.T) {
 	s := newSuite(t, driver)
 
 	s.given().
-		bobHasCreatedAnAccount().
+		personHasCreatedAnAccount("Bob").
 		when().
-		bobTriesToSignIn().
+		personTriesToSignIn("Bob").
 		then().
-		bobShouldNotBeAuthenticated().
+		personShouldNotBeAuthenticated("Bob").
 		and().
-		bobShouldSeeAnErrorTellingHimToActivateTheAccount()
+		personShouldSeeAnErrorTellingThemToActivateTheAccount("Bob")
 }

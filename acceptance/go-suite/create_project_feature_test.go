@@ -22,11 +22,11 @@ func TestCreateProjectFeature_CreateOneProject(t *testing.T) {
 	s := newSuite(t, driver)
 
 	s.given().
-		sueHasSignedUp().
+		personHasSignedUp("Sue").
 		when().
-		sueCreatesAProject().
+		personCreatesAProject("Sue").
 		then().
-		sueShouldSeeTheProject()
+		personShouldSeeTheirProject("Sue")
 }
 
 func TestCreateProjectFeature_TryToSeeSomeoneElsesProject(t *testing.T) {
@@ -34,11 +34,11 @@ func TestCreateProjectFeature_TryToSeeSomeoneElsesProject(t *testing.T) {
 	s := newSuite(t, driver)
 
 	s.given().
-		sueHasSignedUp().
+		personHasSignedUp("Sue").
 		and().
-		bobHasSignedUp().
+		personHasSignedUp("Bob").
 		when().
-		sueCreatesAProject().
+		personCreatesAProject("Sue").
 		then().
-		bobShouldNotSeeAnyProjects()
+		personShouldNotSeeAnyProjects("Bob")
 }

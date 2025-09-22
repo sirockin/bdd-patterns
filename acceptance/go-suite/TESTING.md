@@ -8,11 +8,11 @@ Tests are written using a fluent chaining pattern that reads like natural langua
 
 ```go
 s.given().
-    sueHasSignedUp().
+    personHasSignedUp("Sue").
     when().
-    sueCreatesAProject().
+    personCreatesAProject("Sue").
     then().
-    sueShouldSeeTheProject()
+    personShouldSeeTheirProject("Sue")
 ```
 
 ## Test Levels
@@ -139,11 +139,11 @@ func TestCreateProjectFeature_CreateOneProject(t *testing.T) {
     s := NewSuite(t, driver)
 
     s.given().
-        sueHasSignedUp().
+        personHasSignedUp("Sue").
         when().
-        sueCreatesAProject().
+        personCreatesAProject("Sue").
         then().
-        sueShouldSeeTheProject()
+        personShouldSeeTheirProject("Sue")
 }
 ```
 

@@ -31,44 +31,44 @@ func runAllFeatureTests(t *testing.T, driver driver.TestDriver) {
 		t.Run("CreateOneProject", func(t *testing.T) {
 			s := NewSuite(t, driver)
 			s.given().
-				sueHasSignedUp().
+				personHasSignedUp("Sue").
 				when().
-				sueCreatesAProject().
+				personCreatesAProject("Sue").
 				then().
-				sueShouldSeeTheProject()
+				personShouldSeeTheirProject("Sue")
 		})
 		t.Run("TryToSeeSomeoneElsesProject", func(t *testing.T) {
 			s := NewSuite(t, driver)
 			s.given().
-				sueHasSignedUp().
+				personHasSignedUp("Sue").
 				and().
-				bobHasSignedUp().
+				personHasSignedUp("Bob").
 				when().
-				sueCreatesAProject().
+				personCreatesAProject("Sue").
 				then().
-				bobShouldNotSeeAnyProjects()
+				personShouldNotSeeAnyProjects("Bob")
 		})
 	})
 	t.Run("SignUp", func(t *testing.T) {
 		t.Run("SuccessfulSignUp", func(t *testing.T) {
 			s := NewSuite(t, driver)
 			s.given().
-				tanyaHasCreatedAnAccount().
+				personHasCreatedAnAccount("Tanya").
 				when().
-				tanyaActivatesHerAccount().
+				personActivatesTheirAccount("Tanya").
 				then().
-				tanyaShouldBeAuthenticated()
+				personShouldBeAuthenticated("Tanya")
 		})
 		t.Run("TryToSignInWithoutActivatingAccount", func(t *testing.T) {
 			s := NewSuite(t, driver)
 			s.given().
-				bobHasCreatedAnAccount().
+				personHasCreatedAnAccount("Bob").
 				when().
-				bobTriesToSignIn().
+				personTriesToSignIn("Bob").
 				then().
-				bobShouldNotBeAuthenticated().
+				personShouldNotBeAuthenticated("Bob").
 				and().
-				bobShouldSeeAnErrorTellingHimToActivateTheAccount()
+				personShouldSeeAnErrorTellingThemToActivateTheAccount("Bob")
 		})
 	})
 }
