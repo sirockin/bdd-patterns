@@ -2,6 +2,7 @@
 standards/
 claude.md
 bin
+front-end/build/
 .vscode/
 node_modules/
 conversation-summaries/

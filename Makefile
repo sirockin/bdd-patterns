@@ -23,10 +23,13 @@ coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: cucumber)
 
 # Build targets
 build: ## Build the server binary
-	cd back-end && go build -o bin/server ./cmd/server
+	cd back-end && make build
+	cd front-end && npm run build
 
-server: build ## Build and run the server
-	./back-end/bin/server
+run: build ## Build and run both backend server and frontend
+	@echo "Starting backend server and frontend..."
+	@cd back-end && ./bin/server & \
+	cd front-end && npm start
 
 # Clean up
 clean: ## Clean build artifacts
