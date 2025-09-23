@@ -13,12 +13,12 @@ The Test Wrapper Pattern is a testing approach where:
 
 ## Key Components
 
-### 1. withTestDriver Wrapper Function
+### 1. withTestContext Wrapper Function
 
-The core of the pattern is the `withTestDriver` function that:
+The core of the pattern is the `withTestContext` function that:
 
 ```go
-func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDriver)) {
+func withTestContext(t *testing.T, testFn func(t *testing.T, driver driver.TestDriver)) {
     // Check environment variables to determine which drivers to run
     runApplication := os.Getenv("RUN_APPLICATION") != "false"
     runHTTPInProcess := os.Getenv("RUN_HTTP_INPROCESS") != "false"
@@ -39,7 +39,7 @@ Test functions are written using the wrapper:
 
 ```go
 func TestCreateOneProject(t *testing.T) {
-    withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
+    withTestContext(t, func(t *testing.T, testDriver driver.TestDriver) {
         // Arrange
         ctx := newTestContext(testDriver)
         defer ctx.clearAll()
