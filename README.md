@@ -9,7 +9,7 @@ This monorepo contains three main components:
 - **front-end**: React frontend (formerly web/)
 - **acceptance**: BDD acceptance tests with a folder for each pattern
 
-We currently demonstrates two patterns:
+We currently demonstrate three patterns:
 
 ### 1. Cucumber (Standard Pattern)
 Located in `acceptance/cucumber/` - Traditional BDD implementation with step definitions directly calling the application driver.
@@ -17,7 +17,10 @@ Located in `acceptance/cucumber/` - Traditional BDD implementation with step def
 ### 2. Cucumber-Screenplay (Screenplay Pattern)
 Located in `acceptance/cucumber-screenplay/` - Implementation using the Screenplay pattern with Actors, Actions, and Questions.
 
-Both versions run identical Gherkin scenarios against different deployment models:
+### 3. Go-Suite (Testify Suite Pattern)
+Located in `acceptance/go-suite/` - Pure Go implementation using testify/suite with Gherkin-style method chaining
+
+All three versions run identical BDD scenarios against different deployment models:
 - Direct domain access
 - HTTP API with in-process server
 - HTTP API with separate server executable
@@ -26,17 +29,7 @@ Both versions run identical Gherkin scenarios against different deployment model
 
 The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) ported to Go.
 
-We use the official [Cucumber go](https://github.com/cucumber/godog/) library to translate Gherkin to tests.
 
-## About Screenplay
-
-The [Screenplay Pattern](https://serenity-js.org/handbook/design/screenplay-pattern/) is an evolution of the Page Object Pattern for UI test automation. It uses Actors with Abilities to perform Actions which can be grouped into Tasks. Actors can also ask Questions to verify outcomes.
-
-While it has its origins in UI test automation, the pattern is applicable to acceptance testing in general, including API testing as demonstrated here.
-
-It is useful where there are multiple user roles (Actors) with different capabilities (Abilities) performing different operations (Tasks) to achieve different goals (Questions).
-
-It carries with it an extra layer of complexity and is probably best suited to projects in organizations where BDD is already well understood and widely adopted.
 
 ## Run Tests
 
@@ -56,9 +49,14 @@ make test-screenplay          # Fast tests (screenplay version)
 make test-fast-screenplay     # Fast tests only (screenplay version)
 make test-all-screenplay      # Full test suite including Docker (screenplay version)
 
-# Run tests for both versions
-make test-both                # Fast tests for both versions
-make test-all-both           # Full test suite for both versions
+# Run tests for go-suite version
+make test-go-suite            # Fast tests (go-suite version)
+make test-fast-go-suite       # Fast tests only (go-suite version)
+make test-all-go-suite        # Full test suite including Docker (go-suite version)
+
+# Run tests for multiple versions
+make test-both                # Fast tests for cucumber and screenplay versions
+make test-all-both           # Full test suite for cucumber and screenplay versions
 
 # Coverage
 make coverage                 # Coverage for cucumber version
@@ -73,6 +71,9 @@ cd acceptance/cucumber && go test -v .
 
 # Run cucumber-screenplay version tests
 cd acceptance/cucumber-screenplay && go test -v .
+
+# Run go-suite version tests
+cd acceptance/go-suite && go test -v .
 
 # Run specific test types (from either subdirectory)
 go test -v -run TestApplication .
@@ -97,6 +98,14 @@ The `acceptance/cucumber-screenplay/` implementation demonstrates the Screenplay
 - Uses Questions and associated helper methods for assertions
 - All scenario steps are delegated to Actor methods
 - More complex but provides better abstraction for large test suites
+
+### Go-Suite Version
+The `acceptance/go-suite/` implementation uses pure Go with testify/suite:
+- Embeds `testify/suite.Suite` for test lifecycle management
+- Uses Gherkin-style method chaining (`given().when().then()`) for readable scenarios
+- Each scenario is a `TestXXX` method on the suite struct
+- No external BDD dependencies (Cucumber/Godog) - pure Go testing
+- Simpler setup with standard Go tooling and IDE support
 
 Implementation differences from the original JavaScript project:
 - `godog` does not support [cucumber expressions](https://github.com/cucumber/cucumber-expressions#readme) so:
@@ -137,11 +146,14 @@ acceptance/         # BDD tests
 │   ├── driver/     # Test drivers for different deployment modes
 │   ├── features/   # Gherkin feature files
 │   └── *.go        # Step definitions and test implementation
-└── cucumber-screenplay/ # Screenplay pattern implementation (independent module)
-    ├── driver/     # Test drivers for different deployment modes
-    ├── screenplay/ # Screenplay pattern implementation
-    ├── features/   # Gherkin feature files
-    └── *.go        # Step definitions, actions, questions, and test implementation
+├── cucumber-screenplay/ # Screenplay pattern implementation (independent module)
+│   ├── driver/     # Test drivers for different deployment modes
+│   ├── screenplay/ # Screenplay pattern implementation
+│   ├── features/   # Gherkin feature files
+│   └── *.go        # Step definitions, actions, questions, and test implementation
+└── go-suite/       # Pure Go testify/suite implementation (independent module)
+    ├── driver/     # Test drivers for different deployment modes (shared)
+    └── *.go        # Suite implementation with TestXXX methods and step chains
 ```
 
 ## Test Levels
@@ -190,6 +202,7 @@ Each component is now its own Go module for better dependency management:
 - `back-end/go.mod` - Backend service module
 - `acceptance/cucumber/go.mod` - Standard BDD acceptance tests module
 - `acceptance/cucumber-screenplay/go.mod` - Screenplay pattern acceptance tests module
+- `acceptance/go-suite/go.mod` - Pure Go testify/suite acceptance tests module
 - `front-end/package.json` - Frontend dependencies
 
-Both acceptance test modules import the backend as a dependency and use the backend's public API via `back-end/pkg/` packages.
+All acceptance test modules import the backend as a dependency and use the backend's public API via `back-end/pkg/` packages.
