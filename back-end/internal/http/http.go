@@ -153,7 +153,10 @@ func (s *Server) getAccount(w http.ResponseWriter, _ *http.Request, name string)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) activateAccount(w http.ResponseWriter, r *http.Request, name string) {
@@ -188,7 +191,10 @@ func (s *Server) authenticateAccount(w http.ResponseWriter, r *http.Request, nam
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request, name string) {
@@ -201,7 +207,10 @@ func (s *Server) getAuthenticationStatus(w http.ResponseWriter, r *http.Request,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string) {
@@ -216,7 +225,10 @@ func (s *Server) getProjects(w http.ResponseWriter, r *http.Request, name string
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(projects)
+	if err := json.NewEncoder(w).Encode(projects); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) createProject(w http.ResponseWriter, r *http.Request, name string) {
@@ -247,5 +259,7 @@ func (s *Server) writeError(w http.ResponseWriter, message string, statusCode in
 		Error: message,
 	}
 
-	_ = json.NewEncoder(w).Encode(errorResponse)
+	if err := json.NewEncoder(w).Encode(errorResponse); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 }
