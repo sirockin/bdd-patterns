@@ -1,105 +1,71 @@
 package features_test
 
-import (
-	"strings"
-)
-
-
-func (s *suite) personHasCreatedAnAccount(name string) *suite {
-	if err := s.driver.CreateAccount(name); err != nil {
-		s.t.Fatal(err)
-	}
+func (s *FeatureSuite) personHasCreatedAnAccount(name string) *FeatureSuite {
+	err := s.driver.CreateAccount(name)
+	s.Require().NoError(err)
 	return s
 }
 
-func (s *suite) personHasSignedUp(name string) *suite {
-	if err := s.driver.CreateAccount(name); err != nil {
-		s.t.Fatal(err)
-	}
-	if _, err := s.driver.GetAccount(name); err != nil {
-		s.t.Fatal(err)
-	}
-	if err := s.driver.Activate(name); err != nil {
-		s.t.Fatal(err)
-	}
+func (s *FeatureSuite) personHasSignedUp(name string) *FeatureSuite {
+	err := s.driver.CreateAccount(name)
+	s.Require().NoError(err)
+	_, err = s.driver.GetAccount(name)
+	s.Require().NoError(err)
+	err = s.driver.Activate(name)
+	s.Require().NoError(err)
 	return s
 }
 
-func (s *suite) personShouldBeAuthenticated(name string) *suite {
-	expected := true
+func (s *FeatureSuite) personShouldBeAuthenticated(name string) *FeatureSuite {
 	actual := s.driver.IsAuthenticated(name)
-	if actual != expected {
-		s.t.Fatalf("expected %v to equal %v", actual, expected)
-	}
+	s.Assert().True(actual, "person %s should be authenticated", name)
 	return s
 }
 
-func (s *suite) personShouldNotBeAuthenticated(name string) *suite {
-	expected := false
+func (s *FeatureSuite) personShouldNotBeAuthenticated(name string) *FeatureSuite {
 	actual := s.driver.IsAuthenticated(name)
-	if actual != expected {
-		s.t.Fatalf("expected %v to equal %v", actual, expected)
-	}
+	s.Assert().False(actual, "person %s should not be authenticated", name)
 	return s
 }
 
-func (s *suite) personShouldNotSeeAnyProjects(name string) *suite {
+func (s *FeatureSuite) personShouldNotSeeAnyProjects(name string) *FeatureSuite {
 	projects, err := s.driver.GetProjects(name)
-	if err != nil {
-		s.t.Fatal(err)
-	}
-	expected := 0
-	actual := len(projects)
-	if actual != expected {
-		s.t.Fatalf("expected %v to equal %v", actual, expected)
-	}
+	s.Require().NoError(err)
+	s.Assert().Empty(projects, "person %s should not see any projects", name)
 	return s
 }
 
-func (s *suite) personShouldSeeTheirProject(name string) *suite {
+func (s *FeatureSuite) personShouldSeeTheirProject(name string) *FeatureSuite {
 	projects, err := s.driver.GetProjects(name)
-	if err != nil {
-		s.t.Fatal(err)
-	}
-	expected := 1
-	actual := len(projects)
-	if actual != expected {
-		s.t.Fatalf("expected %v to equal %v", actual, expected)
-	}
+	s.Require().NoError(err)
+	s.Assert().Len(projects, 1, "person %s should see exactly one project", name)
 	return s
 }
 
-func (s *suite) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) *suite {
+func (s *FeatureSuite) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) *FeatureSuite {
 	lastError := s.getLastError(name)
 	expectedText := "you need to activate your account"
-	if lastError == nil {
-		s.t.Fatalf("expected error containing text '%s' but there is no error", expectedText)
-	}
-	if !strings.Contains(lastError.Error(), expectedText) {
-		s.t.Fatalf("expected error text containing '%s' but got %s", expectedText, lastError.Error())
-	}
+	s.Require().NotNil(lastError, "expected error containing text '%s' but there is no error", expectedText)
+	s.Assert().Contains(lastError.Error(), expectedText, "expected error text containing '%s'", expectedText)
 	return s
 }
 
-func (s *suite) personTriesToSignIn(name string) *suite {
+func (s *FeatureSuite) personTriesToSignIn(name string) *FeatureSuite {
 	err := s.driver.Authenticate(name)
 	s.setLastError(name, err)
 	return s // The step succeeds even if the result is bad to allow the next step to check the error
 }
 
-func (s *suite) personCreatesAProject(name string) *suite {
-	if err := s.driver.CreateProject(name); err != nil {
-		s.t.Fatal(err)
-	}
+func (s *FeatureSuite) personCreatesAProject(name string) *FeatureSuite {
+	err := s.driver.CreateProject(name)
+	s.Require().NoError(err)
 	return s
 }
 
-func (s *suite) personActivatesTheirAccount(name string) *suite {
-	if _, err := s.driver.GetAccount(name); err != nil {
-		s.t.Fatal(err)
-	}
-	if err := s.driver.Activate(name); err != nil {
-		s.t.Fatal(err)
-	}
+func (s *FeatureSuite) personActivatesTheirAccount(name string) *FeatureSuite {
+	_, err := s.driver.GetAccount(name)
+	s.Require().NoError(err)
+	err = s.driver.Activate(name)
+	s.Require().NoError(err)
 	return s
 }
