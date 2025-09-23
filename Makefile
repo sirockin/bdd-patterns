@@ -9,14 +9,17 @@ help: ## Show this help message
 SUBFOLDER ?= cucumber
 
 # Parameterized testing targets
-test: ## Run tests (usage: make test [SUBFOLDER=cucumber|cucumber-screenplay|go-test-wrapper])
+test: ## Run tests (USAGE: make test() SUBFOLDER={subfolder}), default: cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test
 
-test-all: ## Run all tests (usage: make test-all [SUBFOLDER=cucumber|cucumber-screenplay|go-test-wrapper])
+test-all: ## Run all tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-test-fast: ## Run fast tests (usage: make test-fast [SUBFOLDER=cucumber|cucumber-screenplay|go-test-wrapper])
+test-fast: ## Run fast tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
+
+coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
 
 # Build targets
 build: ## Build the server binary
@@ -47,7 +50,3 @@ sec: ## Run security checks with gosec
 	cd acceptance/go-test-wrapper && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting
-
-# Coverage target
-coverage: ## Run tests with coverage (usage: make coverage [SUBFOLDER=cucumber|cucumber-screenplay|go-test-wrapper])
-	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
