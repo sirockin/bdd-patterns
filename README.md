@@ -14,6 +14,8 @@ The features are based on the official [Cucumber Screenplay Example](https://git
 
 ## Run Tests
 
+
+From the subdirectory
 ```sh
 # cd to the pattern of your choice, eg...
 cd ./acceptance/go-suite
@@ -21,9 +23,20 @@ cd ./acceptance/go-suite
 # run all the tests
 make test-all
 
-## or run help to choose a command to run one set of tests
+## or run help to choose a command to run a specific set of tests
 make help
 ```
+
+From the project root
+```sh
+# run all the tests, specifying the subfolder
+make test-all SUBFOLDER=go-test-wrapper
+
+# run the fast tests, specifying the subfolder
+make test-fast SUBFOLDER=go-test-wrapper
+
+```
+
 
 ## The Patterns
 - go-test-wrapper: tests entirely written in `go` using test wrapper pattern to inject different protocol drivers
