@@ -1,4 +1,4 @@
-## bdd-patterns
+# BDD Acceptance Test Patterns
 
 ## Overview
 
@@ -80,17 +80,21 @@ make test-all
 ## Build and Run Server
 
 ```sh
-# Build server binary
+# Build both back end and front end
 make build
 
 # Build and run server
 make server
 
-# Or run directly from back-end directory
-cd back-end && go run ./cmd/server
-
-# Run frontend development server
-cd front-end && npm start
+# Build and run front end and back end
+make run
 ```
 
+## Contributing
+
+Please feel free to raise issues and PRs, particularly if you want to add a new set of acceptance tests showing a different pattern or language. If the latter:
+- please use the same scenario wording, and if possible the same step names
+- please use identical interactions with the system
+
+Other than that I don't have specific rules about contributing but, you know, be kind! :-).
 
