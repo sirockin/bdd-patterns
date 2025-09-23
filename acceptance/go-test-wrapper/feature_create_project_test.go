@@ -2,31 +2,23 @@ package features_test
 
 import (
 	"testing"
-
-	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
 func TestCreateOneProject(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
+	withTestContext(t, func(t *testing.T, ctx *testContext) {
 		// Given
 		personHasSignedUp(t, ctx, "Sue")
 
 		// When
 		personCreatesAProject(t, ctx, "Sue")
 
-		// Then 
+		// Then
 		personShouldSeeTheirProject(t, ctx, "Sue")
 	})
 }
 
 func TestTryToSeeSomeoneElsesProject(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
+	withTestContext(t, func(t *testing.T, ctx *testContext) {
 		// Given Sue has signed up
 		personHasSignedUp(t, ctx, "Sue")
 

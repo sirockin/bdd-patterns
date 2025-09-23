@@ -16,7 +16,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
 	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
@@ -26,9 +25,9 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// withTestDriver executes the provided test function with different drivers
+// withTestContext executes the provided test function with different test contexts
 // based on environment variables to control which tests run
-func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDriver)) {
+func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) {
 	// Check which drivers to run based on environment variables
 	runApplication := os.Getenv("RUN_APPLICATION") != "false"
 	runHTTPInProcess := os.Getenv("RUN_HTTP_INPROCESS") != "false"
@@ -51,7 +50,11 @@ func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDr
 
 	if runApplication {
 		t.Run("Application", func(t *testing.T) {
-			testFn(t, testhelpers.NewDomainTestDriver())
+			ctx := newTestContext(testhelpers.NewDomainTestDriver())
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
 		})
 	}
 
@@ -59,7 +62,11 @@ func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDr
 		t.Run("HTTPInProcess", func(t *testing.T) {
 			serverURL := testhelpers.NewInProcessServer(t)
 			httpDriver := httpdriver.New(serverURL)
-			testFn(t, httpDriver)
+			ctx := newTestContext(httpDriver)
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
 		})
 	}
 
@@ -71,7 +78,11 @@ func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDr
 
 			serverURL := startServerExecutable(t)
 			httpDriver := httpdriver.New(serverURL)
-			testFn(t, httpDriver)
+			ctx := newTestContext(httpDriver)
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
 		})
 	}
 
@@ -87,7 +98,11 @@ func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDr
 
 			serverURL := startTestContainer(t)
 			httpDriver := httpdriver.New(serverURL)
-			testFn(t, httpDriver)
+			ctx := newTestContext(httpDriver)
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
 		})
 	}
 
@@ -113,7 +128,11 @@ func withTestDriver(t *testing.T, testFn func(t *testing.T, driver driver.TestDr
 				}
 			})
 
-			testFn(t, uiDriver)
+			ctx := newTestContext(uiDriver)
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
 		})
 	}
 }

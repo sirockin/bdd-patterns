@@ -2,15 +2,10 @@ package features_test
 
 import (
 	"testing"
-
-	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
 func TestSignUp(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
+	withTestContext(t, func(t *testing.T, ctx *testContext) {
 		// Given a person has created an account
 		personHasCreatedAnAccount(t, ctx, "Sue")
 
@@ -24,10 +19,7 @@ func TestSignUp(t *testing.T) {
 }
 
 func TestSignInBeforeActivation(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
+	withTestContext(t, func(t *testing.T, ctx *testContext) {
 		// Given
 		personHasCreatedAnAccount(t, ctx, "Sue")
 
@@ -41,10 +33,7 @@ func TestSignInBeforeActivation(t *testing.T) {
 }
 
 func TestNewPersonCannotSeeProjects(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
+	withTestContext(t, func(t *testing.T, ctx *testContext) {
 		// Given
 		personHasSignedUp(t, ctx, "Sue")
 
