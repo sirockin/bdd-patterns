@@ -6,13 +6,13 @@ import (
 
 func TestSignUp(t *testing.T) {
 	withTestContext(t, func(t *testing.T, ctx *testContext) {
-		// Given a person has created an account
+		// Given
 		personHasCreatedAnAccount(t, ctx, "Sue")
 
-		// When they activate their account
+		// When
 		personActivatesTheirAccount(t, ctx, "Sue")
 
-		// Then they should be able to sign in successfully
+		// Then
 		personTriesToSignIn(t, ctx, "Sue")
 		personShouldBeAuthenticated(t, ctx, "Sue")
 	})

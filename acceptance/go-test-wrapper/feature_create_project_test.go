@@ -19,16 +19,14 @@ func TestCreateOneProject(t *testing.T) {
 
 func TestTryToSeeSomeoneElsesProject(t *testing.T) {
 	withTestContext(t, func(t *testing.T, ctx *testContext) {
-		// Given Sue has signed up
+		// Given
 		personHasSignedUp(t, ctx, "Sue")
-
-		// And Bob has signed up
 		personHasSignedUp(t, ctx, "Bob")
 
-		// When Sue creates a project
+		// When
 		personCreatesAProject(t, ctx, "Sue")
 
-		// Then Bob should not see any projects
+		// Then
 		personShouldNotSeeAnyProjects(t, ctx, "Bob")
 	})
 }
