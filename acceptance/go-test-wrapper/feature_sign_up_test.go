@@ -14,14 +14,14 @@ func TestSignUp(t *testing.T) {
 		defer ctx.clearAll()
 
 		// Given a person has created an account
-		assertNoError(t, ctx.personHasCreatedAnAccount("Sue"))
+		personHasCreatedAnAccount(t, ctx, "Sue")
 
 		// When they activate their account
-		assertNoError(t, ctx.personActivatesTheirAccount("Sue"))
+		personActivatesTheirAccount(t, ctx, "Sue")
 
 		// Then they should be able to sign in successfully
-		assertNoError(t, ctx.personTriesToSignIn("Sue"))
-		assertNoError(t, ctx.personShouldBeAuthenticated("Sue"))
+		personTriesToSignIn(t, ctx, "Sue")
+		personShouldBeAuthenticated(t, ctx, "Sue")
 	})
 }
 
@@ -32,16 +32,16 @@ func TestSignInBeforeActivation(t *testing.T) {
 		defer ctx.clearAll()
 
 		// Given a person has created an account but not activated it
-		assertNoError(t, ctx.personHasCreatedAnAccount("Sue"))
+		personHasCreatedAnAccount(t, ctx, "Sue")
 
 		// When they try to sign in
-		assertNoError(t, ctx.personTriesToSignIn("Sue"))
+		personTriesToSignIn(t, ctx, "Sue")
 
 		// Then they should not be authenticated
-		assertNoError(t, ctx.personShouldNotBeAuthenticated("Sue"))
+		personShouldNotBeAuthenticated(t, ctx, "Sue")
 
 		// And they should see an error telling them to activate the account
-		assertNoError(t, ctx.personShouldSeeAnErrorTellingThemToActivateTheAccount("Sue"))
+		personShouldSeeAnErrorTellingThemToActivateTheAccount(t, ctx, "Sue")
 	})
 }
 
@@ -52,10 +52,10 @@ func TestNewPersonCannotSeeProjects(t *testing.T) {
 		defer ctx.clearAll()
 
 		// Given a person has signed up
-		assertNoError(t, ctx.personHasSignedUp("Sue"))
+		personHasSignedUp(t, ctx, "Sue")
 
 		// When they look at their projects
 		// Then they should not see any projects
-		assertNoError(t, ctx.personShouldNotSeeAnyProjects("Sue"))
+		personShouldNotSeeAnyProjects(t, ctx, "Sue")
 	})
 }

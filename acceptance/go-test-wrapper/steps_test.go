@@ -1,11 +1,11 @@
 package features_test
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type testContext struct {
@@ -20,91 +20,75 @@ func newTestContext(testDriver driver.TestDriver) *testContext {
 	}
 }
 
-func (ctx *testContext) personHasCreatedAnAccount(name string) error {
-	return ctx.driver.CreateAccount(name)
+func personHasCreatedAnAccount(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
+	err := ctx.driver.CreateAccount(name)
+	require.NoError(t, err)
 }
 
-func (ctx *testContext) personHasSignedUp(name string) error {
-	if err := ctx.driver.CreateAccount(name); err != nil {
-		return err
-	}
-	if _, err := ctx.driver.GetAccount(name); err != nil {
-		return nil
-	}
-	return ctx.driver.Activate(name)
+func personHasSignedUp(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
+	err := ctx.driver.CreateAccount(name)
+	require.NoError(t, err)
+	_, err = ctx.driver.GetAccount(name)
+	require.NoError(t, err)
+	err = ctx.driver.Activate(name)
+	require.NoError(t, err)
 }
 
-func (ctx *testContext) personShouldBeAuthenticated(name string) error {
-	expected := true
+func personShouldBeAuthenticated(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	actual := ctx.driver.IsAuthenticated(name)
-	if actual != expected {
-		return fmt.Errorf("expected %v to equal %v", actual, expected)
-	}
-	return nil
+	assert.True(t, actual, "person %s should be authenticated", name)
 }
 
-func (ctx *testContext) personShouldNotBeAuthenticated(name string) error {
-	expected := false
+func personShouldNotBeAuthenticated(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	actual := ctx.driver.IsAuthenticated(name)
-	if actual != expected {
-		return fmt.Errorf("expected %v to equal %v", actual, expected)
-	}
-	return nil
+	assert.False(t, actual, "person %s should not be authenticated", name)
 }
 
-func (ctx *testContext) personShouldNotSeeAnyProjects(name string) error {
+func personShouldNotSeeAnyProjects(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	projects, err := ctx.driver.GetProjects(name)
-	if err != nil {
-		return err
-	}
-	expected := 0
-	actual := len(projects)
-	if actual != expected {
-		return fmt.Errorf("expected %v to equal %v", actual, expected)
-	}
-	return nil
+	require.NoError(t, err)
+	assert.Empty(t, projects, "person %s should not see any projects", name)
 }
 
-func (ctx *testContext) personShouldSeeTheirProject(name string) error {
+func personShouldSeeTheirProject(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	projects, err := ctx.driver.GetProjects(name)
-	if err != nil {
-		return err
-	}
-	expected := 1
-	actual := len(projects)
-	if actual != expected {
-		return fmt.Errorf("expected %v to equal %v", actual, expected)
-	}
-	return nil
+	require.NoError(t, err)
+	assert.Len(t, projects, 1, "person %s should see exactly one project", name)
 }
 
-func (ctx *testContext) personShouldSeeAnErrorTellingThemToActivateTheAccount(name string) error {
+func personShouldSeeAnErrorTellingThemToActivateTheAccount(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	lastError := ctx.getLastError(name)
 	expectedText := "you need to activate your account"
-	if lastError == nil {
-		return fmt.Errorf("expected error containing text '%s' but there is no error", expectedText)
-	}
-	if !strings.Contains(lastError.Error(), expectedText) {
-		return fmt.Errorf("expected error text containing '%s' but got %s", expectedText, lastError.Error())
-	}
-	return nil
+	require.NotNil(t, lastError, "expected error containing text '%s' but there is no error", expectedText)
+	assert.Contains(t, lastError.Error(), expectedText, "expected error text containing '%s'", expectedText)
 }
 
-func (ctx *testContext) personTriesToSignIn(name string) error {
+func personTriesToSignIn(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
 	err := ctx.driver.Authenticate(name)
 	ctx.setLastError(name, err)
-	return nil
+	// The step succeeds even if the result is bad to allow the next step to check the error
 }
 
-func (ctx *testContext) personCreatesAProject(name string) error {
-	return ctx.driver.CreateProject(name)
+func personCreatesAProject(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
+	err := ctx.driver.CreateProject(name)
+	require.NoError(t, err)
 }
 
-func (ctx *testContext) personActivatesTheirAccount(name string) error {
-	if _, err := ctx.driver.GetAccount(name); err != nil {
-		return nil
-	}
-	return ctx.driver.Activate(name)
+func personActivatesTheirAccount(t *testing.T, ctx *testContext, name string) {
+	t.Helper()
+	_, err := ctx.driver.GetAccount(name)
+	require.NoError(t, err)
+	err = ctx.driver.Activate(name)
+	require.NoError(t, err)
 }
 
 func (ctx *testContext) getLastError(name string) error {
@@ -120,9 +104,3 @@ func (ctx *testContext) clearAll() {
 	ctx.lastErrors = make(map[string]error)
 }
 
-func assertNoError(t *testing.T, err error) {
-	t.Helper()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-}

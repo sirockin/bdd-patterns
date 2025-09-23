@@ -13,13 +13,13 @@ func TestCreateOneProject(t *testing.T) {
 		defer ctx.clearAll()
 
 		// Given Sue has signed up
-		assertNoError(t, ctx.personHasSignedUp("Sue"))
+		personHasSignedUp(t, ctx, "Sue")
 
 		// When Sue creates a project
-		assertNoError(t, ctx.personCreatesAProject("Sue"))
+		personCreatesAProject(t, ctx, "Sue")
 
 		// Then Sue should see the project
-		assertNoError(t, ctx.personShouldSeeTheirProject("Sue"))
+		personShouldSeeTheirProject(t, ctx, "Sue")
 	})
 }
 
@@ -30,15 +30,15 @@ func TestTryToSeeSomeoneElsesProject(t *testing.T) {
 		defer ctx.clearAll()
 
 		// Given Sue has signed up
-		assertNoError(t, ctx.personHasSignedUp("Sue"))
+		personHasSignedUp(t, ctx, "Sue")
 
 		// And Bob has signed up
-		assertNoError(t, ctx.personHasSignedUp("Bob"))
+		personHasSignedUp(t, ctx, "Bob")
 
 		// When Sue creates a project
-		assertNoError(t, ctx.personCreatesAProject("Sue"))
+		personCreatesAProject(t, ctx, "Sue")
 
 		// Then Bob should not see any projects
-		assertNoError(t, ctx.personShouldNotSeeAnyProjects("Bob"))
+		personShouldNotSeeAnyProjects(t, ctx, "Bob")
 	})
 }
