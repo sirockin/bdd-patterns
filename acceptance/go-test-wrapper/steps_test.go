@@ -103,4 +103,3 @@ func (ctx *testContext) clearAll() {
 	ctx.driver.ClearAll()
 	ctx.lastErrors = make(map[string]error)
 }
-
