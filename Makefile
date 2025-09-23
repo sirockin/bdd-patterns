@@ -6,19 +6,19 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Default subfolder if none specified
-SUBFOLDER ?= cucumber
+SUBFOLDER ?= go-cucumber
 
 # Parameterized testing targets
-test: ## Run tests (USAGE: make test() SUBFOLDER={subfolder}), default: cucumber)
+test: ## Run tests (USAGE: make test() SUBFOLDER={subfolder}), default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test
 
-test-all: ## Run all tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: cucumber)
+test-all: ## Run all tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-test-fast: ## Run fast tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: cucumber)
+test-fast: ## Run fast tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
 
-coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: cucumber)
+coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
 
 # Build targets
@@ -42,14 +42,14 @@ fmt: ## Format Go code
 
 vet: ## Run go vet
 	cd back-end && go vet ./...
-	cd acceptance/cucumber && go vet ./...
-	cd acceptance/cucumber-screenplay && go vet ./...
+	cd acceptance/go-cucumber && go vet ./...
+	cd acceptance/go-cucumber-screenplay && go vet ./...
 	cd acceptance/go-test-wrapper && go vet ./...
 
 sec: ## Run security checks with gosec
 	cd back-end && gosec ./...
-	cd acceptance/cucumber && gosec ./...
-	cd acceptance/cucumber-screenplay && gosec ./...
+	cd acceptance/go-cucumber && gosec ./...
+	cd acceptance/go-cucumber-screenplay && gosec ./...
 	cd acceptance/go-test-wrapper && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting

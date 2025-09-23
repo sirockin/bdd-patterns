@@ -1,7 +1,7 @@
 name: Test Suite
 
 env:
-  ACCEPTANCE_PATH: acceptance/cucumber-screenplay
+  ACCEPTANCE_PATH: acceptance/go-cucumber-screenplay
 
 on:
   # Run on push to main/master branches only
