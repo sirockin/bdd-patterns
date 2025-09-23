@@ -2,169 +2,67 @@
 
 ## Overview
 
-Demonstration of different BDD patterns, showing how the same acceptance tests can be implemented using different organizational patterns.
+This repo demonstrates the use of a range of BDD acceptance test patterns. It is intended to:
+- demonstrate the pros, const and applicability of different BDD patterns to different use cases
+- provide some usable boilerplate for quickly getting BDD acceptance tests up and running
+- show how we can reuse the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
 
-This monorepo contains three main components:
-- **back-end**: Go service with domain logic and HTTP API
-- **front-end**: React frontend (formerly web/)
-- **acceptance**: BDD acceptance tests with a folder for each pattern
+Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more patterns and more languages.
 
-We currently demonstrate three patterns:
-
-### 1. Cucumber (Standard Pattern)
-Located in `acceptance/cucumber/` - Traditional BDD implementation with step definitions directly calling the application driver.
-
-### 2. Cucumber-Screenplay (Screenplay Pattern)
-Located in `acceptance/cucumber-screenplay/` - Implementation using the Screenplay pattern with Actors, Actions, and Questions.
-
-### 3. Go-Suite (Testify Suite Pattern)
-Located in `acceptance/go-suite/` - Pure Go implementation using testify/suite with Gherkin-style method chaining
-
-All three versions run identical BDD scenarios against different deployment models:
-- Direct domain access
-- HTTP API with in-process server
-- HTTP API with separate server executable
-- HTTP API with Docker container
-- Full UI testing with frontend and API in containers
-
-The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code) ported to Go.
-
+The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
 
 
 ## Run Tests
 
-### Using Makefile (Recommended)
-
 ```sh
-# Show all available commands
+# cd to the pattern of your choice, eg...
+cd ./acceptance/go-suite
+
+# run all the tests
+make test-all
+
+## or run help to choose a command to run one set of tests
 make help
-
-# Run tests for cucumber version (default)
-make test                     # Fast tests (domain + in-process HTTP)
-make test-fast                # Fast tests only
-make test-all                 # Full test suite including Docker
-
-# Run tests for cucumber-screenplay version
-make test-screenplay          # Fast tests (screenplay version)
-make test-fast-screenplay     # Fast tests only (screenplay version)
-make test-all-screenplay      # Full test suite including Docker (screenplay version)
-
-# Run tests for go-suite version
-make test-go-suite            # Fast tests (go-suite version)
-make test-fast-go-suite       # Fast tests only (go-suite version)
-make test-all-go-suite        # Full test suite including Docker (go-suite version)
-
-# Run tests for multiple versions
-make test-both                # Fast tests for cucumber and screenplay versions
-make test-all-both           # Full test suite for cucumber and screenplay versions
-
-# Coverage
-make coverage                 # Coverage for cucumber version
-make coverage-screenplay      # Coverage for screenplay version
 ```
 
-### Direct Go Commands
-
-```sh
-# Run cucumber version tests
-cd acceptance/cucumber && go test -v .
-
-# Run cucumber-screenplay version tests
-cd acceptance/cucumber-screenplay && go test -v .
-
-# Run go-suite version tests
-cd acceptance/go-suite && go test -v .
-
-# Run specific test types (from either subdirectory)
-go test -v -run TestApplication .
-go test -v -run TestHTTPInProcess .
-go test -v -run TestHttpExecutable .
-go test -v -run TestHttpDocker .
-go test -v -run TestUI .
-```
+## The Patterns
+- go-test-wrapper: tests entirely written in `go` using test wrapper pattern to inject different protocol drivers
+- go-suite: tests entirely written in `go` using suite pattern to inject different protocol drivers
+- go-cucumber: high level specs written in [gherkin](https://cucumber.io/docs/gherkin/reference) steps written in go, with [godog](https://github.com/cucumber/godog/tree/main/_examples) (the official cucumber go library) used as glue
+- go-cucumber-screenplay: as for go-cucumber but implements the screenplay pattern
 
 
-## Test Details
 
-### Cucumber Version (Standard BDD)
-The `acceptance/cucumber/` implementation follows standard BDD practices:
-- Step definitions directly call the test driver
-- Error handling is managed explicitly in step implementations
-- Simple, straightforward approach suitable for most projects
+## Common Features
 
-### Cucumber-Screenplay Version
-The `acceptance/cucumber-screenplay/` implementation demonstrates the Screenplay pattern:
-- Uses Actors with Abilities, and Actions which can be grouped to represent Tasks
-- Uses Questions and associated helper methods for assertions
-- All scenario steps are delegated to Actor methods
-- More complex but provides better abstraction for large test suites
+The system under test (SUT) is a front end written in React that accesses a back end whose REST API is specified in `./openapi.yaml`.
 
-### Go-Suite Version
-The `acceptance/go-suite/` implementation uses pure Go with testify/suite:
-- Embeds `testify/suite.Suite` for test lifecycle management
-- Uses Gherkin-style method chaining (`given().when().then()`) for readable scenarios
-- Each scenario is a `TestXXX` method on the suite struct
-- No external BDD dependencies (Cucumber/Godog) - pure Go testing
-- Simpler setup with standard Go tooling and IDE support
+The same high level specs are run for all cases and should result in identical interactions with the SUT.
 
-Implementation differences from the original JavaScript project:
-- `godog` does not support [cucumber expressions](https://github.com/cucumber/cucumber-expressions#readme) so:
-   - regular expressions are used to map parameters as per godog examples
-   - actors are created and accessed by an `Actor(name string)` method on the `suite` object
-- `go` does not support arrow functions so the implementation of actions, tasks etc uses standard functions
+We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20Guide%2026-03-21.pdf) comprising:
+1. Executable Specification: Readable specs, broken down into steps
+2. Domain Specific Language: Step implementations which call...
+3. Protocol Drivers: An abstraction of lowest-level interactions with the system
+4. System Under Test
 
-Common architecture (both versions):
-- Domain implementation code is in `back-end/internal/domain` package following Go conventions
-- Public domain interfaces are exposed via `back-end/pkg/domain/` for use by acceptance tests
-- HTTP server implementation is in `back-end/internal/http` package
-- Test drivers in `acceptance/*/driver` provide different ways to access the domain (direct, HTTP client, UI automation)
-- Application is injected into test suites via go test functions rather than exported InitializeScenarios function
-- Tests run via `go test` rather than `godog run`
-- Each acceptance test version has its own Go module and split into several files
+### Protocol Drivers
 
-## Architecture
+The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
-The project follows clean architecture principles with a monorepo structure:
+To do this, in we define a `TestDriver` interface test and drivers for each layer we want to test. 
 
-```
-back-end/           # Go service (independent module)
-├── cmd/server/     # Runnable HTTP server
-├── internal/       # Internal implementation packages
-│   ├── domain/     # Core business logic
-│   └── http/       # HTTP server implementation
-└── pkg/            # Public packages for external use
-    ├── domain/     # Domain entities and services
-    └── http/       # HTTP server interface
 
-front-end/          # React frontend (formerly web/)
-├── src/            # React source code
-├── public/         # Static assets
-└── Dockerfile      # Frontend container
+### Are these intermediate layers really necessary?
 
-acceptance/         # BDD tests
-├── cucumber/       # Standard BDD implementation (independent module)
-│   ├── driver/     # Test drivers for different deployment modes
-│   ├── features/   # Gherkin feature files
-│   └── *.go        # Step definitions and test implementation
-├── cucumber-screenplay/ # Screenplay pattern implementation (independent module)
-│   ├── driver/     # Test drivers for different deployment modes
-│   ├── screenplay/ # Screenplay pattern implementation
-│   ├── features/   # Gherkin feature files
-│   └── *.go        # Step definitions, actions, questions, and test implementation
-└── go-suite/       # Pure Go testify/suite implementation (independent module)
-    ├── driver/     # Test drivers for different deployment modes (shared)
-    └── *.go        # Suite implementation with TestXXX methods and step chains
-```
+Abstractions and layers can help us reason about a system but too many can cause greater cognitive load.
 
-## Test Levels
+Clearly we need 1. and 4. (otherwise we have no tests and nothing to test) but what about 2 and 3?
 
-- **Application Tests** (`make test-domain`): Direct testing of business logic (fastest ~2-3ms)
-- **HTTP In-Process** (`make test-http-inprocess`): HTTP API testing with in-process server (~4-5ms)
-- **Server Executable** (`make test-http-executable`): Full integration with separate server process (~1-2s)
-- **Docker Container** (`make test-http-docker`): Production-like containerized testing (~30-60s)
-- **UI Tests** (`make test-ui`): Full stack testing with frontend and API containers using browser automation (~60-120s)
+I hope to provide some examples with 2 and 3 removed (feel free to submit a PR) but for now I will argue:
 
-All tests run identical BDD scenarios ensuring contract compliance across all deployment models.
+- Level 2: Whether we want to call them a Domain Specific Language or not, breaking our tests down into reusable steps with meaningful names, makes them a lot easier to reason about and easier to fix if an implementation change breaks them.
+- Level 3: Clearly this is useful if we want to test multiple layers but what if our only product is an API or a UI, not both? For a UI you're likely to write a Page Object Model (POM) (again to protect against brittleness). For an API you could be pragmatic and use an automatically generated client.
+
 
 ### Development Workflow
 
@@ -195,14 +93,4 @@ cd back-end && go run ./cmd/server
 cd front-end && npm start
 ```
 
-## Module Structure
 
-Each component is now its own Go module for better dependency management:
-
-- `back-end/go.mod` - Backend service module
-- `acceptance/cucumber/go.mod` - Standard BDD acceptance tests module
-- `acceptance/cucumber-screenplay/go.mod` - Screenplay pattern acceptance tests module
-- `acceptance/go-suite/go.mod` - Pure Go testify/suite acceptance tests module
-- `front-end/package.json` - Frontend dependencies
-
-All acceptance test modules import the backend as a dependency and use the backend's public API via `back-end/pkg/` packages.
