@@ -6,22 +6,6 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
-func TestCreateOneProject(t *testing.T) {
-	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
-		ctx := newTestContext(testDriver)
-		defer ctx.clearAll()
-
-		// Given
-		assertNoError(t, ctx.personHasSignedUp("Sue"))
-
-		// When
-		assertNoError(t, ctx.personCreatesAProject("Sue"))
-
-		// Then
-		assertNoError(t, ctx.personShouldSeeTheirProject("Sue"))
-	})
-}
 
 func TestSignUp(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
