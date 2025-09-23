@@ -1,4 +1,4 @@
-.PHONY: clean build server help lint fmt vet sec test test-all test-fast test-screenplay test-all-screenplay test-fast-screenplay test-both test-all-both coverage coverage-screenplay
+.PHONY: clean build server help lint fmt vet sec test test-all test-fast test-screenplay test-all-screenplay test-fast-screenplay test-wrapper test-all-wrapper test-fast-wrapper test-both test-all-both coverage coverage-screenplay coverage-wrapper
 
 # Default target
 help: ## Show this help message
@@ -24,6 +24,16 @@ test-all-screenplay: ## Run all tests (cucumber-screenplay version)
 
 test-fast-screenplay: ## Run fast tests (cucumber-screenplay version)
 	cd acceptance/cucumber-screenplay && $(MAKE) test-fast
+
+# Testing targets for go-test-wrapper version
+test-wrapper: ## Run tests (go-test-wrapper version)
+	cd acceptance/go-test-wrapper && $(MAKE) test
+
+test-all-wrapper: ## Run all tests (go-test-wrapper version)
+	cd acceptance/go-test-wrapper && $(MAKE) test-all
+
+test-fast-wrapper: ## Run fast tests (go-test-wrapper version)
+	cd acceptance/go-test-wrapper && $(MAKE) test-fast
 
 # Run tests for both versions
 test-both: ## Run tests for both cucumber and cucumber-screenplay versions
@@ -54,11 +64,13 @@ vet: ## Run go vet
 	cd back-end && go vet ./...
 	cd acceptance/cucumber && go vet ./...
 	cd acceptance/cucumber-screenplay && go vet ./...
+	cd acceptance/go-test-wrapper && go vet ./...
 
 sec: ## Run security checks with gosec
 	cd back-end && gosec ./...
 	cd acceptance/cucumber && gosec ./...
 	cd acceptance/cucumber-screenplay && gosec ./...
+	cd acceptance/go-test-wrapper && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting
 
@@ -68,3 +80,6 @@ coverage: ## Run tests with coverage (cucumber version)
 
 coverage-screenplay: ## Run tests with coverage (cucumber-screenplay version)
 	cd acceptance/cucumber-screenplay && $(MAKE) coverage
+
+coverage-wrapper: ## Run tests with coverage (go-test-wrapper version)
+	cd acceptance/go-test-wrapper && $(MAKE) coverage
