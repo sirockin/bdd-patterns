@@ -16,7 +16,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
 	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
@@ -27,60 +26,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// TestXXX methods for the FeatureSuite
-
-// TestCreateOneProject tests creating a single project
-func (s *FeatureSuite) TestCreateOneProject() {
-	s.given().
-		personHasSignedUp("Sue").
-		when().
-		personCreatesAProject("Sue").
-		then().
-		personShouldSeeTheirProject("Sue")
-}
-
-// TestTryToSeeSomeoneElsesProject tests that users cannot see other users' projects
-func (s *FeatureSuite) TestTryToSeeSomeoneElsesProject() {
-	s.given().
-		personHasSignedUp("Sue").
-		and().
-		personHasSignedUp("Bob").
-		when().
-		personCreatesAProject("Sue").
-		then().
-		personShouldNotSeeAnyProjects("Bob")
-}
-
-// TestSuccessfulSignUp tests successful account activation and authentication
-func (s *FeatureSuite) TestSuccessfulSignUp() {
-	s.given().
-		personHasCreatedAnAccount("Tanya").
-		when().
-		personActivatesTheirAccount("Tanya").
-		then().
-		personShouldBeAuthenticated("Tanya")
-}
-
-// TestTryToSignInWithoutActivatingAccount tests sign-in failure without account activation
-func (s *FeatureSuite) TestTryToSignInWithoutActivatingAccount() {
-	s.given().
-		personHasCreatedAnAccount("Bob").
-		when().
-		personTriesToSignIn("Bob").
-		then().
-		personShouldNotBeAuthenticated("Bob").
-		and().
-		personShouldSeeAnErrorTellingThemToActivateTheAccount("Bob")
-}
-
-// runFeatureSuite runs the test suite with the given driver
-func runFeatureSuite(t *testing.T, driver driver.TestDriver) {
-	s := NewFeatureSuite(driver)
-	suite.Run(t, s)
-}
-
 func TestApplication(t *testing.T) {
-	runFeatureSuite(t, testhelpers.NewDomainTestDriver())
+	suite.Run(t, NewFeatureSuite(testhelpers.NewDomainTestDriver()))
 }
 
 // TestHTTPInProcess tests against an in-process HTTP server
@@ -92,7 +39,7 @@ func TestHTTPInProcess(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the HTTP API
-	runFeatureSuite(t, httpDriver)
+	suite.Run(t, NewFeatureSuite(httpDriver))
 }
 
 // TestHttpExecutable tests against the actual running server executable
@@ -108,7 +55,7 @@ func TestHttpExecutable(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the actual server executable
-	runFeatureSuite(t, httpDriver)
+	suite.Run(t, NewFeatureSuite(httpDriver))
 }
 
 // TestHttpDocker tests against the server running in a Docker container using testcontainers
@@ -129,7 +76,7 @@ func TestHttpDocker(t *testing.T) {
 	httpDriver := httpdriver.New(serverURL)
 
 	// Run the same BDD tests against the containerized server
-	runFeatureSuite(t, httpDriver)
+	suite.Run(t, NewFeatureSuite(httpDriver))
 }
 
 // TestUI tests against both frontend and API running in containers using UI automation
@@ -160,7 +107,7 @@ func TestUI(t *testing.T) {
 	})
 
 	// Run the same BDD tests against the UI
-	runFeatureSuite(t, uiDriver)
+	suite.Run(t, NewFeatureSuite(uiDriver))
 }
 
 // startServerExecutable builds and starts the actual server executable
