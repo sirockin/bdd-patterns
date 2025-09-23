@@ -1,4 +1,4 @@
-.PHONY: clean build server help lint fmt vet sec test test-all test-fast coverage
+.PHONY: clean build run help lint fmt vet sec test test-all test-fast coverage
 
 # Default target
 help: ## Show this help message
@@ -9,20 +9,20 @@ help: ## Show this help message
 SUBFOLDER ?= go-cucumber
 
 # Parameterized testing targets
-test: ## Run tests (USAGE: make test() SUBFOLDER={subfolder}), default: go-cucumber)
+test: ## Run tests (USAGE: make test SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test
 
-test-all: ## Run all tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
+test-all: ## Run all tests (USAGE: make test-all SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-test-fast: ## Run fast tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
+test-fast: ## Run fast tests (USAGE: make test-fast SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
 
-coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: go-cucumber)
+coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
 
 # Build targets
-build: ## Build the server binary
+build: ## Build both backend and frontend
 	cd back-end && make build
 	cd front-end && npm run build
 

@@ -146,7 +146,7 @@ jobs:
       run: make vet
 
     # Temporarily commented out - these tools report errors that need investigation
-    # TODO: Re-enable once issues are resolved (see https://github.com/sirockin/cucumber-screenplay-go/issues/4)
+    # TODO: Re-enable once issue is resolved (see https://github.com/sirockin/cucumber-screenplay-go/issues/4)
     # - name: Run staticcheck
     #   uses: dominikh/staticcheck-action@v1.3.1
     #   with:
