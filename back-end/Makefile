@@ -9,7 +9,7 @@ help: ## Show this help message
 build: ## Build the server binary
 	go build -o bin/server ./cmd/server
 
-server: build ## Build and run the server
+run: build ## Build and run the server
 	./bin/server
 
 # Clean up

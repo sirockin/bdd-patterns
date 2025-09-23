@@ -1,55 +1,35 @@
-.PHONY: clean build server help lint fmt vet sec test test-all test-fast test-screenplay test-all-screenplay test-fast-screenplay test-wrapper test-all-wrapper test-fast-wrapper test-both test-all-both coverage coverage-screenplay coverage-wrapper
+.PHONY: clean build server help lint fmt vet sec test test-all test-fast coverage
 
 # Default target
 help: ## Show this help message
 	@echo "Available targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# Testing targets for cucumber (non-screenplay version)
-test: ## Run tests (cucumber version)
-	cd acceptance/cucumber && $(MAKE) test
+# Default subfolder if none specified
+SUBFOLDER ?= go-cucumber
 
-test-all: ## Run all tests (cucumber version)
-	cd acceptance/cucumber && $(MAKE) test-all
+# Parameterized testing targets
+test: ## Run tests (USAGE: make test() SUBFOLDER={subfolder}), default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test
 
-test-fast: ## Run fast tests (cucumber version)
-	cd acceptance/cucumber && $(MAKE) test-fast
+test-all: ## Run all tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-# Testing targets for cucumber-screenplay version
-test-screenplay: ## Run tests (cucumber-screenplay version)
-	cd acceptance/cucumber-screenplay && $(MAKE) test
+test-fast: ## Run fast tests (USAGE: make test-all (SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
 
-test-all-screenplay: ## Run all tests (cucumber-screenplay version)
-	cd acceptance/cucumber-screenplay && $(MAKE) test-all
-
-test-fast-screenplay: ## Run fast tests (cucumber-screenplay version)
-	cd acceptance/cucumber-screenplay && $(MAKE) test-fast
-
-# Testing targets for go-test-wrapper version
-test-wrapper: ## Run tests (go-test-wrapper version)
-	cd acceptance/go-test-wrapper && $(MAKE) test
-
-test-all-wrapper: ## Run all tests (go-test-wrapper version)
-	cd acceptance/go-test-wrapper && $(MAKE) test-all
-
-test-fast-wrapper: ## Run fast tests (go-test-wrapper version)
-	cd acceptance/go-test-wrapper && $(MAKE) test-fast
-
-# Run tests for both versions
-test-both: ## Run tests for both cucumber and cucumber-screenplay versions
-	cd acceptance/cucumber && $(MAKE) test
-	cd acceptance/cucumber-screenplay && $(MAKE) test
-
-test-all-both: ## Run all tests for both cucumber and cucumber-screenplay versions
-	cd acceptance/cucumber && $(MAKE) test-all
-	cd acceptance/cucumber-screenplay && $(MAKE) test-all
+coverage: ## Run tests with coverage (SUBFOLDER={subfolder}), default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
 
 # Build targets
 build: ## Build the server binary
-	cd back-end && go build -o bin/server ./cmd/server
+	cd back-end && make build
+	cd front-end && npm run build
 
-server: build ## Build and run the server
-	./back-end/bin/server
+run: build ## Build and run both backend server and frontend
+	@echo "Starting backend server and frontend..."
+	@cd back-end && ./bin/server & \
+	cd front-end && npm start
 
 # Clean up
 clean: ## Clean build artifacts
@@ -62,24 +42,14 @@ fmt: ## Format Go code
 
 vet: ## Run go vet
 	cd back-end && go vet ./...
-	cd acceptance/cucumber && go vet ./...
-	cd acceptance/cucumber-screenplay && go vet ./...
+	cd acceptance/go-cucumber && go vet ./...
+	cd acceptance/go-cucumber-screenplay && go vet ./...
 	cd acceptance/go-test-wrapper && go vet ./...
 
 sec: ## Run security checks with gosec
 	cd back-end && gosec ./...
-	cd acceptance/cucumber && gosec ./...
-	cd acceptance/cucumber-screenplay && gosec ./...
+	cd acceptance/go-cucumber && gosec ./...
+	cd acceptance/go-cucumber-screenplay && gosec ./...
 	cd acceptance/go-test-wrapper && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting
-
-# Coverage targets
-coverage: ## Run tests with coverage (cucumber version)
-	cd acceptance/cucumber && $(MAKE) coverage
-
-coverage-screenplay: ## Run tests with coverage (cucumber-screenplay version)
-	cd acceptance/cucumber-screenplay && $(MAKE) coverage
-
-coverage-wrapper: ## Run tests with coverage (go-test-wrapper version)
-	cd acceptance/go-test-wrapper && $(MAKE) coverage
