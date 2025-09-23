@@ -6,10 +6,8 @@ import (
 	"github.com/sirockin/cucumber-screenplay-go/acceptance/driver"
 )
 
-
 func TestSignUp(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
@@ -27,7 +25,6 @@ func TestSignUp(t *testing.T) {
 
 func TestSignInBeforeActivation(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
@@ -47,14 +44,12 @@ func TestSignInBeforeActivation(t *testing.T) {
 
 func TestNewPersonCannotSeeProjects(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
 		// Given a person has signed up
 		personHasSignedUp(t, ctx, "Sue")
 
-		// When they look at their projects
 		// Then they should not see any projects
 		personShouldNotSeeAnyProjects(t, ctx, "Sue")
 	})

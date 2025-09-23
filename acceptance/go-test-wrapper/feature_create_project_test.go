@@ -8,7 +8,6 @@ import (
 
 func TestCreateOneProject(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
@@ -25,7 +24,6 @@ func TestCreateOneProject(t *testing.T) {
 
 func TestTryToSeeSomeoneElsesProject(t *testing.T) {
 	withTestDriver(t, func(t *testing.T, testDriver driver.TestDriver) {
-		// Arrange
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
