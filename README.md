@@ -3,7 +3,7 @@
 ## Overview
 
 This repo demonstrates the use of a range of BDD acceptance test patterns. It is intended to:
-- demonstrate the pros, const and applicability of different BDD patterns to different use cases
+- demonstrate the pros, cons and applicability of different BDD patterns to different use cases
 - provide some usable boilerplate for quickly getting BDD acceptance tests up and running
 - show how we can reuse the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
 
@@ -62,7 +62,7 @@ We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20G
 
 The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
-To do this, in we define a `TestDriver` interface test and drivers for each layer we want to test. 
+To do this, we define a `TestDriver` interface and drivers for each layer we want to test. 
 
 
 ### Are these intermediate layers really necessary?
@@ -96,10 +96,10 @@ make test-all
 # Build both back end and front end
 make build
 
-# Build and run server
+# Build and run backend server only
 make server
 
-# Build and run front end and back end
+# Build and run both frontend and backend concurrently
 make run
 ```
 
