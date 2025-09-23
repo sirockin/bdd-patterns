@@ -11,13 +11,13 @@ func TestCreateOneProject(t *testing.T) {
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
-		// Given Sue has signed up
+		// Given
 		personHasSignedUp(t, ctx, "Sue")
 
-		// When Sue creates a project
+		// When
 		personCreatesAProject(t, ctx, "Sue")
 
-		// Then Sue should see the project
+		// Then 
 		personShouldSeeTheirProject(t, ctx, "Sue")
 	})
 }

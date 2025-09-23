@@ -28,16 +28,14 @@ func TestSignInBeforeActivation(t *testing.T) {
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
-		// Given a person has created an account but not activated it
+		// Given
 		personHasCreatedAnAccount(t, ctx, "Sue")
 
-		// When they try to sign in
+		// When
 		personTriesToSignIn(t, ctx, "Sue")
 
-		// Then they should not be authenticated
+		// Then
 		personShouldNotBeAuthenticated(t, ctx, "Sue")
-
-		// And they should see an error telling them to activate the account
 		personShouldSeeAnErrorTellingThemToActivateTheAccount(t, ctx, "Sue")
 	})
 }
@@ -47,10 +45,10 @@ func TestNewPersonCannotSeeProjects(t *testing.T) {
 		ctx := newTestContext(testDriver)
 		defer ctx.clearAll()
 
-		// Given a person has signed up
+		// Given
 		personHasSignedUp(t, ctx, "Sue")
 
-		// Then they should not see any projects
+		// Then
 		personShouldNotSeeAnyProjects(t, ctx, "Sue")
 	})
 }
