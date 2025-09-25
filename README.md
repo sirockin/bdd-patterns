@@ -105,9 +105,16 @@ make run
 
 ## Contributing
 
-Please feel free to raise issues and PRs, particularly if you want to add a new set of acceptance tests showing a different pattern or language. If the latter:
-- please use the same scenario wording, and if possible the same step names
-- please use identical interactions with the system
+Please feel free to raise issues and PRs. 
 
-Other than that I don't have specific rules about contributing but, you know, be kind! :-).
+### New Example Patterns
+
+New examples are particularly welcome. If submitting please aim for the following:
+
+- if using gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
+- use identical interactions with the system
+- where possible, as for existing examples, aim to run the same tests against UI and back end, and provide a makefile with the same target names. If your example is in go, also provide a domain test. 
+
+Thanks!
+
 
