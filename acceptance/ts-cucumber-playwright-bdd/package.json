@@ -1,0 +1,45 @@
+{
+  "name": "ts-cucumber-playwright-bdd",
+  "version": "1.0.0",
+  "description": "TypeScript Cucumber Playwright BDD acceptance tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:fast",
+    "test:fast": "npm run test:domain && npm run test:http-inprocess",
+    "test:domain": "playwright test --config=playwright-domain.config.ts",
+    "test:http-inprocess": "playwright test --config=playwright-http-inprocess.config.ts",
+    "test:http-executable": "playwright test --config=playwright-http-executable.config.ts",
+    "test:http-docker": "playwright test --config=playwright-http-docker.config.ts",
+    "test:ui": "playwright test --config=playwright-ui.config.ts",
+    "test:integration": "npm run test:http-inprocess && npm run test:http-executable",
+    "test:all": "playwright test --config=playwright.config.ts",
+    "test:short": "npm run test:domain",
+    "generate:client": "openapi-generator-cli generate -i ../../openapi.yaml -g typescript-axios -o src/client --additional-properties=withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
+    "prebuild": "npm run generate:client",
+    "build": "tsc",
+    "clean": "rm -rf dist src/client",
+    "coverage": "playwright test --config=playwright.config.ts --reporter=html"
+  },
+  "keywords": [
+    "bdd",
+    "cucumber",
+    "playwright",
+    "typescript",
+    "acceptance-testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "playwright": "^1.40.0",
+    "playwright-bdd": "^7.0.0",
+    "@cucumber/cucumber": "^10.0.0",
+    "@openapitools/openapi-generator-cli": "^2.7.0",
+    "axios": "^1.6.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
