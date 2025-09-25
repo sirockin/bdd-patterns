@@ -109,11 +109,12 @@ Please feel free to raise issues and PRs.
 
 ### New Example Patterns
 
-New examples are particularly welcome. If submitting please aim for the following:
+New examples are particularly welcome. If submitting please aim for the following to enable comparison of the patterns:
 
 - if using gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
 - use identical interactions with the system
-- where possible, as for existing examples, aim to run the same tests against UI and back end, and provide a makefile with the same target names. If your example is in go, also provide a domain test. 
+- where possible, as for existing examples, aim to run the same tests against UI and back end, ideally using protocol drivers. If your example is in go, use the same protocol drivers and provide a domain test. 
+- provide a makefile with the same target where relevant. 
 
 Thanks!
 
