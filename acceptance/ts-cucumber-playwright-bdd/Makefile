@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-http-inprocess test-http-executable test-http-docker test-ui test-fast test-integration test-all test-short coverage help install build clean generate-client
+.PHONY: test test-http-inprocess test-http-executable test-http-docker test-ui test-fast test-integration test-all test-short coverage help install build clean generate-client
 
 # Default target
 help: ## Show this help message
@@ -19,9 +19,6 @@ generate-client: ## Generate TypeScript client from OpenAPI spec
 	npm run generate:client
 
 # Individual test targets
-test-domain: ## Run domain unit tests (fastest)
-	npm run test:domain
-
 test-http-inprocess: ## Run in-process HTTP integration tests
 	npm run test:http-inprocess
 
@@ -35,8 +32,8 @@ test-ui: ## Run UI tests with frontend and API containers (requires Docker)
 	npm run test:ui
 
 # Test suites
-test-fast: ## Run fast tests (domain + in-process HTTP)
-	npm run test:fast
+test-fast: ## Run fast tests (in-process HTTP)
+	npm run test:http-inprocess
 
 test-integration: ## Run all integration tests (excluding Docker and UI)
 	npm run test:integration
@@ -46,9 +43,9 @@ test-all: ## Run all tests including Docker and UI (full suite)
 
 test: test-fast ## Default test target (fast tests only)
 
-# Test with short mode (unit tests only)
-test-short: ## Run tests in short mode (domain tests only)
-	npm run test:short
+# Test with short mode (fastest tests only)
+test-short: ## Run tests in short mode (HTTP inprocess only)
+	npm run test:http-inprocess
 
 # Coverage
 coverage: ## Run tests with coverage

@@ -1,11 +1,11 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { DomainDriver } from '../drivers/domain-driver';
+import { HttpDriver } from '../drivers/http-driver';
 
 const { Given, When, Then, Before } = createBdd();
 
-// Create domain driver instance
-let driver: DomainDriver;
+// Create HTTP driver instance
+let driver: HttpDriver;
 const lastErrors = new Map<string, Error | null>();
 
 function setLastError(name: string, error: Error | null) {
@@ -17,7 +17,7 @@ function getLastError(name: string): Error | null {
 }
 
 Before(async () => {
-  driver = new DomainDriver();
+  driver = new HttpDriver();
   lastErrors.clear();
 });
 

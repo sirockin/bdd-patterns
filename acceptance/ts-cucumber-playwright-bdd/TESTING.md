@@ -4,17 +4,17 @@ This example demonstrates BDD acceptance testing using TypeScript, Cucumber feat
 
 ## Overview
 
-This implementation follows the same four-layer model as the other examples in this repository:
+This implementation follows a three-layer model focused on testing the actual system:
 
 1. **Executable Specification**: Gherkin feature files (identical to other examples)
 2. **Domain Specific Language**: Step definitions implemented in TypeScript
-3. **Protocol Drivers**: TypeScript implementations for UI, HTTP, and Domain testing
+3. **Protocol Drivers**: TypeScript implementations for HTTP and UI testing (no domain driver - tests the real backend instead)
 4. **System Under Test**: The same React frontend and Go backend
 
 ## Features
 
 - **playwright-bdd integration**: Uses the `playwright-bdd` library to run Cucumber features with Playwright
-- **Protocol Drivers**: Supports testing at different layers (Domain, HTTP, UI)
+- **Protocol Drivers**: Supports testing at different layers (HTTP, UI) - tests the real backend system
 - **Generated API Client**: TypeScript client auto-generated from OpenAPI specification
 - **Multiple Test Environments**: Separate configurations for different test types
 - **Command Line & Playwright UI**: Supports both make targets and native Playwright runner
@@ -47,8 +47,7 @@ make playwright-install   # Install Playwright browsers
 make test-fast
 
 # Individual test layers
-make test-domain              # Domain unit tests (fastest)
-make test-http-inprocess      # HTTP tests with embedded server
+make test-http-inprocess      # HTTP tests with embedded server (fastest)
 make test-http-executable     # HTTP tests with external server
 make test-http-docker         # HTTP tests with Docker container
 make test-ui                  # UI tests with full stack
@@ -56,7 +55,7 @@ make test-ui                  # UI tests with full stack
 # Test suites
 make test-integration         # HTTP integration tests only
 make test-all                 # All tests including Docker and UI
-make test-short              # Domain tests only
+make test-short              # Fastest HTTP tests only
 ```
 
 ### Playwright Runner
@@ -65,7 +64,6 @@ You can also use Playwright's native test runner:
 
 ```bash
 # Run specific configuration
-npx playwright test --config=playwright-domain.config.ts
 npx playwright test --config=playwright-http-inprocess.config.ts
 npx playwright test --config=playwright-ui.config.ts
 
@@ -97,27 +95,23 @@ make test-all
 
 ### Protocol Drivers
 
-The example implements three protocol drivers:
+The example implements two protocol drivers that test the real system:
 
-1. **DomainDriver** (`src/drivers/domain-driver.ts`): Direct domain logic testing with in-memory state
-2. **HttpDriver** (`src/drivers/http-driver.ts`): HTTP API testing using generated TypeScript client
-3. **UIDriver** (`src/drivers/ui-driver.ts`): Full UI testing using Playwright page interactions
+1. **HttpDriver** (`src/drivers/http-driver.ts`): HTTP API testing using generated TypeScript client - tests the actual Go backend
+2. **UIDriver** (`src/drivers/ui-driver.ts`): Full UI testing using Playwright page interactions - tests the complete React frontend + Go backend
 
 ### Step Definitions
 
 Step definitions are organized by driver type:
 
-- `src/steps/common-steps.ts`: Shared step logic
-- `src/steps/domain-steps.ts`: Domain-specific bindings
-- `src/steps/http-steps.ts`: HTTP-specific bindings
-- `src/steps/ui-steps.ts`: UI-specific bindings
+- `src/steps/http-steps.ts`: HTTP-specific bindings for testing via API
+- `src/steps/ui-steps.ts`: UI-specific bindings for testing via browser (future implementation)
 
 ### Configuration Files
 
 Each test environment has its own Playwright configuration:
 
-- `playwright-domain.config.ts`: Domain tests (fastest)
-- `playwright-http-inprocess.config.ts`: HTTP with embedded server
+- `playwright-http-inprocess.config.ts`: HTTP with embedded server (fastest)
 - `playwright-http-executable.config.ts`: HTTP with external server
 - `playwright-http-docker.config.ts`: HTTP with Docker
 - `playwright-ui.config.ts`: Full UI tests

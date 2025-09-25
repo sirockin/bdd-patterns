@@ -2,8 +2,8 @@ import { defineConfig } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 
 const testDir = defineBddConfig({
-  paths: ['features/*.feature'],
-  require: ['src/steps/*.ts'],
+  features: 'features/*.feature',
+  steps: 'src/steps/http-steps.ts',
 });
 
 export default defineConfig({
@@ -24,10 +24,6 @@ export default defineConfig({
     headless: true,
   },
   projects: [
-    {
-      name: 'domain',
-      testMatch: '**/*domain*.spec.ts',
-    },
     {
       name: 'http-inprocess',
       testMatch: '**/*http-inprocess*.spec.ts',

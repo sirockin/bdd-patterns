@@ -45,8 +45,9 @@ export class HttpDriver implements TestDriver {
       }
     } catch (error: any) {
       if (error.response?.status === 403) {
-        // Account needs activation
-        return;
+        // Account needs activation - preserve the error message from backend
+        const backendMessage = error.response?.data?.message || error.message || '';
+        throw new Error(backendMessage.includes('activate') ? backendMessage : `Account ${name} needs to be activated`);
       }
       throw new Error(`Failed to authenticate: ${error.message}`);
     }
