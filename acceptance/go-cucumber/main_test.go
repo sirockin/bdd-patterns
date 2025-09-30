@@ -226,7 +226,6 @@ func isDockerAvailable(t *testing.T) bool {
 	return err == nil
 }
 
-
 // Helper functions for command execution
 
 func runCommand(t *testing.T, name string, args ...string) ([]byte, error) {

@@ -220,7 +220,6 @@ func isDockerAvailable(t *testing.T) bool {
 	return err == nil
 }
 
-
 func runCommand(t *testing.T, name string, args ...string) ([]byte, error) {
 	return runCommandWithTimeout(t, 30*time.Second, name, args...)
 }

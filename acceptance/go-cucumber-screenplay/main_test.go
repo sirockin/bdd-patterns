@@ -29,7 +29,6 @@ func TestApplication(t *testing.T) {
 	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
 }
 
-
 // TestHttp tests against the actual running server executable
 func TestHttp(t *testing.T) {
 	if testing.Short() {
@@ -45,7 +44,6 @@ func TestHttp(t *testing.T) {
 	// Run the same BDD tests against the actual server executable
 	RunSuite(t, httpDriver, []string{"."})
 }
-
 
 // TestUI tests against both frontend and API running in containers using UI automation
 func TestUI(t *testing.T) {
@@ -227,7 +225,6 @@ func isDockerAvailable(t *testing.T) bool {
 	_, err := runCommand(t, "docker", "version")
 	return err == nil
 }
-
 
 // Helper functions for command execution
 
