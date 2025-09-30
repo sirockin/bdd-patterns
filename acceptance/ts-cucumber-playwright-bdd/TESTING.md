@@ -8,7 +8,7 @@ This implementation follows a three-layer model focused on testing the actual sy
 
 1. **Executable Specification**: Gherkin feature files (identical to other examples)
 2. **Domain Specific Language**: Step definitions implemented in TypeScript
-3. **Protocol Drivers**: TypeScript implementations for HTTP and UI testing (no domain driver - tests the real backend instead)
+3. **Protocol Drivers**: TypeScript implementations for HTTP and UI testing (tests the real backend system)
 4. **System Under Test**: The same React frontend and Go backend
 
 ## Features
@@ -47,15 +47,14 @@ make playwright-install   # Install Playwright browsers
 make test-fast
 
 # Individual test layers
-make test-http-inprocess      # HTTP tests with embedded server (fastest)
-make test-http-executable     # HTTP tests with external server
+make test-http-executable     # HTTP tests with external server lifecycle
 make test-http-docker         # HTTP tests with Docker container
-make test-ui                  # UI tests with full stack
+make test-ui                  # UI tests with full stack (not fully implemented)
 
 # Test suites
 make test-integration         # HTTP integration tests only
 make test-all                 # All tests including Docker and UI
-make test-short              # Fastest HTTP tests only
+make test-short               # Fastest HTTP tests only
 ```
 
 ### Playwright Runner
@@ -64,14 +63,15 @@ You can also use Playwright's native test runner:
 
 ```bash
 # Run specific configuration
-npx playwright test --config=playwright-http-inprocess.config.ts
+npx playwright test --config=playwright-http-executable.config.ts
 npx playwright test --config=playwright-ui.config.ts
 
 # Run all tests (uses main config)
 npx playwright test
 
 # Run with Playwright UI (interactive mode)
-npx playwright test --ui
+npx playwright test --ui --config=playwright-http-executable.config.ts  # HTTP tests
+npx playwright test --ui --config=playwright-ui.config.ts               # UI tests (when implemented)
 
 # Run specific test files
 npx playwright test sign_up
@@ -111,8 +111,7 @@ Step definitions are organized by driver type:
 
 Each test environment has its own Playwright configuration:
 
-- `playwright-http-inprocess.config.ts`: HTTP with embedded server (fastest)
-- `playwright-http-executable.config.ts`: HTTP with external server
+- `playwright-http-executable.config.ts`: HTTP with external server lifecycle
 - `playwright-http-docker.config.ts`: HTTP with Docker
 - `playwright-ui.config.ts`: Full UI tests
 - `playwright.config.ts`: Main configuration (all tests)
@@ -186,7 +185,7 @@ npx playwright show-report
 This TypeScript/Playwright example provides:
 
 - **Same test specifications**: Uses identical Gherkin features as Go examples
-- **Same architecture**: Implements the four-layer model with protocol drivers
+- **Same architecture**: Implements the three-layer model with protocol drivers
 - **Modern tooling**: Uses Playwright's advanced debugging and reporting
 - **Type safety**: Full TypeScript typing from API client to test code
 - **Multiple execution modes**: Both command line and Playwright UI support

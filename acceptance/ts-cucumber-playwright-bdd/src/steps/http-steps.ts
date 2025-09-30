@@ -4,7 +4,7 @@ import { HttpDriver } from '../drivers/http-driver';
 
 const { Given, When, Then, Before } = createBdd();
 
-// Create HTTP driver instance
+// Create HTTP driver instance per test
 let driver: HttpDriver;
 const lastErrors = new Map<string, Error | null>();
 
@@ -19,6 +19,7 @@ function getLastError(name: string): Error | null {
 Before(async () => {
   driver = new HttpDriver();
   lastErrors.clear();
+  await driver.clearAll(); // Clear backend state before each test scenario
 });
 
 // Given steps
@@ -28,48 +29,24 @@ Given('{word} has created an account', async ({ }, name: string) => {
 
 Given('{word} has signed up', async ({ }, name: string) => {
   await driver.createAccount(name);
-  try {
-    await driver.getAccount(name);
-  } catch {
-    return; // Account may not be retrievable in some drivers
-  }
   await driver.activate(name);
-  // Automatically authenticate after signing up
-  await driver.authenticate(name);
+  // Note: activate automatically authenticates the user in the backend
 });
 
 // When steps
 When('{word} activates her account', async ({ }, name: string) => {
-  try {
-    await driver.getAccount(name);
-  } catch {
-    return; // Account may not exist, that's ok for this step
-  }
   await driver.activate(name);
-  // Automatically authenticate after activation
-  await driver.authenticate(name);
+  // Note: activate automatically authenticates the user in the backend
 });
 
 When('{word} activates his account', async ({ }, name: string) => {
-  try {
-    await driver.getAccount(name);
-  } catch {
-    return; // Account may not exist, that's ok for this step
-  }
   await driver.activate(name);
-  // Automatically authenticate after activation
-  await driver.authenticate(name);
+  // Note: activate automatically authenticates the user in the backend
 });
 
 When('{word} activates their account', async ({ }, name: string) => {
-  try {
-    await driver.getAccount(name);
-  } catch {
-    return; // Account may not exist, that's ok for this step
-  }
   await driver.activate(name);
-  // Automatically authenticate after activation
-  await driver.authenticate(name);
+  // Note: activate automatically authenticates the user in the backend
 });
 
 When('{word} tries to sign in', async ({ }, name: string) => {

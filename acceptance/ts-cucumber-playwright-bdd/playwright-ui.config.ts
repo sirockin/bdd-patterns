@@ -2,8 +2,8 @@ import { defineConfig } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 
 const testDir = defineBddConfig({
-  paths: ['features/*.feature'],
-  require: ['src/steps/ui-steps.ts'],
+  features: 'features/*.feature',
+  steps: 'src/steps/ui-steps.ts',
 });
 
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',
@@ -34,14 +34,16 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'cd ../../ && make server',
+      command: 'cd ../../back-end && make build && ./bin/server',
       port: 8080,
       reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
     },
     {
       command: 'cd ../../front-end && npm start',
       port: 3000,
       reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
     },
   ],
 });

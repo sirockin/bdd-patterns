@@ -22,10 +22,13 @@ export class HttpDriver implements TestDriver {
     }
   }
 
-  clearAll(): void {
+  async clearAll(): Promise<void> {
     this.authenticatedAccounts.clear();
-    // Note: In a real implementation, this would clear the backend state
-    // For now, we just clear the local authentication state
+    try {
+      await this.api.clearAll();
+    } catch (error: any) {
+      throw new Error(`Failed to clear backend state: ${error.message}`);
+    }
   }
 
   async getAccount(name: string): Promise<Account> {
@@ -44,10 +47,13 @@ export class HttpDriver implements TestDriver {
         this.authenticatedAccounts.add(name);
       }
     } catch (error: any) {
-      if (error.response?.status === 403) {
+      if (error.response?.status === 400) {
         // Account needs activation - preserve the error message from backend
-        const backendMessage = error.response?.data?.message || error.message || '';
-        throw new Error(backendMessage.includes('activate') ? backendMessage : `Account ${name} needs to be activated`);
+        const backendMessage = error.response?.data?.error || error.response?.data?.message || error.message || '';
+        throw new Error(backendMessage);
+      }
+      if (error.response?.status === 404) {
+        throw new Error(`Account not found: ${name}`);
       }
       throw new Error(`Failed to authenticate: ${error.message}`);
     }
@@ -60,6 +66,8 @@ export class HttpDriver implements TestDriver {
   async activate(name: string): Promise<void> {
     try {
       await this.api.activateAccount(name);
+      // Backend automatically authenticates user upon activation
+      this.authenticatedAccounts.add(name);
     } catch (error: any) {
       throw new Error(`Failed to activate account: ${error.message}`);
     }
@@ -67,7 +75,7 @@ export class HttpDriver implements TestDriver {
 
   async createProject(name: string): Promise<void> {
     try {
-      await this.api.createProject(name, { name: `${name}-project` });
+      await this.api.createProject(name);
     } catch (error: any) {
       throw new Error(`Failed to create project: ${error.message}`);
     }

@@ -2,7 +2,7 @@ import { Account, Project } from '../client/models';
 
 export interface TestDriver {
   createAccount(name: string): Promise<void>;
-  clearAll(): void;
+  clearAll(): Promise<void>;
   getAccount(name: string): Promise<Account>;
   authenticate(name: string): Promise<void>;
   isAuthenticated(name: string): boolean;

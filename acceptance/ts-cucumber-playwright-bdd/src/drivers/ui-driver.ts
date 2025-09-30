@@ -12,38 +12,76 @@ export class UIDriver implements TestDriver {
 
   async createAccount(name: string): Promise<void> {
     await this.page.goto('/signup');
-    await this.page.fill('[data-testid="account-name"]', name);
-    await this.page.click('[data-testid="signup-button"]');
-    await this.page.waitForSelector('[data-testid="signup-success"]');
+
+    // Wait for the form to load
+    await this.page.waitForSelector('input[name="name"]', { timeout: 5000 });
+
+    // Fill in the name field
+    await this.page.fill('input[name="name"]', name);
+
+    // Click the submit button
+    await this.page.click('button[type="submit"]');
+
+    // Wait for success message
+    await this.page.waitForSelector('.success.message', { timeout: 5000 });
   }
 
-  clearAll(): void {
+  async clearAll(): Promise<void> {
     this.authenticatedAccounts.clear();
+    // Use the React frontend's Clear page to clear backend data
+    await this.page.goto('/admin/clear');
+    await this.page.click('button', { timeout: 5000 });
+    await this.page.waitForSelector('.success', { timeout: 5000 });
   }
 
   async getAccount(name: string): Promise<Account> {
-    // Navigate to account details page or API endpoint
-    // This is a simplified implementation
-    return { name } as Account;
+    await this.page.goto(`/account/${name}`);
+
+    try {
+      // Wait for account info to load
+      await this.page.waitForSelector('.account-info', { timeout: 5000 });
+
+      // Extract account data from the page
+      const activated = await this.page.$('.account-info') !== null;
+      const authenticated = this.authenticatedAccounts.has(name);
+
+      return {
+        name,
+        activated,
+        authenticated
+      } as Account;
+    } catch {
+      throw new Error(`Account not found: ${name}`);
+    }
   }
 
   async authenticate(name: string): Promise<void> {
-    await this.page.goto('/signin');
-    await this.page.fill('[data-testid="account-name"]', name);
-    await this.page.click('[data-testid="signin-button"]');
+    await this.page.goto('/login');
 
     try {
-      // Check if authenticated successfully
-      await this.page.waitForSelector('[data-testid="dashboard"]', { timeout: 2000 });
-      this.authenticatedAccounts.add(name);
-    } catch {
-      // Authentication failed - might need activation
-      const errorMessage = await this.page.textContent('[data-testid="error-message"]');
-      if (errorMessage?.includes('activate')) {
-        // Account needs activation, this is expected for some scenarios
-        return;
+      // Wait for login form
+      await this.page.waitForSelector('input[name="name"]', { timeout: 5000 });
+
+      // Fill and submit login form
+      await this.page.fill('input[name="name"]', name);
+      await this.page.click('button[type="submit"]');
+
+      // Check if authentication was successful by looking for success redirect or error
+      try {
+        await this.page.waitForSelector('.success', { timeout: 2000 });
+        this.authenticatedAccounts.add(name);
+      } catch {
+        // Check for error message
+        const errorElement = await this.page.$('.error');
+        if (errorElement) {
+          const errorMessage = await errorElement.textContent();
+          throw new Error(errorMessage || 'Authentication failed');
+        }
+        throw new Error('Authentication failed');
       }
-      throw new Error(`Authentication failed: ${errorMessage}`);
+    } catch (error) {
+      // Let the error propagate for step definitions to catch
+      throw error;
     }
   }
 
@@ -52,29 +90,49 @@ export class UIDriver implements TestDriver {
   }
 
   async activate(name: string): Promise<void> {
-    // Simulate email activation
-    // In a real app, this would involve email verification
-    await this.page.goto(`/activate?account=${name}`);
-    await this.page.click('[data-testid="activate-button"]');
-    await this.page.waitForSelector('[data-testid="activation-success"]');
+    await this.page.goto(`/activate/${name}`);
+
+    // Wait for activate button and click it
+    await this.page.waitForSelector('button.activate', { timeout: 5000 });
+    await this.page.click('button.activate');
+
+    // Wait for success message
+    await this.page.waitForSelector('.success', { timeout: 5000 });
+
+    // Track as authenticated since activation automatically authenticates
+    this.authenticatedAccounts.add(name);
   }
 
   async createProject(name: string): Promise<void> {
-    await this.page.goto('/projects');
-    await this.page.click('[data-testid="new-project-button"]');
-    await this.page.fill('[data-testid="project-name"]', `${name}-project`);
-    await this.page.click('[data-testid="create-project-button"]');
-    await this.page.waitForSelector('[data-testid="project-created"]');
+    await this.page.goto(`/account/${name}/projects`);
+
+    // Wait for and click create project button
+    await this.page.waitForSelector('button.create-project', { timeout: 5000 });
+    await this.page.click('button.create-project');
+
+    // Wait for project created confirmation
+    await this.page.waitForSelector('.project-created', { timeout: 5000 });
   }
 
   async getProjects(name: string): Promise<Project[]> {
-    await this.page.goto('/projects');
-    const projects = await this.page.$$eval('[data-testid="project-item"]', (elements) =>
-      elements.map((el) => ({
-        name: el.textContent || '',
-        id: el.getAttribute('data-project-id') || '',
-      }))
-    );
-    return projects as Project[];
+    await this.page.goto(`/account/${name}/projects`);
+
+    try {
+      // Wait for projects list to load
+      await this.page.waitForSelector('.projects-list', { timeout: 5000 });
+
+      // Extract project data from the page
+      const projects = await this.page.$$eval('.project-item', (elements) =>
+        elements.map((el, index) => ({
+          id: `project-${index}`,
+          name: el.textContent || '',
+        }))
+      );
+
+      return projects as Project[];
+    } catch {
+      // No projects found
+      return [];
+    }
   }
 }
