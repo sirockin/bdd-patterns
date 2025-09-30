@@ -31,10 +31,6 @@ func TestApplication(t *testing.T) {
 
 // TestHttp tests against the actual running server executable
 func TestHttp(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping integration test in short mode")
-	}
-
 	// Start real server executable and get its URL
 	serverURL := startServerExecutable(t)
 
@@ -48,12 +44,12 @@ func TestHttp(t *testing.T) {
 // TestUI tests against both frontend and API running in containers using UI automation
 func TestUI(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping UI integration test in short mode")
+		t.Skip("Skipping UI test in short mode")
 	}
 
 	// Check if Docker is available
 	if !isDockerAvailable(t) {
-		t.Skip("Docker not available, skipping UI integration test")
+		t.Skip("Docker not available, skipping UI test")
 	}
 
 	// Start both frontend and API containers with UI test driver

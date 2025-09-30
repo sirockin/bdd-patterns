@@ -55,9 +55,9 @@ jobs:
     - name: Run go vet
       run: make vet
 
-  # Integration tests including Docker (runs on PR and main branch pushes)
-  integration-tests:
-    name: Integration Tests (All Levels)
+  # HTTP and UI tests (runs on PR and main branch pushes)
+  http-and-ui-tests:
+    name: HTTP and UI Tests
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: fast-tests
@@ -96,7 +96,7 @@ jobs:
     - name: Run domain tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
-    - name: Run HTTP integration tests
+    - name: Run HTTP tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http
 
     - name: Generate test coverage

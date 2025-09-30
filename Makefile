@@ -18,7 +18,7 @@ test-all: ## Run all tests (USAGE: make test-all SUBFOLDER={subfolder}, default:
 test-domain: ## Run domain tests (USAGE: make test-domain SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-domain
 
-test-http: ## Run HTTP integration tests (USAGE: make test-http SUBFOLDER={subfolder}, default: go-cucumber)
+test-http: ## Run HTTP tests with real server (USAGE: make test-http SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-http
 
 test-ui: ## Run UI tests (USAGE: make test-ui SUBFOLDER={subfolder}, default: go-cucumber)

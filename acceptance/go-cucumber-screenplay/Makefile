@@ -9,7 +9,7 @@ help: ## Show this help message
 test-domain: ## Run application unit tests (fastest)
 	go test -v -run TestApplication .
 
-test-http: ## Run HTTP integration tests with real server
+test-http: ## Run HTTP tests with real server
 	go test -v -run TestHttp .
 
 test-ui: ## Run UI tests with frontend and API containers (requires Docker)

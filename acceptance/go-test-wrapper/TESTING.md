@@ -7,7 +7,7 @@ This directory demonstrates the **Test Wrapper Pattern** - a testing approach th
 The Test Wrapper Pattern is a testing approach where:
 
 1. **Test functions are written once** - Each test scenario is defined as a single function
-2. **Driver injection** - Different test drivers (application, HTTP, Docker, UI) are injected via a wrapper function
+2. **Driver injection** - Different test drivers (application, HTTP, UI) are injected via a wrapper function
 3. **Environment-based control** - Environment variables control which test drivers run
 4. **No test suite dependency** - Unlike the go-suite pattern, this doesn't depend on testify/suite
 
@@ -21,8 +21,8 @@ The core of the pattern is the `withTestContext` function that:
 func withTestContext(t *testing.T, testFn func(t *testing.T, driver driver.TestDriver)) {
     // Check environment variables to determine which drivers to run
     runApplication := os.Getenv("RUN_APPLICATION") != "false"
-    runHTTPInProcess := os.Getenv("RUN_HTTP_INPROCESS") != "false"
-    // ... other driver checks
+    runHTTP := os.Getenv("RUN_HTTP") != "false"
+    runUI := os.Getenv("RUN_UI") != "false"
 
     if runApplication {
         t.Run("Application", func(t *testing.T) {
@@ -86,9 +86,7 @@ The pattern uses environment variables to control which test drivers run:
 | Variable | Purpose |
 |----------|---------|
 | `RUN_APPLICATION` | Run tests against the domain model (fastest) |
-| `RUN_HTTP_INPROCESS` | Run tests against in-process HTTP server |
 | `RUN_HTTP` | Run tests against real server executable |
-| `RUN_HTTP_DOCKER` | Run tests against Docker container |
 | `RUN_UI` | Run tests against UI with browser automation |
 
 ## Makefile Targets
@@ -97,13 +95,9 @@ The pattern supports the same Makefile targets as other patterns:
 
 ```bash
 make test-domain          # Application tests only
-make test-http-inprocess  # In-process HTTP tests only
-make test-http-executable # Real server executable tests
-make test-http-docker     # Docker container tests
+make test-http            # HTTP tests with real server
 make test-ui              # UI automation tests
-make test-fast            # Application + in-process HTTP
-make test-integration     # HTTP tests without Docker/UI
-make test-all             # All tests including Docker and UI
+make test-all             # All tests including UI
 ```
 
 ## Advantages
@@ -127,10 +121,10 @@ When running tests, you'll see output like:
 ```
 === RUN   TestCreateOneProject
 === RUN   TestCreateOneProject/Application
-=== RUN   TestCreateOneProject/HTTPInProcess
+=== RUN   TestCreateOneProject/HTTP
 --- PASS: TestCreateOneProject (0.11s)
     --- PASS: TestCreateOneProject/Application (0.00s)
-    --- PASS: TestCreateOneProject/HTTPInProcess (0.11s)
+    --- PASS: TestCreateOneProject/HTTP (0.11s)
 ```
 
 This shows that each test function runs against multiple drivers as subtests.

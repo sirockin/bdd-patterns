@@ -34,7 +34,7 @@ BDD Tests → HTTP Client Driver → internal/http Server (in-process) → inter
 
 ### 3. End-to-End Tests (Real Server Process)
 **Test:** `TestHttp`
-**Purpose:** Full integration testing with real server executable
+**Purpose:** Full HTTP testing with real server executable
 **Speed:** Slow (~1-2s due to process startup)
 
 ```bash
@@ -78,7 +78,7 @@ Features:
 
 ### Development (Fast Feedback)
 ```bash
-# Run unit and integration tests only
+# Run unit and HTTP tests only
 go test -v -run "TestDomain|TestHTTPInProcess" ./features
 ```
 
@@ -98,10 +98,10 @@ go test -short -v ./features
 # Unit tests only
 go test -v -run TestDomain ./features
 
-# In-process integration tests
+# In-process HTTP tests
 go test -v -run TestHTTPInProcess ./features
 
-# Real server integration tests
+# Real server HTTP tests
 go test -v -run TestHttp ./features
 
 # Docker container tests (skips if Docker not available)

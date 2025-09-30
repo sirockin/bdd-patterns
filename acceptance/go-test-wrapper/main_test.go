@@ -55,7 +55,7 @@ func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) 
 	if runHTTP {
 		t.Run("HTTP", func(t *testing.T) {
 			if testing.Short() {
-				t.Skip("Skipping integration test in short mode")
+				t.Skip("Skipping HTTP test in short mode")
 			}
 
 			serverURL := startServerExecutable(t)
@@ -71,11 +71,11 @@ func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) 
 	if runUI {
 		t.Run("UI", func(t *testing.T) {
 			if testing.Short() {
-				t.Skip("Skipping UI integration test in short mode")
+				t.Skip("Skipping UI test in short mode")
 			}
 
 			if !isDockerAvailable(t) {
-				t.Skip("Docker not available, skipping UI integration test")
+				t.Skip("Docker not available, skipping UI test")
 			}
 
 			frontendURL := startUITestEnvironment(t)

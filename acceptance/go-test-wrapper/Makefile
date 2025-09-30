@@ -9,7 +9,7 @@ help: ## Show this help message
 test-domain: ## Run application unit tests (fastest)
 	RUN_APPLICATION=true RUN_HTTP=false RUN_UI=false go test -v .
 
-test-http: ## Run HTTP integration tests with real server
+test-http: ## Run HTTP tests with real server
 	RUN_APPLICATION=false RUN_HTTP=true RUN_UI=false go test -v .
 
 test-ui: ## Run UI tests with frontend and API containers (requires Docker)
