@@ -7,7 +7,7 @@ This repo demonstrates the use of a range of BDD acceptance test patterns. It is
 - provide some usable boilerplate for quickly getting BDD acceptance tests up and running
 - show how we can reuse the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
 
-Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more patterns and more languages.
+The examples demonstrate patterns in both `Go` and `TypeScript`, showcasing how the same BDD approach can work across different technology stacks.
 
 The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
 
@@ -39,10 +39,15 @@ make test-fast SUBFOLDER=go-test-wrapper
 
 
 ## The Patterns
+
+### Go Examples
 - go-test-wrapper: tests entirely written in `go` using test wrapper pattern to inject different protocol drivers
 - go-suite: tests entirely written in `go` using suite pattern to inject different protocol drivers
 - go-cucumber: high level specs written in [gherkin](https://cucumber.io/docs/gherkin/reference) steps written in go, with [godog](https://github.com/cucumber/godog/tree/main/_examples) (the official cucumber go library) used as glue
 - go-cucumber-screenplay: as for go-cucumber but implements the screenplay pattern
+
+### TypeScript Examples
+- ts-cucumber-playwright-bdd: TypeScript implementation using [playwright-bdd](https://github.com/vitalets/playwright-bdd) with identical Gherkin features, auto-generated API client from OpenAPI spec, and support for both command-line and Playwright UI execution
 
 
 
