@@ -32,10 +32,19 @@ From the project root
 # run all the tests, specifying the subfolder
 make test-all SUBFOLDER=go-test-wrapper
 
-# run the fast tests, specifying the subfolder
-make test-fast SUBFOLDER=go-test-wrapper
+# run the domain tests, specifying the subfolder
+make test-domain SUBFOLDER=go-test-wrapper
 
 ```
+
+## Common Makefile Targets
+
+The following makefile targets exist in all acceptance test subfolders:
+- `test-http`: run tests against the back end http service
+- `test-ui`: run tests against the front end UI
+
+The following makefile targets also exist in all go-based acceptance test subfolders:
+- `test-domain`: run tests directly against the domain layer
 
 
 ## The Patterns
@@ -81,10 +90,10 @@ I hope to provide some examples with 2 and 3 removed (feel free to submit a PR) 
 
 ```sh
 # Fast feedback during development
-make test-fast
+make test-domain
 
 # Before committing changes
-make test-integration
+make test-http
 
 # Full validation (CI/CD)
 make test-all

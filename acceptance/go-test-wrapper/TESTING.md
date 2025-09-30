@@ -87,7 +87,7 @@ The pattern uses environment variables to control which test drivers run:
 |----------|---------|
 | `RUN_APPLICATION` | Run tests against the domain model (fastest) |
 | `RUN_HTTP_INPROCESS` | Run tests against in-process HTTP server |
-| `RUN_HTTP_EXECUTABLE` | Run tests against real server executable |
+| `RUN_HTTP` | Run tests against real server executable |
 | `RUN_HTTP_DOCKER` | Run tests against Docker container |
 | `RUN_UI` | Run tests against UI with browser automation |
 

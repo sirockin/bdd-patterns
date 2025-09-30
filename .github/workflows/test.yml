@@ -18,7 +18,7 @@ on:
 jobs:
   # Fast tests that run on every push
   fast-tests:
-    name: Fast Tests (Domain + HTTP In-Process)
+    name: Fast Tests (Domain Only)
     runs-on: ubuntu-latest
 
     steps:
@@ -49,8 +49,8 @@ jobs:
     - name: Download acceptance test dependencies
       run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
-    - name: Run fast tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-fast
+    - name: Run domain tests
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
     - name: Run go vet
       run: make vet
@@ -96,17 +96,8 @@ jobs:
     - name: Run domain tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
-    - name: Run HTTP in-process tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-inprocess
-
-    - name: Run HTTP executable tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-executable
-
-    - name: Run Docker container tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-docker
-      env:
-        # Ensure Docker tests run in CI
-        CI: true
+    - name: Run HTTP integration tests
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http
 
     - name: Generate test coverage
       run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage

@@ -46,12 +46,12 @@ Go Test Suite → HTTP Client Driver → internal/http Server (in-process) → i
 ```
 
 ### 3. End-to-End Tests (Real Server Process)
-**Test:** `TestHttpExecutable`
+**Test:** `TestHttp`
 **Purpose:** Full integration testing with real server executable
 **Speed:** Slow (~1-2s due to process startup)
 
 ```bash
-go test -v -run TestHttpExecutable
+go test -v -run TestHttp
 ```
 
 **Architecture:**
@@ -115,7 +115,7 @@ go test -v -run TestApplication
 go test -v -run TestHTTPInProcess
 
 # Real server integration tests
-go test -v -run TestHttpExecutable
+go test -v -run TestHttp
 
 # Docker container tests (skips if Docker not available)
 go test -v -run TestHttpDocker
@@ -167,7 +167,7 @@ This ensures:
 ```
 TestApplication:       ✅ 4 scenarios (2-3ms)
 TestHTTPInProcess:     ✅ 4 scenarios (4-5ms)
-TestHttpExecutable:    ✅ 4 scenarios (1-2s)
+TestHttp:    ✅ 4 scenarios (1-2s)
 TestHttpDocker:        ✅ 4 scenarios (30-60s) [skipped if Docker unavailable]
 TestUI:                ✅ 4 scenarios (10-30s) [skipped if Docker unavailable]
 ```

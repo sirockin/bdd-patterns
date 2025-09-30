@@ -1,4 +1,4 @@
-.PHONY: clean build run help lint fmt vet sec test test-all test-fast coverage
+.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-http test-ui coverage
 
 # Default target
 help: ## Show this help message
@@ -15,8 +15,14 @@ test: ## Run tests (USAGE: make test SUBFOLDER={subfolder}, default: go-cucumber
 test-all: ## Run all tests (USAGE: make test-all SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-test-fast: ## Run fast tests (USAGE: make test-fast SUBFOLDER={subfolder}, default: go-cucumber)
-	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
+test-domain: ## Run domain tests (USAGE: make test-domain SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-domain
+
+test-http: ## Run HTTP integration tests (USAGE: make test-http SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-http
+
+test-ui: ## Run UI tests (USAGE: make test-ui SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-ui
 
 coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage

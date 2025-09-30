@@ -30,21 +30,15 @@ import (
 func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) {
 	// Check which drivers to run based on environment variables
 	runApplication := os.Getenv("RUN_APPLICATION") != "false"
-	runHTTPInProcess := os.Getenv("RUN_HTTP_INPROCESS") != "false"
-	runHTTPExecutable := os.Getenv("RUN_HTTP_EXECUTABLE") != "false"
-	runHTTPDocker := os.Getenv("RUN_HTTP_DOCKER") != "false"
+	runHTTP := os.Getenv("RUN_HTTP") != "false"
 	runUI := os.Getenv("RUN_UI") != "false"
 
 	// Default behavior: if no specific environment is set, run all non-slow tests
 	if os.Getenv("RUN_APPLICATION") == "" &&
-		os.Getenv("RUN_HTTP_INPROCESS") == "" &&
-		os.Getenv("RUN_HTTP_EXECUTABLE") == "" &&
-		os.Getenv("RUN_HTTP_DOCKER") == "" &&
+		os.Getenv("RUN_HTTP") == "" &&
 		os.Getenv("RUN_UI") == "" {
 		runApplication = true
-		runHTTPInProcess = true
-		runHTTPExecutable = !testing.Short()
-		runHTTPDocker = !testing.Short() && isDockerAvailable(t)
+		runHTTP = !testing.Short()
 		runUI = !testing.Short() && isDockerAvailable(t)
 	}
 
@@ -58,45 +52,13 @@ func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) 
 		})
 	}
 
-	if runHTTPInProcess {
-		t.Run("HTTPInProcess", func(t *testing.T) {
-			serverURL := testhelpers.NewInProcessServer(t)
-			httpDriver := httpdriver.New(serverURL)
-			ctx := newTestContext(httpDriver)
-			t.Cleanup(func() {
-				ctx.clearAll()
-			})
-			testFn(t, ctx)
-		})
-	}
-
-	if runHTTPExecutable {
-		t.Run("HTTPExecutable", func(t *testing.T) {
+	if runHTTP {
+		t.Run("HTTP", func(t *testing.T) {
 			if testing.Short() {
 				t.Skip("Skipping integration test in short mode")
 			}
 
 			serverURL := startServerExecutable(t)
-			httpDriver := httpdriver.New(serverURL)
-			ctx := newTestContext(httpDriver)
-			t.Cleanup(func() {
-				ctx.clearAll()
-			})
-			testFn(t, ctx)
-		})
-	}
-
-	if runHTTPDocker {
-		t.Run("HTTPDocker", func(t *testing.T) {
-			if testing.Short() {
-				t.Skip("Skipping Docker integration test in short mode")
-			}
-
-			if !isDockerAvailable(t) {
-				t.Skip("Docker not available, skipping Docker integration test")
-			}
-
-			serverURL := startTestContainer(t)
 			httpDriver := httpdriver.New(serverURL)
 			ctx := newTestContext(httpDriver)
 			t.Cleanup(func() {
@@ -258,53 +220,6 @@ func isDockerAvailable(t *testing.T) bool {
 	return err == nil
 }
 
-func startTestContainer(t *testing.T) string {
-	ctx := context.Background()
-
-	projectRoot, err := filepath.Abs("../..")
-	if err != nil {
-		t.Fatalf("Failed to get project root path: %v", err)
-	}
-
-	req := testcontainers.ContainerRequest{
-		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    filepath.Join(projectRoot, "back-end"),
-			Dockerfile: "Dockerfile",
-		},
-		ExposedPorts: []string{"8080/tcp"},
-		WaitingFor:   wait.ForLog("API endpoints"),
-	}
-
-	t.Logf("Starting testcontainer...")
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
-	if err != nil {
-		t.Fatalf("Failed to start container: %v", err)
-	}
-
-	t.Cleanup(func() {
-		if err := container.Terminate(ctx); err != nil {
-			t.Logf("Warning: Failed to terminate container: %v", err)
-		}
-	})
-
-	mappedPort, err := container.MappedPort(ctx, "8080")
-	if err != nil {
-		t.Fatalf("Failed to get mapped port: %v", err)
-	}
-
-	host, err := container.Host(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get container host: %v", err)
-	}
-
-	serverURL := fmt.Sprintf("http://%s:%s", host, mappedPort.Port())
-	t.Logf("Container started successfully at %s", serverURL)
-
-	return serverURL
-}
 
 func runCommand(t *testing.T, name string, args ...string) ([]byte, error) {
 	return runCommandWithTimeout(t, 30*time.Second, name, args...)

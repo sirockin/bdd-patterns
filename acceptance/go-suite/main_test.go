@@ -30,20 +30,9 @@ func TestApplication(t *testing.T) {
 	suite.Run(t, NewFeatureSuite(testhelpers.NewDomainTestDriver()))
 }
 
-// TestHTTPInProcess tests against an in-process HTTP server
-func TestHTTPInProcess(t *testing.T) {
-	// Start test server and get its URL
-	serverURL := testhelpers.NewInProcessServer(t)
 
-	// Create HTTP test driver pointing to our test server
-	httpDriver := httpdriver.New(serverURL)
-
-	// Run the same BDD tests against the HTTP API
-	suite.Run(t, NewFeatureSuite(httpDriver))
-}
-
-// TestHttpExecutable tests against the actual running server executable
-func TestHttpExecutable(t *testing.T) {
+// TestHttp tests against the actual running server executable
+func TestHttp(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
 	}
@@ -58,26 +47,6 @@ func TestHttpExecutable(t *testing.T) {
 	suite.Run(t, NewFeatureSuite(httpDriver))
 }
 
-// TestHttpDocker tests against the server running in a Docker container using testcontainers
-func TestHttpDocker(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping Docker integration test in short mode")
-	}
-
-	// Check if Docker is available
-	if !isDockerAvailable(t) {
-		t.Skip("Docker not available, skipping Docker integration test")
-	}
-
-	// Build and start Docker container using testcontainers
-	serverURL := startTestContainer(t)
-
-	// Create HTTP client pointing to the containerized server
-	httpDriver := httpdriver.New(serverURL)
-
-	// Run the same BDD tests against the containerized server
-	suite.Run(t, NewFeatureSuite(httpDriver))
-}
 
 // TestUI tests against both frontend and API running in containers using UI automation
 func TestUI(t *testing.T) {
@@ -260,61 +229,6 @@ func isDockerAvailable(t *testing.T) bool {
 	return err == nil
 }
 
-// startTestContainer builds and starts a Docker container using testcontainers
-// and returns the server URL. Cleanup is handled automatically via testcontainers.
-func startTestContainer(t *testing.T) string {
-	ctx := context.Background()
-
-	// Get absolute path to project root
-	projectRoot, err := filepath.Abs("../..")
-	if err != nil {
-		t.Fatalf("Failed to get project root path: %v", err)
-	}
-
-	// Create container request using the back-end/Dockerfile
-	req := testcontainers.ContainerRequest{
-		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    filepath.Join(projectRoot, "back-end"),
-			Dockerfile: "Dockerfile",
-		},
-		ExposedPorts: []string{"8080/tcp"},
-		WaitingFor:   wait.ForLog("API endpoints"),
-	}
-
-	// Start container
-	t.Logf("Starting testcontainer...")
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
-	if err != nil {
-		t.Fatalf("Failed to start container: %v", err)
-	}
-
-	// Clean up container
-	t.Cleanup(func() {
-		if err := container.Terminate(ctx); err != nil {
-			t.Logf("Warning: Failed to terminate container: %v", err)
-		}
-	})
-
-	// Get mapped port
-	mappedPort, err := container.MappedPort(ctx, "8080")
-	if err != nil {
-		t.Fatalf("Failed to get mapped port: %v", err)
-	}
-
-	// Get host
-	host, err := container.Host(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get container host: %v", err)
-	}
-
-	serverURL := fmt.Sprintf("http://%s:%s", host, mappedPort.Port())
-	t.Logf("Container started successfully at %s", serverURL)
-
-	return serverURL
-}
 
 // Helper functions for command execution
 

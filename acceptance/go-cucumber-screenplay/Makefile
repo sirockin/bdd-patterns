@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-http-inprocess test-http-executable test-http-docker test-ui test-fast test-integration test-all test-short coverage help
+.PHONY: test test-domain test-http test-ui test-all coverage help
 
 # Default target
 help: ## Show this help message
@@ -9,33 +9,17 @@ help: ## Show this help message
 test-domain: ## Run application unit tests (fastest)
 	go test -v -run TestApplication .
 
-test-http-inprocess: ## Run in-process HTTP integration tests
-	go test -v -run TestHTTPInProcess .
-
-test-http-executable: ## Run real server executable tests
-	go test -v -run TestHttpExecutable .
-
-test-http-docker: ## Run Docker container tests (slowest)
-	go test -v -run TestHttpDocker .
+test-http: ## Run HTTP integration tests with real server
+	go test -v -run TestHttp .
 
 test-ui: ## Run UI tests with frontend and API containers (requires Docker)
 	go test -v -run TestUI .
 
 # Test suites
-test-fast: ## Run fast tests (application + in-process HTTP)
-	go test -v -run "TestApplication|TestHTTPInProcess" .
-
-test-integration: ## Run all integration tests (excluding Docker and UI)
-	go test -v -run "TestHTTPInProcess|TestHttpExecutable" .
-
-test-all: ## Run all tests including Docker and UI (full suite)
+test-all: ## Run all tests including UI (full suite)
 	go test -v .
 
-test: test-fast ## Default test target (fast tests only)
-
-# Test with short mode (unit tests only)
-test-short: ## Run tests in short mode (skips slow integration tests)
-	go test -short -v .
+test: test-domain ## Default test target (domain tests only)
 
 # Coverage
 coverage: ## Run tests with coverage
