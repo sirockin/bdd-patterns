@@ -18,11 +18,14 @@ test-all: ## Run all tests (USAGE: make test-all SUBFOLDER={subfolder}, default:
 test-domain: ## Run domain tests (USAGE: make test-domain SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-domain
 
-test-http: ## Run HTTP tests with real server (USAGE: make test-http SUBFOLDER={subfolder}, default: go-cucumber)
-	cd acceptance/$(SUBFOLDER) && $(MAKE) test-http
+test-backend: ## Run backend tests with real server (USAGE: make test-backend SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-backend
 
-test-ui: ## Run UI tests (USAGE: make test-ui SUBFOLDER={subfolder}, default: go-cucumber)
-	cd acceptance/$(SUBFOLDER) && $(MAKE) test-ui
+test-frontend: ## Run frontend tests (USAGE: make test-frontend SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-frontend
+
+test-docker: ## Run Docker tests (USAGE: make test-docker SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-docker
 
 coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
