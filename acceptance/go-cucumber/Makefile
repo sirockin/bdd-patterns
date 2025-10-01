@@ -7,7 +7,7 @@ help: ## Show this help message
 
 # Individual test targets
 test-domain: ## Run application unit tests (fastest)
-	go test -v -run TestApplication .
+	go test -v -run TestDomain .
 
 test-http: ## Run HTTP tests with real server
 	go test -v -run TestHttp .
@@ -15,11 +15,8 @@ test-http: ## Run HTTP tests with real server
 test-ui: ## Run UI tests with frontend and API containers (requires Docker)
 	go test -v -run TestUI .
 
-# Test suites
-test-all: ## Run all tests including UI (full suite)
-	go test -v .
-
-test: test-domain ## Default test target (domain tests only)
+run: 
+	cd ../.. && make run
 
 # Coverage
 coverage: ## Run tests with coverage

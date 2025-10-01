@@ -7,7 +7,7 @@ help: ## Show this help message
 
 # Individual test targets
 test-domain: ## Run application unit tests (fastest)
-	go test -v -run TestApplication .
+	go test -v -run TestDomain .
 
 test-http: ## Run HTTP tests with real server
 	go test -v -run TestHttp .

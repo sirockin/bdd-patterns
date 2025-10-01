@@ -5,90 +5,31 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
-
-	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
-	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
-	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func TestDomain(t *testing.T) {
-	suite.Run(t, NewFeatureSuite(testhelpers.NewDomainTestDriver()))
-}
-
-// TestHttp tests against the actual running server executable
-func TestHttp(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping HTTP test in short mode")
-	}
-
-	// Start real server executable and get its URL
-	serverURL := startServerExecutable(t)
-
-	// Create HTTP driver pointing to the real server
-	httpDriver := httpdriver.New(serverURL)
-
-	// Run the same BDD tests against the actual server executable
-	suite.Run(t, NewFeatureSuite(httpDriver))
-}
-
-// TestUI tests against both frontend and API running in containers using UI automation
-func TestUI(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping UI test in short mode")
-	}
-
-	// Check if Docker is available
-	if !isDockerAvailable(t) {
-		t.Skip("Docker not available, skipping UI test")
-	}
-
-	// Start both frontend and API containers with UI test driver
-	frontendURL := startUITestEnvironment(t)
-
-	// Create UI driver pointing to the frontend
-	uiDriver, err := uidriver.New(frontendURL)
-	if err != nil {
-		t.Fatalf("Failed to create UI driver: %v", err)
-	}
-
-	// Ensure cleanup of browser resources
-	t.Cleanup(func() {
-		if err := uiDriver.Close(); err != nil {
-			t.Logf("Warning: Failed to close UI driver: %v", err)
-		}
-	})
-
-	// Run the same BDD tests against the UI
-	suite.Run(t, NewFeatureSuite(uiDriver))
-}
-
-// startServerExecutable builds and starts the actual server executable
+// startServerExecutable builds and starts the actual server executable using the root makefile
 // and returns the server URL. Cleanup is handled automatically via t.Cleanup.
 func startServerExecutable(t *testing.T) string {
-	// Build the server executable
-	serverBinary := buildServerExecutable(t)
+	// Start the server process using root makefile target
+	cmd := exec.Command("make", "run-backend")
 
-	// Find an available port
-	port := findAvailablePort(t)
-
-	// Start the server process
-	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, serverBinary, "-port", strconv.Itoa(port))
+	// Set working directory to project root
+	projectRoot, err := filepath.Abs("../..")
+	if err != nil {
+		t.Fatalf("Failed to get project root path: %v", err)
+	}
+	cmd.Dir = projectRoot
 
 	// Set up process group for clean termination
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -114,7 +55,7 @@ func startServerExecutable(t *testing.T) string {
 	go logServerOutput(t, "STDERR", stderr)
 
 	// Wait for server to be ready
-	serverURL := fmt.Sprintf("http://localhost:%d", port)
+	serverURL := "http://localhost:8080"
 	waitForServerReady(t, serverURL)
 
 	t.Logf("Server started successfully at %s (PID: %d)", serverURL, cmd.Process.Pid)
@@ -123,10 +64,10 @@ func startServerExecutable(t *testing.T) string {
 	t.Cleanup(func() {
 		t.Logf("Shutting down server (PID: %d)", cmd.Process.Pid)
 
-		// Cancel context to stop the command
-		cancel()
+		// Kill the entire process group to ensure cleanup
+		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 
-		// Give the process time to shut down gracefully
+		// Give the process time to shut down
 		done := make(chan error, 1)
 		go func() {
 			done <- cmd.Wait()
@@ -136,50 +77,11 @@ func startServerExecutable(t *testing.T) string {
 		case <-done:
 			t.Logf("Server shut down gracefully")
 		case <-time.After(5 * time.Second):
-			t.Logf("Server didn't shut down gracefully, killing process group")
-			// Kill the entire process group to ensure cleanup
-			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-			<-done
+			t.Logf("Server didn't shut down gracefully")
 		}
-
-		// Clean up the binary
-		os.Remove(serverBinary)
 	})
 
 	return serverURL
-}
-
-// buildServerExecutable builds the server and returns the path to the executable
-func buildServerExecutable(t *testing.T) string {
-	// Create temporary executable path
-	tempDir := t.TempDir()
-	serverBinary := filepath.Join(tempDir, "test-server")
-
-	// Build the server
-	t.Logf("Building server executable...")
-	cmd := exec.Command("go", "build", "-o", serverBinary, "./cmd/server")
-
-	// Set working directory to back-end
-	cmd.Dir = "../../back-end"
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to build server: %v\nOutput: %s", err, output)
-	}
-
-	t.Logf("Server built successfully at %s", serverBinary)
-	return serverBinary
-}
-
-// findAvailablePort finds an available port for the test server
-func findAvailablePort(t *testing.T) int {
-	listener, err := net.Listen("tcp", ":0")
-	if err != nil {
-		t.Fatalf("Failed to find available port: %v", err)
-	}
-	port := listener.Addr().(*net.TCPAddr).Port
-	listener.Close()
-	return port
 }
 
 // waitForServerReady waits for the server to be ready to accept connections
@@ -243,7 +145,11 @@ func runCommandWithTimeout(_ *testing.T, timeout time.Duration, name string, arg
 
 // startUITestEnvironment starts both API and frontend containers using testcontainers
 // and returns the frontend URL. Cleanup is handled automatically via testcontainers.
-func startUITestEnvironment(t *testing.T) string {
+func startFrontAndBackendDocker(t *testing.T) string {
+	if !isDockerAvailable(t) {
+		t.Skip("Docker is not available, skipping tests")
+	}
+
 	ctx := context.Background()
 
 	// Get absolute path to project root
@@ -336,5 +242,65 @@ func startUITestEnvironment(t *testing.T) string {
 	frontendURL := fmt.Sprintf("http://%s:%s", frontendHost, frontendPort.Port())
 	t.Logf("UI test environment started successfully, frontend at %s", frontendURL)
 
+	return frontendURL
+}
+
+// Start back end and front end services by calling `make run` and return the front end URL
+func startFrontAndBackend(t *testing.T) string {
+	// Build both back end and front end
+	// Start both back end and front end services
+	cmd := exec.Command("make", "run")
+
+	// Set up process group for clean termination
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	// Capture output for debugging
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		t.Fatalf("Failed to create stdout pipe: %v", err)
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		t.Fatalf("Failed to create stderr pipe: %v", err)
+	}
+
+	// Start the services
+	if err := cmd.Start(); err != nil {
+		t.Fatalf("Failed to start services: %v", err)
+	}
+
+	// Monitor output in background
+	go logServerOutput(t, "FRONTEND STDOUT", stdout)
+	go logServerOutput(t, "FRONTEND STDERR", stderr)
+
+	// Wait for frontend to be ready
+	frontendURL := "http://localhost:3000"
+	waitForServerReady(t, frontendURL)
+
+	t.Logf("Frontend started successfully at %s (PID: %d)", frontendURL, cmd.Process.Pid)
+
+	// Register cleanup function
+	t.Cleanup(func() {
+		t.Logf("Shutting down services (PID: %d)", cmd.Process.Pid)
+
+		// Kill the entire process group to ensure cleanup
+		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+
+		// Give the process time to shut down gracefully
+		done := make(chan error, 1)
+		go func() {
+			done <- cmd.Wait()
+		}()
+
+		select {
+		case <-done:
+			t.Logf("Services shut down gracefully")
+		case <-time.After(5 * time.Second):
+			t.Logf("Services didn't shut down gracefully, killing process group")
+			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+			<-done
+		}
+	})
 	return frontendURL
 }

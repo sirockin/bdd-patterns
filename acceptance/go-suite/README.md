@@ -18,12 +18,12 @@ s.given().
 ## Test Levels
 
 ### 1. Unit Tests (Domain Logic)
-**Test:** `TestApplication`
+**Test:** `TestDomain`
 **Purpose:** Direct testing of business logic
 **Speed:** Fastest (~2-3ms)
 
 ```bash
-go test -v -run TestApplication
+go test -v -run TestDomain
 ```
 
 **Architecture:**
@@ -92,7 +92,7 @@ Features:
 ### Development (Fast Feedback)
 ```bash
 # Run unit and HTTP tests only
-go test -v -run "TestApplication|TestHTTPInProcess"
+go test -v -run "TestDomain|TestHTTPInProcess"
 ```
 
 ### CI/CD Pipeline
@@ -109,7 +109,7 @@ go test -short -v
 ### Specific Test Types
 ```bash
 # Unit tests only
-go test -v -run TestApplication
+go test -v -run TestDomain
 
 # In-process HTTP tests
 go test -v -run TestHTTPInProcess
@@ -165,7 +165,7 @@ This ensures:
 ## Test Output Summary
 
 ```
-TestApplication:       ✅ 4 scenarios (2-3ms)
+TestDomain:       ✅ 4 scenarios (2-3ms)
 TestHTTPInProcess:     ✅ 4 scenarios (4-5ms)
 TestHttp:    ✅ 4 scenarios (1-2s)
 TestHttpDocker:        ✅ 4 scenarios (30-60s) [skipped if Docker unavailable]

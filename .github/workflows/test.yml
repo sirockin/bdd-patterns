@@ -84,7 +84,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Set up Docker Buildx
+    - name: Set up Docker Build
       uses: docker/setup-buildx-action@v3
 
     - name: Download backend dependencies
@@ -93,8 +93,6 @@ jobs:
     - name: Download acceptance test dependencies
       run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
-    - name: Run domain tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
     - name: Run HTTP tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http

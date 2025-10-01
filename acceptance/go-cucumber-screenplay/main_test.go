@@ -25,7 +25,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func TestApplication(t *testing.T) {
+func TestDomain(t *testing.T) {
 	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
 }
 
