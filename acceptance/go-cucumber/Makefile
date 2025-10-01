@@ -10,10 +10,10 @@ test-domain: ## Run application unit tests (fastest)
 	go test -v -run TestDomain .
 
 test-http: ## Run HTTP tests with real server
-	go test -v -run TestHttp .
+	go test -v -run TestBackEnd .
 
 test-ui: ## Run UI tests with frontend and API containers (requires Docker)
-	go test -v -run TestUI .
+	go test -v -run TestFrontEnd .
 
 run: 
 	cd ../.. && make run

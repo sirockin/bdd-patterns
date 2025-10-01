@@ -12,8 +12,8 @@ func TestDomain(t *testing.T) {
 	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
 }
 
-// TestHttp tests against the actual running server executable
-func TestHttp(t *testing.T) {
+// TestBackEnd tests against the actual running server executable
+func TestBackEnd(t *testing.T) {
 	// Start real server executable and get its URL
 	serverURL := startServerExecutable(t)
 
@@ -23,8 +23,8 @@ func TestHttp(t *testing.T) {
 	RunSuite(t, httpDriver, []string{"."})
 }
 
-// TestUI tests against both frontend and API running in containers using UI automation
-func TestUI(t *testing.T) {
+// TestFrontEnd tests against both frontend and API running in containers using UI automation
+func TestFrontEnd(t *testing.T) {
 	// Start both frontend and API containers with UI test driver
 	frontendURL := startFrontAndBackend(t)
 
