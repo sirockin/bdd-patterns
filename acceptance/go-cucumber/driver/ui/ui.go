@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"log"
+	"testing"
 	"time"
 
 	"github.com/playwright-community/playwright-go"
@@ -17,48 +18,50 @@ type AcceptanceTestDriver struct {
 	frontendURL string
 }
 
-func New(frontendURL string) (*AcceptanceTestDriver, error) {
+func New(t *testing.T, frontendURL string) *AcceptanceTestDriver {
 	err := playwright.Install()
 	if err != nil {
-		return nil, fmt.Errorf("failed to install playwright: %w", err)
+		t.Fatalf("failed to install playwright: %v", err)
 	}
 
 	pw, err := playwright.Run()
 	if err != nil {
-		return nil, fmt.Errorf("failed to start playwright: %w", err)
+		t.Fatalf("failed to start playwright: %v", err)
 	}
 
 	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
 		Headless: playwright.Bool(true), // Run in headless mode for CI
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to launch browser: %w", err)
+		t.Fatalf("failed to launch browser: %v", err)
 	}
 
 	context, err := browser.NewContext()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create browser context: %w", err)
+		t.Fatalf("failed to create browser context: %v", err)
 	}
 
 	page, err := context.NewPage()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create page: %w", err)
+		t.Fatalf("failed to create page: %v", err)
 	}
 
-	return &AcceptanceTestDriver{
+	driver := &AcceptanceTestDriver{
 		browser:     browser,
 		context:     context,
 		page:        page,
 		frontendURL: frontendURL,
-	}, nil
-}
-
-// Close cleans up browser resources
-func (u *AcceptanceTestDriver) Close() error {
-	if u.browser != nil {
-		return u.browser.Close()
 	}
-	return nil
+
+	t.Cleanup(func() {
+		if driver.browser != nil {
+			if err := driver.browser.Close(); err != nil {
+				t.Logf("Warning: Failed to close browser: %v", err)
+			}
+		}
+	})
+
+	return driver
 }
 
 // verify that AcceptanceTestDriver implements AcceptanceTestDriver

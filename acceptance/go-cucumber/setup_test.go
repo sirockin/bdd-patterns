@@ -144,8 +144,8 @@ func runCommandWithTimeout(_ *testing.T, timeout time.Duration, name string, arg
 }
 
 // startUITestEnvironment starts both API and frontend containers using testcontainers
-// and returns the frontend URL. Cleanup is handled automatically via testcontainers.
-func startFrontAndBackendDocker(t *testing.T) string {
+// and returns both backend and frontend URLs. Cleanup is handled automatically via testcontainers.
+func startFrontAndBackendDocker(t *testing.T) (backendURL, frontendURL string) {
 	if !isDockerAvailable(t) {
 		t.Skip("Docker is not available, skipping tests")
 	}
@@ -199,6 +199,20 @@ func startFrontAndBackendDocker(t *testing.T) string {
 		}
 	})
 
+	// Get API mapped port
+	apiPort, err := apiContainer.MappedPort(ctx, "8080")
+	if err != nil {
+		t.Fatalf("Failed to get API mapped port: %v", err)
+	}
+
+	// Get API host
+	apiHost, err := apiContainer.Host(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get API container host: %v", err)
+	}
+
+	backendURL = fmt.Sprintf("http://%s:%s", apiHost, apiPort.Port())
+
 	// Start frontend container
 	t.Logf("Starting frontend container...")
 	frontendContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -239,10 +253,10 @@ func startFrontAndBackendDocker(t *testing.T) string {
 		t.Fatalf("Failed to get frontend container host: %v", err)
 	}
 
-	frontendURL := fmt.Sprintf("http://%s:%s", frontendHost, frontendPort.Port())
-	t.Logf("UI test environment started successfully, frontend at %s", frontendURL)
+	frontendURL = fmt.Sprintf("http://%s:%s", frontendHost, frontendPort.Port())
+	t.Logf("Docker test environment started successfully, backend at %s, frontend at %s", backendURL, frontendURL)
 
-	return frontendURL
+	return backendURL, frontendURL
 }
 
 // Start back end and front end services by calling `make run` and return the front end URL

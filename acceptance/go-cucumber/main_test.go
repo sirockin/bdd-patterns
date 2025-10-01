@@ -9,59 +9,37 @@ import (
 )
 
 func TestDomain(t *testing.T) {
-	RunSuite(t, testhelpers.NewDomainTestDriver(), []string{"."})
+	RunSuite(t, testhelpers.NewDomainTestDriver())
 }
 
 // TestBackEnd tests against the actual running server executable
 func TestBackEnd(t *testing.T) {
-	// Start real server executable and get its URL
 	serverURL := startServerExecutable(t)
 
-	// Create HTTP driver pointing to the real server
 	httpDriver := httpdriver.New(serverURL)
 
-	RunSuite(t, httpDriver, []string{"."})
+	RunSuite(t, httpDriver)
 }
 
 // TestFrontEnd tests against both frontend and API running in containers using UI automation
 func TestFrontEnd(t *testing.T) {
-	// Start both frontend and API containers with UI test driver
 	frontendURL := startFrontAndBackend(t)
 
-	// Create UI driver pointing to the frontend
-	uiDriver, err := uidriver.New(frontendURL)
-	if err != nil {
-		t.Fatalf("Failed to create UI driver: %v", err)
-	}
+	uiDriver := uidriver.New(t, frontendURL)
 
-	// Ensure cleanup of browser resources
-	t.Cleanup(func() {
-		if err := uiDriver.Close(); err != nil {
-			t.Logf("Warning: Failed to close UI driver: %v", err)
-		}
-	})
-
-	// Run the same BDD tests against the UI
-	RunSuite(t, uiDriver, []string{"."})
+	RunSuite(t, uiDriver)
 }
 
 func TestBackAndFrontEndDocker(t *testing.T) {
-	// Start both frontend and API containers with UI test driver
-	frontendURL := startFrontAndBackendDocker(t)
+	backendURL, frontendURL := startFrontAndBackendDocker(t)
 
-	// Create UI driver pointing to the frontend
-	uiDriver, err := uidriver.New(frontendURL)
-	if err != nil {
-		t.Fatalf("Failed to create UI driver: %v", err)
-	}
-
-	// Ensure cleanup of browser resources
-	t.Cleanup(func() {
-		if err := uiDriver.Close(); err != nil {
-			t.Logf("Warning: Failed to close UI driver: %v", err)
-		}
+	t.Run("BackEnd", func(t *testing.T) {
+		httpDriver := httpdriver.New(backendURL)
+		RunSuite(t, httpDriver)
 	})
 
-	// Run the same BDD tests against the UI
-	RunSuite(t, uiDriver, []string{"."})
+	t.Run("FrontEnd", func(t *testing.T) {
+		uiDriver := uidriver.New(t, frontendURL)
+		RunSuite(t, uiDriver)
+	})
 }
