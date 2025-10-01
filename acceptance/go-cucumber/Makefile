@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-http test-ui test-all coverage help
+.PHONY: test test-domain test-backend test-frontend test-docker test-all coverage help
 
 # Default target
 help: ## Show this help message
@@ -6,20 +6,26 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Individual test targets
-test-domain: ## Run application unit tests (fastest)
+test-domain: ## Run domain tests (fastest)
 	go test -v -run TestDomain .
 
-test-http: ## Run HTTP tests with real server
+test-backend: ## Run backend tests with real server
 	go test -v -run TestBackEnd .
 
-test-ui: ## Run UI tests with frontend and API containers (requires Docker)
+test-frontend: ## Run frontend tests with both backend and frontend (requires npm)
 	go test -v -run TestFrontEnd .
 
-run: 
-	cd ../.. && make run
+test-docker: ## Run both backend and frontend tests in Docker containers
+	go test -v -run TestBackAndFrontEndDocker .
+
+# Test suites
+test-all: ## Run all tests (full suite)
+	go test -v .
+
+test: test-domain ## Default test target (domain tests only)
 
 # Coverage
 coverage: ## Run tests with coverage
 	go test -coverprofile=coverage.out .
 	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: acceptance/coverage.html"
+	@echo "Coverage report generated: coverage.html"
