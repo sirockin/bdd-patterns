@@ -55,9 +55,9 @@ jobs:
     - name: Run go vet
       run: make vet
 
-  # HTTP and UI tests (runs on PR and main branch pushes)
+  # Back and Front End tests (runs on PR and main branch pushes)
   http-and-ui-tests:
-    name: HTTP and UI Tests
+    name: Back and Front End Tests
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: fast-tests
@@ -94,7 +94,7 @@ jobs:
       run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
 
-    - name: Run HTTP tests
+    - name: Run Back End tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend
 
     - name: Generate test coverage
