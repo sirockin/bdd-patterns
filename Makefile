@@ -44,12 +44,12 @@ run: build
 	@echo "Starting backend server and frontend..."
 	@trap 'kill 0' EXIT; \
 	cd back-end && ./bin/server & \
-	cd front-end && npm start
+	cd front-end && npm run run
 
 
 run-frontend: build-frontend ## Build and run frontend only
 	@echo "Starting frontend..."
-	@cd front-end && npm start
+	@cd front-end && npm run run
 
 run-backend: build-backend ## Build and run backend only
 	@echo "Starting backend server..."
