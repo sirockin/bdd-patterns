@@ -85,24 +85,40 @@ func startServerExecutable(t *testing.T) string {
 
 // waitForServerReady waits for the server to be ready to accept connections
 func waitForServerReady(t *testing.T, serverURL string) {
-	client := &http.Client{Timeout: 1 * time.Second}
+	waitForServerReadyWithTimeout(t, serverURL, 30*time.Second)
+}
 
-	// Try to connect to the server health endpoint
-	for i := range 30 { // Wait up to 30 seconds
-		resp, err := client.Get(serverURL + "/accounts")
+// waitForServerReadyWithTimeout waits for the server to be ready with a custom timeout
+func waitForServerReadyWithTimeout(t *testing.T, serverURL string, timeout time.Duration) {
+	client := &http.Client{Timeout: 5 * time.Second}
+
+	// Determine which endpoint to check based on URL
+	checkPath := "/"
+	if strings.Contains(serverURL, ":8080") {
+		// Backend server - check /accounts endpoint
+		checkPath = "/accounts"
+	}
+
+	checkURL := serverURL + checkPath
+	deadline := time.Now().Add(timeout)
+	attempt := 0
+
+	for time.Now().Before(deadline) {
+		attempt++
+		resp, err := client.Get(checkURL)
 		if err == nil {
 			resp.Body.Close()
-			// Even a 405 Method Not Allowed means the server is responding
-			if resp.StatusCode == http.StatusMethodNotAllowed || resp.StatusCode < 500 {
-				t.Logf("Server is ready after %d attempts", i+1)
+			// Any response code < 500 means server is responding
+			if resp.StatusCode < 500 {
+				t.Logf("Server is ready at %s after %d attempts (%.1fs)", serverURL, attempt, time.Since(deadline.Add(-timeout)).Seconds())
 				return
 			}
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
-	t.Fatalf("Server did not become ready within 30 seconds")
+	t.Fatalf("Server at %s did not become ready within %v (tried %d times)", serverURL, timeout, attempt)
 }
 
 // logServerOutput logs server output for debugging
@@ -287,9 +303,9 @@ func startFrontAndBackend(t *testing.T) string {
 	go logServerOutput(t, "FRONTEND STDOUT", stdout)
 	go logServerOutput(t, "FRONTEND STDERR", stderr)
 
-	// Wait for frontend to be ready
+	// Wait for frontend to be ready (dev server takes longer to compile and start)
 	frontendURL := "http://localhost:3000"
-	waitForServerReady(t, frontendURL)
+	waitForServerReadyWithTimeout(t, frontendURL, 60*time.Second)
 
 	t.Logf("Frontend started successfully at %s (PID: %d)", frontendURL, cmd.Process.Pid)
 
