@@ -121,18 +121,17 @@ jobs:
       if: matrix.test-type == 'frontend'
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-frontend
 
-    # TODO: Re-enable coverage once CI environment issue is resolved
-    # - name: Generate test coverage
-    #   run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage
+    - name: Generate test coverage
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage
 
-    # - name: Upload coverage reports
-    #   uses: codecov/codecov-action@v4
-    #   if: always()
-    #   with:
-    #     file: ${{ env.ACCEPTANCE_PATH }}/coverage.out
-    #     flags: unittests
-    #     name: codecov-umbrella
-    #     fail_ci_if_error: false
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ${{ env.ACCEPTANCE_PATH }}/coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
 
   # Security and quality checks
   quality-checks:
