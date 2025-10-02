@@ -61,6 +61,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: fast-tests
+    strategy:
+      matrix:
+        test-type: [backend, frontend]
+      fail-fast: false
 
     steps:
     - name: Checkout code
@@ -84,8 +88,24 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Set up Docker Build
-      uses: docker/setup-buildx-action@v3
+    - name: Set up Node.js (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cache Node modules (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      uses: actions/cache@v4
+      with:
+        path: front-end/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('front-end/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Playwright browsers (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      run: npx playwright install --with-deps chromium
 
     - name: Download backend dependencies
       run: cd back-end && go mod download
@@ -93,9 +113,17 @@ jobs:
     - name: Download acceptance test dependencies
       run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
+    - name: Install frontend dependencies (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      run: cd front-end && npm ci
 
-    - name: Run Back End tests
+    - name: Run Backend tests
+      if: matrix.test-type == 'backend'
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend
+
+    - name: Run Frontend tests
+      if: matrix.test-type == 'frontend'
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-frontend
 
     # TODO: Re-enable coverage once CI environment issue is resolved
     # - name: Generate test coverage
