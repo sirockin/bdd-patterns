@@ -5,7 +5,9 @@ import (
 	"testing"
 	"time"
 
+	httpdriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/http"
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
+	"github.com/sirockin/cucumber-screenplay-go/back-end/pkg/testhelpers"
 )
 
 var (
@@ -34,30 +36,30 @@ func TestMain(m *testing.M) {
 // withTestContext executes the provided test function with different test contexts
 // based on environment variables to control which tests run
 func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) {
-	// runApplication := os.Getenv("TEST_TYPE") == "application" || os.Getenv("TEST_TYPE") == ""
-	// runBackEnd := os.Getenv("TEST_TYPE") == "back-end" || os.Getenv("TEST_TYPE") == ""
+	runApplication := os.Getenv("TEST_TYPE") == "application" || os.Getenv("TEST_TYPE") == ""
+	runBackEnd := os.Getenv("TEST_TYPE") == "back-end" || os.Getenv("TEST_TYPE") == ""
 	runFrontEnd := os.Getenv("TEST_TYPE") == "front-end" || os.Getenv("TEST_TYPE") == ""
 
-	// if runApplication {
-	// 	t.Run("Application", func(t *testing.T) {
-	// 		ctx := newTestContext(testhelpers.NewDomainTestDriver())
-	// 		t.Cleanup(func() {
-	// 			ctx.clearAll()
-	// 		})
-	// 		testFn(t, ctx)
-	// 	})
-	// }
+	if runApplication {
+		t.Run("Application", func(t *testing.T) {
+			ctx := newTestContext(testhelpers.NewDomainTestDriver())
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
+		})
+	}
 
-	// if runBackEnd {
-	// 	t.Run("HTTPExecutable", func(t *testing.T) {
-	// 		httpDriver := httpdriver.New(serverURL)
-	// 		ctx := newTestContext(httpDriver)
-	// 		t.Cleanup(func() {
-	// 			ctx.clearAll()
-	// 		})
-	// 		testFn(t, ctx)
-	// 	})
-	// }
+	if runBackEnd {
+		t.Run("HTTPExecutable", func(t *testing.T) {
+			httpDriver := httpdriver.New(serverURL)
+			ctx := newTestContext(httpDriver)
+			t.Cleanup(func() {
+				ctx.clearAll()
+			})
+			testFn(t, ctx)
+		})
+	}
 
 	if runFrontEnd {
 		t.Run("FrontEnd", func(t *testing.T) {
