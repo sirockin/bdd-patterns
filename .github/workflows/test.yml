@@ -97,7 +97,7 @@ jobs:
     - name: Run Back End tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend
 
-    # TODO: Re-enable UI tests once CI environment issue is resolved
+    # TODO: Re-enable coverage once CI environment issue is resolved
     # - name: Generate test coverage
     #   run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage
 
