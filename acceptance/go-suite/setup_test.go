@@ -2,7 +2,6 @@ package features_test
 
 import (
 	"bufio"
-	"context"
 	"io"
 	"net/http"
 	"os/exec"
