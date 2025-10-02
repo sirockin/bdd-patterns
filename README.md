@@ -31,7 +31,7 @@ cd ./acceptance/go-suite
 make test-backend
 
 # run tests against the front end
-make test-ui
+make test-frontend
 
 # (for go-based tests) run tests against the domain layer
 make test-domain

@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-backend test-ui test-all coverage help
+.PHONY: test test-domain test-backend test-frontend test-all coverage help
 
 # Default target
 help: ## Show this help message
@@ -12,7 +12,7 @@ test-domain: ## Run application unit tests (fastest)
 test-backend: ## Run HTTP tests with real server
 	go test -v -run TestHttp .
 
-test-ui: ## Run UI tests with frontend and API containers (requires Docker)
+test-frontend: ## Run UI tests with frontend and API containers (requires Docker)
 	go test -v -run TestUI .
 
 # Test suites

@@ -96,7 +96,7 @@ The pattern supports the same Makefile targets as other patterns:
 ```bash
 make test-domain          # Application tests only
 make test-backend            # HTTP tests with real server
-make test-ui              # UI automation tests
+make test-frontend              # UI automation tests
 make test-all             # All tests including UI
 ```
 
