@@ -6,17 +6,17 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Individual test targets
-test-domain: ## Run application unit tests (fastest)
-	RUN_APPLICATION=true RUN_HTTP=false RUN_UI=false go test -v .
+test-domain: ## Run domain tests (fastest)
+	go test -v -run TestDomain .
 
-test-backend: ## Run HTTP tests with real server
-	RUN_APPLICATION=false RUN_HTTP=true RUN_UI=false go test -v .
+test-backend: ## Run backend tests with real server
+	go test -v -run TestBackEnd .
 
-test-frontend: ## Run UI tests with frontend and API containers (requires Docker)
-	RUN_APPLICATION=false RUN_HTTP=false RUN_UI=true go test -v .
+test-frontend: ## Run frontend tests with both backend and frontend (requires npm)
+	go test -v -run TestFrontEnd .
 
 # Test suites
-test-all: ## Run all tests including UI (full suite)
+test-all: ## Run all tests (full suite)
 	go test -v .
 
 test: test-domain ## Default test target (domain tests only)
@@ -25,4 +25,4 @@ test: test-domain ## Default test target (domain tests only)
 coverage: ## Run tests with coverage
 	go test -coverprofile=coverage.out .
 	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: acceptance/go-test-wrapper/coverage.html"
+	@echo "Coverage report generated: coverage.html"

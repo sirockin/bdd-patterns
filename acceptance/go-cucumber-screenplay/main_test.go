@@ -30,16 +30,3 @@ func TestFrontEnd(t *testing.T) {
 	RunSuite(t, uiDriver)
 }
 
-func TestBackAndFrontEndDocker(t *testing.T) {
-	backendURL, frontendURL := startFrontAndBackendDocker(t)
-
-	t.Run("BackEnd", func(t *testing.T) {
-		httpDriver := httpdriver.New(backendURL)
-		RunSuite(t, httpDriver)
-	})
-
-	t.Run("FrontEnd", func(t *testing.T) {
-		uiDriver := uidriver.New(t, frontendURL)
-		RunSuite(t, uiDriver)
-	})
-}

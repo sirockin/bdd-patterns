@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-backend test-frontend test-docker test-all coverage help
+.PHONY: test test-domain test-backend test-frontend test-all coverage help
 
 # Default target
 help: ## Show this help message
@@ -14,9 +14,6 @@ test-backend: ## Run backend tests with real server
 
 test-frontend: ## Run frontend tests with both backend and frontend (requires npm)
 	go test -v -run TestFrontEnd .
-
-test-docker: ## Run both backend and frontend tests in Docker containers
-	go test -v -run TestBackAndFrontEndDocker .
 
 # Test suites
 test-all: ## Run all tests (full suite)

@@ -3,7 +3,6 @@ package features_test
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"os/exec"
@@ -12,10 +11,6 @@ import (
 	"syscall"
 	"testing"
 	"time"
-
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/network"
-	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 // startServerExecutable builds and starts the actual server executable using the root makefile
@@ -131,142 +126,6 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 		// Log all output to help diagnose build and startup issues
 		t.Logf("[SERVER %s] %s", prefix, line)
 	}
-}
-
-// isDockerAvailable checks if Docker is available on the system
-func isDockerAvailable(t *testing.T) bool {
-	_, err := runCommand(t, "docker", "version")
-	return err == nil
-}
-
-// Helper functions for command execution
-
-func runCommand(t *testing.T, name string, args ...string) ([]byte, error) {
-	return runCommandWithTimeout(t, 30*time.Second, name, args...)
-}
-
-func runCommandWithTimeout(_ *testing.T, timeout time.Duration, name string, args ...string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, name, args...)
-	return cmd.CombinedOutput()
-}
-
-// startUITestEnvironment starts both API and frontend containers using testcontainers
-// and returns both backend and frontend URLs. Cleanup is handled automatically via testcontainers.
-func startFrontAndBackendDocker(t *testing.T) (backendURL, frontendURL string) {
-	if !isDockerAvailable(t) {
-		t.Skip("Docker is not available, skipping tests")
-	}
-
-	ctx := context.Background()
-
-	// Get absolute path to project root
-	projectRoot, err := filepath.Abs("../..")
-	if err != nil {
-		t.Fatalf("Failed to get project root path: %v", err)
-	}
-
-	// Create a network for the containers to communicate
-	nw, err := network.New(ctx)
-	if err != nil {
-		t.Fatalf("Failed to create network: %v", err)
-	}
-
-	// Clean up network
-	t.Cleanup(func() {
-		if err := nw.Remove(ctx); err != nil {
-			t.Logf("Warning: Failed to remove network: %v", err)
-		}
-	})
-
-	// Start API container
-	t.Logf("Starting API container...")
-	apiContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    filepath.Join(projectRoot, "back-end"),
-				Dockerfile: "Dockerfile",
-			},
-			ExposedPorts: []string{"8080/tcp"},
-			WaitingFor:   wait.ForLog("API endpoints"),
-			Networks:     []string{nw.Name},
-			NetworkAliases: map[string][]string{
-				nw.Name: {"api"},
-			},
-		},
-		Started: true,
-	})
-	if err != nil {
-		t.Fatalf("Failed to start API container: %v", err)
-	}
-
-	// Clean up API container
-	t.Cleanup(func() {
-		if err := apiContainer.Terminate(ctx); err != nil {
-			t.Logf("Warning: Failed to terminate API container: %v", err)
-		}
-	})
-
-	// Get API mapped port
-	apiPort, err := apiContainer.MappedPort(ctx, "8080")
-	if err != nil {
-		t.Fatalf("Failed to get API mapped port: %v", err)
-	}
-
-	// Get API host
-	apiHost, err := apiContainer.Host(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get API container host: %v", err)
-	}
-
-	backendURL = fmt.Sprintf("http://%s:%s", apiHost, apiPort.Port())
-
-	// Start frontend container
-	t.Logf("Starting frontend container...")
-	frontendContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			FromDockerfile: testcontainers.FromDockerfile{
-				Context:    filepath.Join(projectRoot, "front-end"),
-				Dockerfile: "Dockerfile",
-			},
-			ExposedPorts: []string{"80/tcp"},
-			WaitingFor:   wait.ForHTTP("/").WithPort("80"),
-			Networks:     []string{nw.Name},
-			NetworkAliases: map[string][]string{
-				nw.Name: {"frontend"},
-			},
-		},
-		Started: true,
-	})
-	if err != nil {
-		t.Fatalf("Failed to start frontend container: %v", err)
-	}
-
-	// Clean up frontend container
-	t.Cleanup(func() {
-		if err := frontendContainer.Terminate(ctx); err != nil {
-			t.Logf("Warning: Failed to terminate frontend container: %v", err)
-		}
-	})
-
-	// Get frontend mapped port
-	frontendPort, err := frontendContainer.MappedPort(ctx, "80")
-	if err != nil {
-		t.Fatalf("Failed to get frontend mapped port: %v", err)
-	}
-
-	// Get frontend host
-	frontendHost, err := frontendContainer.Host(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get frontend container host: %v", err)
-	}
-
-	frontendURL = fmt.Sprintf("http://%s:%s", frontendHost, frontendPort.Port())
-	t.Logf("Docker test environment started successfully, backend at %s, frontend at %s", backendURL, frontendURL)
-
-	return backendURL, frontendURL
 }
 
 // Start back end and front end services by calling `make run` and return the front end URL
