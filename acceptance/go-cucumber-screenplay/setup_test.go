@@ -261,9 +261,15 @@ func startFrontAndBackendDocker(t *testing.T) (backendURL, frontendURL string) {
 
 // Start back end and front end services by calling `make run` and return the front end URL
 func startFrontAndBackend(t *testing.T) string {
-	// Build both back end and front end
 	// Start both back end and front end services
 	cmd := exec.Command("make", "run")
+
+	// Set working directory to project root
+	projectRoot, err := filepath.Abs("../..")
+	if err != nil {
+		t.Fatalf("Failed to get project root path: %v", err)
+	}
+	cmd.Dir = projectRoot
 
 	// Set up process group for clean termination
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
