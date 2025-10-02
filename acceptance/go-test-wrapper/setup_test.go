@@ -102,6 +102,8 @@ func waitForServerReadyWithTimeout(serverURL string, timeout time.Duration) {
 	checkURL := serverURL + checkPath
 	deadline := time.Now().Add(timeout)
 	attempt := 0
+	consecutiveSuccesses := 0
+	requiredSuccesses := 3 // Require 3 consecutive successful responses
 
 	for time.Now().Before(deadline) {
 		attempt++
@@ -110,11 +112,18 @@ func waitForServerReadyWithTimeout(serverURL string, timeout time.Duration) {
 			resp.Body.Close()
 			// Any response code < 500 means server is responding
 			if resp.StatusCode < 500 {
-				log.Printf("Server is ready at %s after %d attempts (%.1fs)", serverURL, attempt, time.Since(deadline.Add(-timeout)).Seconds())
-				return
+				consecutiveSuccesses++
+				if consecutiveSuccesses >= requiredSuccesses {
+					log.Printf("Server is ready at %s after %d attempts (%.1fs)", serverURL, attempt, time.Since(deadline.Add(-timeout)).Seconds())
+					return
+				}
+				// Don't sleep as long between successful checks
+				time.Sleep(500 * time.Millisecond)
+				continue
 			}
 		}
-
+		// Reset counter on failure
+		consecutiveSuccesses = 0
 		time.Sleep(2 * time.Second)
 	}
 
@@ -134,7 +143,7 @@ func logServerOutput(prefix string, pipe io.ReadCloser) {
 }
 
 // Start back end and front end services by calling `make run` and return the front end URL and cleanup function
-func startFrontAndBackend() (string, func()) {
+func startFrontAndBackend() (string, string, func()) {
 	// Start both back end and front end services
 	cmd := exec.Command("make", "run")
 
@@ -200,5 +209,5 @@ func startFrontAndBackend() (string, func()) {
 			<-done
 		}
 	}
-	return frontendURL, cleanup
+	return frontendURL, "http://localhost:8080", cleanup
 }

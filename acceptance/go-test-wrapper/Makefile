@@ -7,17 +7,17 @@ help: ## Show this help message
 
 # Individual test targets
 test-domain: ## Run application unit tests (fastest)
-	RUN_APPLICATION=true RUN_BACK_END=false RUN_FRONTEND=false go test -v .
+	TEST_TYPE=application go test -v .
 
 test-backend: ## Run in-process HTTP integration tests
-	RUN_APPLICATION=false RUN_BACK_END=true RUN_FRONTEND=false go test -v .
+	TEST_TYPE=back-end go test -v .
 
 test-frontend: ## Run UI tests with frontend and API containers (requires Docker)
-	RUN_APPLICATION=false RUN_BACK_END=false RUN_FRONTEND=true go test -v .
+	TEST_TYPE=front-end go test -v .
 
 # Test suites
 test-all: ## Run fast tests (application + in-process HTTP)
-	RUN_APPLICATION=true RUN_BACK_END=true RUN_FRONTEND=true go test -v .
+	go test -v .
 
 test: test-domain ## Default test target (application tests only)
 
