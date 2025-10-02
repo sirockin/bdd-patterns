@@ -3,6 +3,7 @@ package features_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	uidriver "github.com/sirockin/cucumber-screenplay-go/acceptance/driver/ui"
 )
@@ -63,6 +64,10 @@ func withTestContext(t *testing.T, testFn func(t *testing.T, ctx *testContext)) 
 			uiDriver := uidriver.New(t, frontendURL)
 
 			ctx := newTestContext(uiDriver)
+			// Clear at start to ensure clean state
+			ctx.clearAll()
+			// Extra wait to ensure clear fully propagates before test starts
+			time.Sleep(1 * time.Second)
 			t.Cleanup(func() {
 				ctx.clearAll()
 			})
