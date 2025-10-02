@@ -29,4 +29,3 @@ func TestFrontEnd(t *testing.T) {
 
 	RunSuite(t, uiDriver)
 }
-

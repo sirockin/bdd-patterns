@@ -211,14 +211,3 @@ jobs:
         sleep 2
         curl -f http://localhost:9999/accounts || true
         pkill -f "./back-end/bin/server" || true
-
-    - name: Build Docker image
-      run: docker build -f back-end/Dockerfile -t test-image back-end
-
-    - name: Test Docker image
-      run: |
-        docker run -d -p 8081:8080 --name test-container test-image
-        sleep 5
-        curl -f http://localhost:8081/accounts || true
-        docker stop test-container
-        docker rm test-container

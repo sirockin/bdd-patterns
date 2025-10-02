@@ -30,4 +30,3 @@ func TestFrontEnd(t *testing.T) {
 
 	suite.Run(t, NewFeatureSuite(uiDriver))
 }
-

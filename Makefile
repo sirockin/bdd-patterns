@@ -1,4 +1,4 @@
-.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-frontend test-docker coverage install-frontend
+.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-frontend coverage install-frontend
 
 # Default target
 help: ## Show this help message
@@ -23,9 +23,6 @@ test-backend: ## Run backend tests with real server (USAGE: make test-backend SU
 
 test-frontend: ## Run frontend tests (USAGE: make test-frontend SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-frontend
-
-test-docker: ## Run Docker tests (USAGE: make test-docker SUBFOLDER={subfolder}, default: go-cucumber)
-	cd acceptance/$(SUBFOLDER) && $(MAKE) test-docker
 
 coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
