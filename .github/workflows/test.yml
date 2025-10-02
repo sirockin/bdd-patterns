@@ -95,7 +95,7 @@ jobs:
 
 
     - name: Run HTTP tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend
 
     - name: Generate test coverage
       run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage

@@ -1,4 +1,4 @@
-.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-http test-ui coverage
+.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-ui coverage
 
 # Default target
 help: ## Show this help message

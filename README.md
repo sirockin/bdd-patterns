@@ -28,7 +28,7 @@ From the subdirectory
 cd ./acceptance/go-suite
 
 # run tests against the http api
-make test-http
+make test-backend
 
 # run tests against the front end
 make test-ui
@@ -43,7 +43,7 @@ make help
 Or run the same targets from the root directory, providing the path to the SUBFOLDER as an optional parameter (default is `go-cucumber`):
 ```sh
 # run http tests for the go-suite pattern
-make test-http SUBFOLDER=go-suite
+make test-backend SUBFOLDER=go-suite
 ```
 
 
