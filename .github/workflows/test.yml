@@ -56,11 +56,11 @@ jobs:
       run: make vet
 
   # Back and Front End tests (runs on PR and main branch pushes)
-  e2e-accetpance-tests:
+  e2e-acceptance-tests:
     name: Back and Front End Acceptance Tests
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    needs: fast-tests
+    needs: domain-tests
     strategy:
       matrix:
         test-type: [backend, frontend]
