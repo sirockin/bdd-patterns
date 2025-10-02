@@ -112,14 +112,8 @@ func logServerOutput(t *testing.T, prefix string, pipe io.ReadCloser) {
 	scanner := bufio.NewScanner(pipe)
 	for scanner.Scan() {
 		line := scanner.Text()
-		// Only log important messages to avoid test output noise
-		if strings.Contains(line, "Starting server") ||
-			strings.Contains(line, "error") ||
-			strings.Contains(line, "Error") ||
-			strings.Contains(line, "failed") ||
-			strings.Contains(line, "Failed") {
-			t.Logf("[SERVER %s] %s", prefix, line)
-		}
+		// Log all output to help diagnose build and startup issues
+		t.Logf("[SERVER %s] %s", prefix, line)
 	}
 }
 
