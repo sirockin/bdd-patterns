@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 function Projects() {
@@ -7,7 +7,7 @@ function Projects() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch(`/accounts/${name}/projects`);
       if (response.ok) {
@@ -19,13 +19,13 @@ function Projects() {
     } catch (err) {
       setError(`Network error: ${err.message}`);
     }
-  };
+  }, [name]);
 
   useEffect(() => {
     if (name) {
       fetchProjects();
     }
-  }, [name]);
+  }, [name, fetchProjects]);
 
   const handleCreateProject = async () => {
     setMessage('');
