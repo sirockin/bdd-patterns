@@ -109,11 +109,35 @@ func (u *AcceptanceTestDriver) CreateAccount(name string) error {
 
 func (u *AcceptanceTestDriver) ClearAll() {
 	log.Println("UI: Clearing all data")
-	// For UI testing, we'll navigate to a reset page or use the API directly
-	// For simplicity, we'll use a dedicated clear endpoint
+	// Navigate to the clear admin page
 	_, err := u.page.Goto(u.frontendURL + "/admin/clear")
 	if err != nil {
-		log.Printf("Warning: Failed to clear data via UI: %v", err)
+		log.Printf("Warning: Failed to navigate to clear page: %v", err)
+		return
+	}
+
+	// Wait for the clear button to be available
+	_, err = u.page.WaitForSelector("button", playwright.PageWaitForSelectorOptions{
+		Timeout: playwright.Float(5000),
+	})
+	if err != nil {
+		log.Printf("Warning: Clear button not found: %v", err)
+		return
+	}
+
+	// Click the clear button
+	err = u.page.Click("button")
+	if err != nil {
+		log.Printf("Warning: Failed to click clear button: %v", err)
+		return
+	}
+
+	// Wait for success message to confirm clear completed
+	_, err = u.page.WaitForSelector(".success", playwright.PageWaitForSelectorOptions{
+		Timeout: playwright.Float(5000),
+	})
+	if err != nil {
+		log.Printf("Warning: Clear operation may not have completed: %v", err)
 	}
 }
 
