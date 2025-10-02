@@ -17,8 +17,8 @@ on:
 
 jobs:
   # Fast tests that run on every push
-  fast-tests:
-    name: Fast Tests (Domain Only)
+  domain-tests:
+    name: Domain Acceptance Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -56,8 +56,8 @@ jobs:
       run: make vet
 
   # Back and Front End tests (runs on PR and main branch pushes)
-  http-and-ui-tests:
-    name: Back and Front End Tests
+  e2e-accetpance-tests:
+    name: Back and Front End Acceptance Tests
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: fast-tests
