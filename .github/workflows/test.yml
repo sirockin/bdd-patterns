@@ -113,10 +113,6 @@ jobs:
     - name: Download acceptance test dependencies
       run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
 
-    - name: Install frontend dependencies (for frontend tests)
-      if: matrix.test-type == 'frontend'
-      run: cd front-end && npm ci
-
     - name: Run Backend tests
       if: matrix.test-type == 'backend'
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend

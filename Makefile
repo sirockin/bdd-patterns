@@ -1,4 +1,4 @@
-.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-frontend coverage
+.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-frontend test-docker coverage install-frontend
 
 # Default target
 help: ## Show this help message
@@ -33,7 +33,10 @@ coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}
 # Build
 build: build-backend build-frontend ## Build both backend and frontend
 
-build-frontend: ## Build frontend only
+install-frontend: ## Install frontend dependencies
+	cd front-end && npm ci
+
+build-frontend: install-frontend ## Build frontend only
 	cd front-end && npm run build
 
 build-backend: ## Build backend only
