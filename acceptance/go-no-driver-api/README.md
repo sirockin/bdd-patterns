@@ -2,7 +2,7 @@
 
 ### Overview
 
-BDD-style tests using **pure Go testing** with HTTP API code directly inlined into test steps. This pattern demonstrates the simplest possible approach by eliminating the driver abstraction layer entirely.
+BDD-style tests using **pure Go testing** with HTTP API code directly inlined into test steps. 
 
 ```go
 func TestSignUp(t *testing.T) {
