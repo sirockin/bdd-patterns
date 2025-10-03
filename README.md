@@ -52,6 +52,7 @@ make test-backend SUBFOLDER=go-suite
 - **go-cucumber-screenplay**: Same as go-cucumber but implements the [Screenplay Pattern](https://cucumber.io/docs/bdd/screenplay/) for more composable and reusable test code
 - **go-suite**: Tests written in pure Go using [testify/suite](https://github.com/stretchr/testify#suite-package) with a fluent given/when/then API that reads like Gherkin
 - **go-test-wrapper**: Tests written in pure Go using standard `testing` package with a wrapper function that automatically runs each test against multiple protocol layers
+- **go-no-driver-api**: Tests written in pure Go with HTTP API code directly inlined into step functions (no driver abstraction layer, backend API testing only)
 - **go-no-driver-ui**: Tests written in pure Go with UI automation code directly inlined into step functions (no driver abstraction layer, UI testing only)
 
 
@@ -72,11 +73,9 @@ We mostly use a [four-layer model](https://continuous-delivery.co.uk/downloads/A
 
 The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
-define a `TestDriver` interface and drivers for each layer we want to test. 
+define a `TestDriver` interface and drivers for each layer we want to test.
 
-The `go-simple-ui` pattern omits the protocol driver layer and calls the UI directly from the step implementations. 
-
-To do this, we 
+The `go-no-driver-api` and `go-no-driver-ui` patterns omit the protocol driver layer and inline the HTTP/UI code directly into the step implementations. 
 
 ### Are these intermediate layers really necessary?
 
@@ -94,7 +93,8 @@ Clearly this is useful if we want to test multiple layers but what if our only p
 
 ### Exceptions to the Four-Layer Model
 
-- `go-simple-ui` which omits the driver layer and calls the UI directly from the step implementations. It is simpler but more brittle and can only be used to test the UI, not the API or domain layer.
+- `go-no-driver-api` which omits the driver layer and inlines HTTP client code directly in step implementations. It is simpler but more brittle and can only be used to test the backend API, not the UI or domain layer.
+- `go-no-driver-ui` which omits the driver layer and inlines UI automation code directly in step implementations. It is simpler but more brittle and can only be used to test the UI, not the API or domain layer.
 
 
 ## Contributing
