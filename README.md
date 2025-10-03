@@ -52,6 +52,7 @@ make test-backend SUBFOLDER=go-suite
 - **go-cucumber-screenplay**: Same as go-cucumber but implements the [Screenplay Pattern](https://cucumber.io/docs/bdd/screenplay/) for more composable and reusable test code
 - **go-suite**: Tests written in pure Go using [testify/suite](https://github.com/stretchr/testify#suite-package) with a fluent given/when/then API that reads like Gherkin
 - **go-test-wrapper**: Tests written in pure Go using standard `testing` package with a wrapper function that automatically runs each test against multiple protocol layers
+- **go-no-driver-ui**: Tests written in pure Go with UI automation code directly inlined into step functions (no driver abstraction layer, UI testing only)
 
 
 
