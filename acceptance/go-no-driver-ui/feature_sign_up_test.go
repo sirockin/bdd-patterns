@@ -1,0 +1,43 @@
+package features_test
+
+import (
+	"testing"
+)
+
+func TestSignUp(t *testing.T) {
+	ctx := setupTest(t)
+
+	// Given
+	personHasCreatedAnAccount(t, ctx, "Sue")
+
+	// When
+	personActivatesTheirAccount(t, ctx, "Sue")
+
+	// Then
+	personTriesToSignIn(t, ctx, "Sue")
+	personShouldBeAuthenticated(t, ctx, "Sue")
+}
+
+func TestSignInBeforeActivation(t *testing.T) {
+	ctx := setupTest(t)
+
+	// Given
+	personHasCreatedAnAccount(t, ctx, "Sue")
+
+	// When
+	personTriesToSignIn(t, ctx, "Sue")
+
+	// Then
+	personShouldNotBeAuthenticated(t, ctx, "Sue")
+	personShouldSeeAnErrorTellingThemToActivateTheAccount(t, ctx, "Sue")
+}
+
+func TestNewPersonCannotSeeProjects(t *testing.T) {
+	ctx := setupTest(t)
+
+	// Given
+	personHasSignedUp(t, ctx, "Sue")
+
+	// Then
+	personShouldNotSeeAnyProjects(t, ctx, "Sue")
+}
