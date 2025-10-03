@@ -156,4 +156,3 @@ func logServerOutput(prefix string, pipe io.ReadCloser) {
 		log.Printf("[SERVER %s] %s", prefix, line)
 	}
 }
-
