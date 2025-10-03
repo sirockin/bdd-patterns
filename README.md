@@ -2,47 +2,56 @@
 
 ## Overview
 
-This repo demonstrates the use of a range of BDD acceptance test patterns. It is intended to:
+Demonstration of a range of BDD acceptance test patterns. It is intended to:
 - demonstrate the pros, cons and applicability of different BDD patterns to different use cases
 - provide some usable boilerplate for quickly getting BDD acceptance tests up and running
-- show how we can reuse the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
+- demonstrate using the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
 
-Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more patterns and more languages.
+Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more acceptance test patterns and more languages.
 
-The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
+The original feature specifications are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
 
+## Build and Run Front and Back End
+```sh
+# Build both back end and front end
+make build
 
-## Run Tests
+# Build and run both frontend and backend concurrently
+make run
+```
 
+## Run Acceptance Tests
 
 From the subdirectory
 ```sh
 # cd to the pattern of your choice, eg...
 cd ./acceptance/go-suite
 
-# run all the tests
-make test-all
+# run tests against the http api
+make test-backend
+
+# run tests against the front end
+make test-frontend
+
+# (for go-based tests) run tests against the domain layer
+make test-domain
 
 ## or run help to choose a command to run a specific set of tests
 make help
 ```
 
-From the project root
+Or run the same targets from the root directory, providing the path to the SUBFOLDER as an optional parameter (default is `go-cucumber`):
 ```sh
-# run all the tests, specifying the subfolder
-make test-all SUBFOLDER=go-test-wrapper
-
-# run the fast tests, specifying the subfolder
-make test-fast SUBFOLDER=go-test-wrapper
-
+# run http tests for the go-suite pattern
+make test-backend SUBFOLDER=go-suite
 ```
 
 
 ## The Patterns
-- go-test-wrapper: tests entirely written in `go` using test wrapper pattern to inject different protocol drivers
-- go-suite: tests entirely written in `go` using suite pattern to inject different protocol drivers
-- go-cucumber: high level specs written in [gherkin](https://cucumber.io/docs/gherkin/reference) steps written in go, with [godog](https://github.com/cucumber/godog/tree/main/_examples) (the official cucumber go library) used as glue
-- go-cucumber-screenplay: as for go-cucumber but implements the screenplay pattern
+- **go-cucumber**: High level specs written in [Gherkin](https://cucumber.io/docs/gherkin/reference/) feature files, step definitions in Go, using [godog](https://github.com/cucumber/godog) (the official Cucumber library for Go)
+- **go-cucumber-screenplay**: Same as go-cucumber but implements the [Screenplay Pattern](https://cucumber.io/docs/bdd/screenplay/) for more composable and reusable test code
+- **go-suite**: Tests written in pure Go using [testify/suite](https://github.com/stretchr/testify#suite-package) with a fluent given/when/then API that reads like Gherkin
+- **go-test-wrapper**: Tests written in pure Go using standard `testing` package with a wrapper function that automatically runs each test against multiple protocol layers
 
 
 
@@ -52,13 +61,13 @@ The system under test (SUT) is a front end written in React that accesses a back
 
 The same high level specs are run for all cases and should result in identical interactions with the SUT.
 
+### Four-Layer Model
+
 We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20Guide%2026-03-21.pdf) comprising:
 1. Executable Specification: Readable specs, broken down into steps
 2. Domain Specific Language: Step implementations which call...
 3. Protocol Drivers: An abstraction of lowest-level interactions with the system
 4. System Under Test
-
-### Protocol Drivers
 
 The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
@@ -77,32 +86,6 @@ I hope to provide some examples with 2 and 3 removed (feel free to submit a PR) 
 - Level 3: Clearly this is useful if we want to test multiple layers but what if our only product is an API or a UI, not both? For a UI you're likely to write a Page Object Model (POM) (again to protect against brittleness). For an API you could be pragmatic and use an automatically generated client.
 
 
-### Development Workflow
-
-```sh
-# Fast feedback during development
-make test-fast
-
-# Before committing changes
-make test-integration
-
-# Full validation (CI/CD)
-make test-all
-```
-
-## Build and Run Server
-
-```sh
-# Build both back end and front end
-make build
-
-# Build and run backend server only
-make server
-
-# Build and run both frontend and backend concurrently
-make run
-```
-
 ## Contributing
 
 Please feel free to raise issues and PRs. 
@@ -111,10 +94,10 @@ Please feel free to raise issues and PRs.
 
 New examples are particularly welcome. If submitting please aim for the following to enable comparison of the patterns:
 
-- if using gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
+- if using Gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
 - use identical interactions with the system
-- where possible, as for existing examples, aim to run the same tests against UI and back end, ideally using protocol drivers. If your example is in go, use the same protocol drivers and provide a domain test. 
-- provide a makefile with the same target where relevant. 
+- where possible, as for existing examples, aim to run the same tests against UI and back end, ideally using protocol drivers. If your example is in Go, use the same protocol drivers and provide a domain test.
+- provide a Makefile with the same targets where relevant. 
 
 Thanks!
 

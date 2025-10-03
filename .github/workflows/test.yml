@@ -17,8 +17,8 @@ on:
 
 jobs:
   # Fast tests that run on every push
-  fast-tests:
-    name: Fast Tests (Domain + HTTP In-Process)
+  domain-tests:
+    name: Domain Acceptance Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -42,50 +42,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-
-    - name: Download backend dependencies
-      run: cd back-end && go mod download
-
-    - name: Download acceptance test dependencies
-      run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
-
-    - name: Run fast tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-fast
-
-    - name: Run go vet
-      run: make vet
-
-  # Integration tests including Docker (runs on PR and main branch pushes)
-  integration-tests:
-    name: Integration Tests (All Levels)
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    needs: fast-tests
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24'
-
-    - name: Cleanup Go cache
-      run: rm -rf ~/go/pkg/mod ~/.cache/go-build || true
-
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/go/pkg/mod
-          ~/.cache/go-build
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Download backend dependencies
       run: cd back-end && go mod download
@@ -96,17 +52,74 @@ jobs:
     - name: Run domain tests
       run: cd ${{ env.ACCEPTANCE_PATH }} && make test-domain
 
-    - name: Run HTTP in-process tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-inprocess
+    - name: Run go vet
+      run: make vet
 
-    - name: Run HTTP executable tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-executable
+  # Back and Front End tests (runs on PR and main branch pushes)
+  e2e-acceptance-tests:
+    name: Back and Front End Acceptance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: domain-tests
+    strategy:
+      matrix:
+        test-type: [backend, frontend]
+      fail-fast: false
 
-    - name: Run Docker container tests
-      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-http-docker
-      env:
-        # Ensure Docker tests run in CI
-        CI: true
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Cleanup Go cache
+      run: rm -rf ~/go/pkg/mod ~/.cache/go-build || true
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Set up Node.js (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cache Node modules (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      uses: actions/cache@v4
+      with:
+        path: front-end/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('front-end/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Playwright browsers (for frontend tests)
+      if: matrix.test-type == 'frontend'
+      run: npx playwright install --with-deps chromium
+
+    - name: Download backend dependencies
+      run: cd back-end && go mod download
+
+    - name: Download acceptance test dependencies
+      run: cd ${{ env.ACCEPTANCE_PATH }} && go mod download
+
+    - name: Run Backend tests
+      if: matrix.test-type == 'backend'
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-backend
+
+    - name: Run Frontend tests
+      if: matrix.test-type == 'frontend'
+      run: cd ${{ env.ACCEPTANCE_PATH }} && make test-frontend
 
     - name: Generate test coverage
       run: cd ${{ env.ACCEPTANCE_PATH }} && make coverage
@@ -198,14 +211,3 @@ jobs:
         sleep 2
         curl -f http://localhost:9999/accounts || true
         pkill -f "./back-end/bin/server" || true
-
-    - name: Build Docker image
-      run: docker build -f back-end/Dockerfile -t test-image back-end
-
-    - name: Test Docker image
-      run: |
-        docker run -d -p 8081:8080 --name test-container test-image
-        sleep 5
-        curl -f http://localhost:8081/accounts || true
-        docker stop test-container
-        docker rm test-container

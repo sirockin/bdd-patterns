@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npm install && react-scripts start",
+    "run": "npm install && BROWSER=none react-scripts start",
     "build": "npm install && react-scripts build",
     "test": "npm install && react-scripts test",
     "eject": "npm install && react-scripts eject"

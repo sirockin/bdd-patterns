@@ -1,4 +1,4 @@
-.PHONY: test test-domain test-http-inprocess test-http-executable test-http-docker test-ui test-fast test-integration test-all test-short coverage help
+.PHONY: test test-domain test-backend test-frontend test-all coverage help
 
 # Default target
 help: ## Show this help message
@@ -6,39 +6,23 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Individual test targets
-test-domain: ## Run application unit tests (fastest)
-	go test -v -run TestApplication .
+test-domain: ## Run domain tests (fastest)
+	go test -v -run TestDomain .
 
-test-http-inprocess: ## Run in-process HTTP integration tests
-	go test -v -run TestHTTPInProcess .
+test-backend: ## Run backend tests with real server
+	go test -v -run TestBackEnd .
 
-test-http-executable: ## Run real server executable tests
-	go test -v -run TestHttpExecutable .
-
-test-http-docker: ## Run Docker container tests (slowest)
-	go test -v -run TestHttpDocker .
-
-test-ui: ## Run UI tests with frontend and API containers (requires Docker)
-	go test -v -run TestUI .
+test-frontend: ## Run frontend tests with both backend and frontend (requires npm)
+	go test -v -run TestFrontEnd .
 
 # Test suites
-test-fast: ## Run fast tests (application + in-process HTTP)
-	go test -v -run "TestApplication|TestHTTPInProcess" .
-
-test-integration: ## Run all integration tests (excluding Docker and UI)
-	go test -v -run "TestHTTPInProcess|TestHttpExecutable" .
-
-test-all: ## Run all tests including Docker and UI (full suite)
+test-all: ## Run all tests (full suite)
 	go test -v .
 
-test: test-fast ## Default test target (fast tests only)
-
-# Test with short mode (unit tests only)
-test-short: ## Run tests in short mode (skips slow integration tests)
-	go test -short -v .
+test: test-domain ## Default test target (domain tests only)
 
 # Coverage
 coverage: ## Run tests with coverage
 	go test -coverprofile=coverage.out .
 	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: acceptance/coverage.html"
+	@echo "Coverage report generated: coverage.html"

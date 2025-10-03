@@ -21,7 +21,7 @@ func (s *suite) Actor(name string) *screenplay.Actor {
 	return s.actors[name]
 }
 
-func RunSuite(t *testing.T, driver driver.TestDriver, featurePaths []string) {
+func RunSuite(t *testing.T, driver driver.TestDriver) {
 	suite := godog.TestSuite{
 		ScenarioInitializer: func(ctx *godog.ScenarioContext) {
 			s := &suite{
@@ -47,7 +47,7 @@ func RunSuite(t *testing.T, driver driver.TestDriver, featurePaths []string) {
 		},
 		Options: &godog.Options{
 			Format:   "pretty",
-			Paths:    featurePaths,
+			Paths:    []string{"."},
 			TestingT: t, // Testing instance that will run subtests.
 		},
 	}

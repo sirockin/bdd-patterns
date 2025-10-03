@@ -1,4 +1,4 @@
-.PHONY: clean build run help lint fmt vet sec test test-all test-fast coverage
+.PHONY: clean build run help lint fmt vet sec test test-all test-domain test-backend test-frontend coverage install-frontend
 
 # Default target
 help: ## Show this help message
@@ -15,21 +15,45 @@ test: ## Run tests (USAGE: make test SUBFOLDER={subfolder}, default: go-cucumber
 test-all: ## Run all tests (USAGE: make test-all SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) test-all
 
-test-fast: ## Run fast tests (USAGE: make test-fast SUBFOLDER={subfolder}, default: go-cucumber)
-	cd acceptance/$(SUBFOLDER) && $(MAKE) test-fast
+test-domain: ## Run domain tests (USAGE: make test-domain SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-domain
+
+test-backend: ## Run backend tests with real server (USAGE: make test-backend SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-backend
+
+test-frontend: ## Run frontend tests (USAGE: make test-frontend SUBFOLDER={subfolder}, default: go-cucumber)
+	cd acceptance/$(SUBFOLDER) && $(MAKE) test-frontend
 
 coverage: ## Run tests with coverage (USAGE: make coverage SUBFOLDER={subfolder}, default: go-cucumber)
 	cd acceptance/$(SUBFOLDER) && $(MAKE) coverage
 
-# Build targets
-build: ## Build both backend and frontend
-	cd back-end && make build
+# Build
+build: build-backend build-frontend ## Build both backend and frontend
+
+install-frontend: ## Install frontend dependencies
+	cd front-end && npm ci
+
+build-frontend: install-frontend ## Build frontend only
 	cd front-end && npm run build
 
-run: build ## Build and run both backend server and frontend
+build-backend: ## Build backend only
+	cd back-end && make build
+
+# Run
+run: build
 	@echo "Starting backend server and frontend..."
-	@cd back-end && ./bin/server & \
-	cd front-end && npm start
+	@trap 'kill 0' EXIT; \
+	cd back-end && ./bin/server & \
+	cd front-end && npm run run
+
+
+run-frontend: build-frontend ## Build and run frontend only
+	@echo "Starting frontend..."
+	@cd front-end && npm run run
+
+run-backend: build-backend ## Build and run backend only
+	@echo "Starting backend server..."
+	@cd back-end && ./bin/server
 
 # Clean up
 clean: ## Clean build artifacts
@@ -44,12 +68,14 @@ vet: ## Run go vet
 	cd back-end && go vet ./...
 	cd acceptance/go-cucumber && go vet ./...
 	cd acceptance/go-cucumber-screenplay && go vet ./...
+	cd acceptance/go-suite && go vet ./...
 	cd acceptance/go-test-wrapper && go vet ./...
 
 sec: ## Run security checks with gosec
 	cd back-end && gosec ./...
 	cd acceptance/go-cucumber && gosec ./...
 	cd acceptance/go-cucumber-screenplay && gosec ./...
+	cd acceptance/go-suite && gosec ./...
 	cd acceptance/go-test-wrapper && gosec ./...
 
 lint: fmt vet sec ## Run formatting and vetting

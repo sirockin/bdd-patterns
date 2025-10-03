@@ -7,35 +7,19 @@ help: ## Show this help message
 
 # Individual test targets
 test-domain: ## Run application unit tests (fastest)
-	RUN_APPLICATION=true RUN_HTTP_INPROCESS=false RUN_HTTP_EXECUTABLE=false RUN_HTTP_DOCKER=false RUN_UI=false go test -v .
+	TEST_TYPE=application go test -v .
 
-test-http-inprocess: ## Run in-process HTTP integration tests
-	RUN_APPLICATION=false RUN_HTTP_INPROCESS=true RUN_HTTP_EXECUTABLE=false RUN_HTTP_DOCKER=false RUN_UI=false go test -v .
+test-backend: ## Run in-process HTTP integration tests
+	TEST_TYPE=back-end go test -v .
 
-test-http-executable: ## Run real server executable tests
-	RUN_APPLICATION=false RUN_HTTP_INPROCESS=false RUN_HTTP_EXECUTABLE=true RUN_HTTP_DOCKER=false RUN_UI=false go test -v .
-
-test-http-docker: ## Run Docker container tests (slowest)
-	RUN_APPLICATION=false RUN_HTTP_INPROCESS=false RUN_HTTP_EXECUTABLE=false RUN_HTTP_DOCKER=true RUN_UI=false go test -v .
-
-test-ui: ## Run UI tests with frontend and API containers (requires Docker)
-	RUN_APPLICATION=false RUN_HTTP_INPROCESS=false RUN_HTTP_EXECUTABLE=false RUN_HTTP_DOCKER=false RUN_UI=true go test -v .
+test-frontend: ## Run UI tests with frontend and API containers (requires Docker)
+	TEST_TYPE=front-end go test -v .
 
 # Test suites
-test-fast: ## Run fast tests (application + in-process HTTP)
-	RUN_APPLICATION=true RUN_HTTP_INPROCESS=true RUN_HTTP_EXECUTABLE=false RUN_HTTP_DOCKER=false RUN_UI=false go test -v .
-
-test-integration: ## Run all integration tests (excluding Docker and UI)
-	RUN_APPLICATION=false RUN_HTTP_INPROCESS=true RUN_HTTP_EXECUTABLE=true RUN_HTTP_DOCKER=false RUN_UI=false go test -v .
-
-test-all: ## Run all tests including Docker and UI (full suite)
+test-all: ## Run fast tests (application + in-process HTTP)
 	go test -v .
 
-test: test-fast ## Default test target (fast tests only)
-
-# Test with short mode (unit tests only)
-test-short: ## Run tests in short mode (skips slow integration tests)
-	go test -short -v .
+test: test-domain ## Default test target (application tests only)
 
 # Coverage
 coverage: ## Run tests with coverage
