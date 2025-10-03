@@ -64,7 +64,7 @@ The same high level specs are run for all cases and should result in identical i
 
 ### Four-Layer Model
 
-We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20Guide%2026-03-21.pdf) comprising:
+We mostly use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20Guide%2026-03-21.pdf) comprising:
 1. Executable Specification: Readable specs, broken down into steps
 2. Domain Specific Language: Step implementations which call...
 3. Protocol Drivers: An abstraction of lowest-level interactions with the system
@@ -72,8 +72,11 @@ We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20G
 
 The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
-To do this, we define a `TestDriver` interface and drivers for each layer we want to test. 
+define a `TestDriver` interface and drivers for each layer we want to test. 
 
+The `go-simple-ui` pattern omits the protocol driver layer and calls the UI directly from the step implementations. 
+
+To do this, we 
 
 ### Are these intermediate layers really necessary?
 
@@ -81,10 +84,17 @@ Abstractions and layers can help us reason about a system but too many can cause
 
 Clearly we need 1. and 4. (otherwise we have no tests and nothing to test) but what about 2 and 3?
 
-I hope to provide some examples with 2 and 3 removed (feel free to submit a PR) but for now I will argue:
+#### Level 2: Domain Specific Language
+Whether we want to call them a Domain Specific Language or not, breaking our tests down into reusable steps with meaningful names, makes them a lot easier to reason about and easier to fix if an implementation change breaks them.
 
-- Level 2: Whether we want to call them a Domain Specific Language or not, breaking our tests down into reusable steps with meaningful names, makes them a lot easier to reason about and easier to fix if an implementation change breaks them.
-- Level 3: Clearly this is useful if we want to test multiple layers but what if our only product is an API or a UI, not both? For a UI you're likely to write a Page Object Model (POM) (again to protect against brittleness). For an API you could be pragmatic and use an automatically generated client.
+#### Level 3: Protocol Drivers
+
+Clearly this is useful if we want to test multiple layers but what if our only product is an API or a UI, not both? For a UI you're likely to write a Page Object Model (POM) which is in itself an extra layer, albeit coupled to the page structure. For an API you could be pragmatic and use an automatically generated client. 
+
+
+### Exceptions to the Four-Layer Model
+
+- `go-simple-ui` which omits the driver layer and calls the UI directly from the step implementations. It is simpler but more brittle and can only be used to test the UI, not the API or domain layer.
 
 
 ## Contributing
