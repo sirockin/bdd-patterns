@@ -48,10 +48,10 @@ make test-backend SUBFOLDER=go-suite
 
 
 ## The Patterns
-- go-test-wrapper: tests entirely written in `go` using test wrapper pattern to inject different protocol drivers
-- go-suite: tests entirely written in `go` using suite pattern to inject different protocol drivers
-- go-cucumber: high level specs written in [gherkin](https://cucumber.io/docs/gherkin/reference) steps written in go, with [godog](https://github.com/cucumber/godog/tree/main/_examples) (the official cucumber go library) used as glue
-- go-cucumber-screenplay: as for go-cucumber but implements the screenplay pattern
+- **go-cucumber**: High level specs written in [Gherkin](https://cucumber.io/docs/gherkin/reference/) feature files, step definitions in Go, using [godog](https://github.com/cucumber/godog) (the official Cucumber library for Go)
+- **go-cucumber-screenplay**: Same as go-cucumber but implements the [Screenplay Pattern](https://cucumber.io/docs/bdd/screenplay/) for more composable and reusable test code
+- **go-suite**: Tests written in pure Go using [testify/suite](https://github.com/stretchr/testify#suite-package) with a fluent given/when/then API that reads like Gherkin
+- **go-test-wrapper**: Tests written in pure Go using standard `testing` package with a wrapper function that automatically runs each test against multiple protocol layers
 
 
 
@@ -94,10 +94,10 @@ Please feel free to raise issues and PRs.
 
 New examples are particularly welcome. If submitting please aim for the following to enable comparison of the patterns:
 
-- if using gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
+- if using Gherkin, use identical feature files. Otherwise use the same feature categories, scenario wording, and if possible the same step names
 - use identical interactions with the system
-- where possible, as for existing examples, aim to run the same tests against UI and back end, ideally using protocol drivers. If your example is in go, use the same protocol drivers and provide a domain test. 
-- provide a makefile with the same target where relevant. 
+- where possible, as for existing examples, aim to run the same tests against UI and back end, ideally using protocol drivers. If your example is in Go, use the same protocol drivers and provide a domain test.
+- provide a Makefile with the same targets where relevant. 
 
 Thanks!
 
