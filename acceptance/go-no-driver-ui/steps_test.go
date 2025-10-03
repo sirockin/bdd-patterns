@@ -10,61 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testContext struct {
-	browser     playwright.Browser
-	context     playwright.BrowserContext
-	page        playwright.Page
-	frontendURL string
-	lastErrors  map[string]error
-}
-
-func newTestContext(t *testing.T, frontendURL string) *testContext {
-	err := playwright.Install()
-	if err != nil {
-		t.Fatalf("failed to install playwright: %v", err)
-	}
-
-	pw, err := playwright.Run()
-	if err != nil {
-		t.Fatalf("failed to start playwright: %v", err)
-	}
-
-	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: playwright.Bool(true),
-	})
-	if err != nil {
-		t.Fatalf("failed to launch browser: %v", err)
-	}
-
-	context, err := browser.NewContext()
-	if err != nil {
-		t.Fatalf("failed to create browser context: %v", err)
-	}
-
-	page, err := context.NewPage()
-	if err != nil {
-		t.Fatalf("failed to create page: %v", err)
-	}
-
-	ctx := &testContext{
-		browser:     browser,
-		context:     context,
-		page:        page,
-		frontendURL: frontendURL,
-		lastErrors:  make(map[string]error),
-	}
-
-	t.Cleanup(func() {
-		if ctx.browser != nil {
-			if err := ctx.browser.Close(); err != nil {
-				t.Logf("Warning: Failed to close browser: %v", err)
-			}
-		}
-	})
-
-	return ctx
-}
-
 func personHasCreatedAnAccount(t *testing.T, ctx *testContext, name string) {
 	t.Helper()
 
