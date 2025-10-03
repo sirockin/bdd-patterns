@@ -2,14 +2,14 @@
 
 ## Overview
 
-This repo demonstrates the use of a range of BDD acceptance test patterns. It is intended to:
+Demonstration of a range of BDD acceptance test patterns. It is intended to:
 - demonstrate the pros, cons and applicability of different BDD patterns to different use cases
 - provide some usable boilerplate for quickly getting BDD acceptance tests up and running
-- show how we can reuse the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
+- demonstrate using the same set of high level test specs to test different parts of the system, by injecting different protocol drivers
 
-Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more patterns and more languages.
+Currently all the examples (and the API part of the system under test) are written in `go`, but I would like to add more acceptance test patterns and more languages.
 
-The features are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
+The original feature specifications are based on the official [Cucumber Screenplay Example](https://github.com/cucumber-school/screenplay-example/tree/code).
 
 ## Build and Run Front and Back End
 ```sh
@@ -61,13 +61,13 @@ The system under test (SUT) is a front end written in React that accesses a back
 
 The same high level specs are run for all cases and should result in identical interactions with the SUT.
 
+### Four-Layer Model
+
 We use a [four-layer model](https://continuous-delivery.co.uk/downloads/ATDD%20Guide%2026-03-21.pdf) comprising:
 1. Executable Specification: Readable specs, broken down into steps
 2. Domain Specific Language: Step implementations which call...
 3. Protocol Drivers: An abstraction of lowest-level interactions with the system
 4. System Under Test
-
-### Protocol Drivers
 
 The protocol driver layer allows us to test different parts of the system - in our case the UI, back end http service and domain layer - using the same tests.
 
